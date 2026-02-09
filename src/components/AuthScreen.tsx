@@ -9,6 +9,7 @@ const AuthScreen: React.FC = () => {
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
+  const [checkEmail, setCheckEmail] = useState(false);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -17,12 +18,17 @@ const AuthScreen: React.FC = () => {
 
     try {
       if (mode === 'signup') {
-        const { error: signUpError } = await supabase.auth.signUp({
+        const { data, error: signUpError } = await supabase.auth.signUp({
           email,
           password,
           options: { data: { name } },
         });
         if (signUpError) throw signUpError;
+        // If email confirmation is required, session will be null
+        if (data.user && !data.session) {
+          setCheckEmail(true);
+          return;
+        }
       } else {
         const { error: signInError } = await supabase.auth.signInWithPassword({
           email,
@@ -111,6 +117,14 @@ const AuthScreen: React.FC = () => {
               required
             />
           </div>
+
+          {/* Check email notice */}
+          {checkEmail && (
+            <div className="flex items-start gap-2 bg-[#d4af37]/10 border border-[#d4af37]/20 rounded-xl p-3">
+              <AlertCircle size={16} className="text-[#d4af37] mt-0.5 shrink-0" />
+              <p className="text-[#d4af37] text-sm">Check your email for a confirmation link, then come back and sign in.</p>
+            </div>
+          )}
 
           {/* Error */}
           {error && (
