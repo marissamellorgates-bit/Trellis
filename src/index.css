@@ -1,0 +1,12 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@keyframes float-away {
+  0% { transform: translate(0, 0); opacity: 1; }
+  100% { transform: translate(60px, -60px); opacity: 0; }
+}
+
+.animate-float-away {
+  animation: float-away 4s infinite linear;
+}

@@ -1,0 +1,19 @@
+{
+  "permissions": {
+    "allow": [
+      "WebFetch(domain:docs.google.com)",
+      "Bash(npm run typecheck:*)",
+      "Bash(/usr/local/bin/npm:*)",
+      "Bash(export PATH=\"/usr/local/Cellar/node/17.3.0/bin:$PATH\")",
+      "Bash(node:*)",
+      "Bash(mdfind:*)",
+      "Bash(grep:*)",
+      "Bash(brew --version:*)",
+      "Bash(/opt/homebrew/bin/brew:*)",
+      "Bash(curl:*)",
+      "Bash(bash:*)",
+      "Bash(echo:*)",
+      "Bash(export PATH=\"/tmp/node-v20.11.1-darwin-x64/bin:$PATH\")"
+    ]
+  }
+}

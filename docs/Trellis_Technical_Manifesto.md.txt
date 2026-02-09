@@ -1,0 +1,71 @@
+﻿TRELLIS: Technical Architecture & Product Manifesto
+Version: 1.0 (Prototype to Production)
+Mission: To architect a holistic life operating system based on Permacognition principles, fractal growth, and community pollination.
+1. EXECUTIVE SUMMARY
+Trellis is not a productivity app; it is an Ontology Engine. It maps the user's existence across three domains (Land, Sea, Sky) and facilitates growth using natural system metaphors.
+The application distinguishes itself through Procedural Art (growing 3D plants based on user progress), Fractal Logic (micro-cycles of growth), and Ecosystem Management (linking individual growth to family and community).
+2. THE TECH STACK (Production Recommendation)
+To support the "Living Garden" features and real-time family sync, we will move from the static prototype to this stack:
+* Frontend: React + Vite (Fast, modern web framework).
+* Language: TypeScript (Crucial for managing complex family data structures safely).
+* Styling: Tailwind CSS (For the "Naturalist/Futurist" aesthetic).
+* Backend & Database: Supabase (PostgreSQL).
+   * Why: We need strong "Relational" data to link Families -> Communities -> Projects. Supabase handles this better than Firebase.
+* AI Engine: OpenAI API (GPT-4o) or Gemini 1.5 Pro.
+   * Role: Powers "The Guide" (Chatbot) and the "Spark Architect" (Auto-mapping dreams to domains).
+* Deployment: Vercel PWA (Progressive Web App).
+   * Why: Allows users to install Trellis on their phones without going through the Apple App Store initially.
+3. CORE DATA ARCHITECTURE (The "Soil")
+A. The Ontology (Static Reference)
+* Land: Spiritual, Physical, Psychological, Passion.
+* Sea: Intellectual, Financial, Career.
+* Sky: Family, Social, Environment.
+B. The Database Schema
+1. Profiles (Users):
+   * id, email, family_id (links to Ecosystem), role (Leader/Member), level (Cultivator/Mentor/Think Tank).
+2. Ecosystems (Families):
+   * id, name, leaders (array of user_ids).
+3. Projects (The Plants):
+   * id, user_id, archetype (Sunflower/Oak/Cactus), current_module (1-7), status (Seed, Growing, Harvested).
+   * visibility (Private, Family, Work, Public).
+4. Cycles (The Growth Logs):
+   * id, project_id, module_step, reflection_data, timestamp.
+5. Communities (The Lattice):
+   * id, type (Work/Church/Town), members (array).
+4. THE VISUAL ENGINE (The "Art")
+The UI must feel "Hand-Crafted." We do not use standard progress bars.
+* Procedural SVG Generation: The plant visuals (Sunflower, Oak, Cactus) are generated via code (SVG paths), not static images.
+* Logic:
+   * Module 1 = Seed Logic (Hidden in soil).
+   * Module 2-4 = Vertical Growth (Stems/Trunks thicken based on cycle_count).
+   * Module 5 = Bloom (Requires community_interaction > 0).
+   * Module 6 = Fruit (Requires abundance_metrics).
+   * Module 7 = Harvest (Animation of seeds scattering).
+* Filters: Use SVG filters (<feTurbulence>, <feDisplacementMap>) to apply "watercolor" and "rough paper" textures dynamically.
+5. THE LOGIC ENGINES
+A. The Permacognition Engine (Fractal Growth)
+Every action is a loop, not a checkbox.
+* The Micro-Cycle: Observation    Analysis    Implementation    Reflection.
+* The Macro-Cycle (7 Modules): Seed    Soil    Root    Stem    Bloom    Fruit    Harvest.
+* Rule: A user cannot advance to the next Module without completing a specific number of Micro-Cycles (e.g., 3 "Root" actions to move to "Stem").
+B. The Prioritization Flow (Autopilot)
+The "Daily Flow" list is not sorted by time, but by System Balance.
+   * Priority Score = Project Alignment (50pts) + Neglected Domain Score (30pts) + Due Date (20pts).
+   * Effect: If "Land" scores are low, "Physical" tasks automatically float to the top.
+C. The Guide (AI Persona)
+   * System Prompt: "You are a Permaculture Architect for the mind. You do not give answers; you ask Socratic questions based on the 7-Module framework. You prioritize 'Earth Care, People Care, Fair Share' in all advice."
+6. DEVELOPMENT ROADMAP
+Phase 1: The Seed (Current Status)
+   * [x] Prototype UI in Bolt.
+   * [x] 3D Art Engine implementation.
+   * [x] Basic Logic for Family/Community switching.
+Phase 2: The Roots (Data & Auth) - NEXT STEP
+   * [ ] Export code to local environment (Cursor).
+   * [ ] Set up Supabase project.
+   * [ ] Create "Auth" (Login/Sign Up) screens.
+   * [ ] Save "Project State" to the database so it survives a refresh.
+Phase 3: The Bloom (Mobile & AI)
+   * [ ] Configure PWA (manifest.json) for mobile install.
+   * [ ] Connect OpenAI API for the "Guide" chat.
+   * [ ] Implement Push Notifications for "System Imbalance" alerts.
+"We are not building a tool. We are building a trellis for the human spirit."
