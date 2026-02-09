@@ -243,6 +243,9 @@ const App = () => {
         defaultMember.experienceLog = [];
         defaultMember.patternJournal = [];
         setFamilyMembers([defaultMember]);
+
+        // Insert profile row so future saves work
+        saveProfile(session.user.id, defaultMember);
       }
       setProfileLoaded(true);
     });

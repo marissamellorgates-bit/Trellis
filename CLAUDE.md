@@ -141,8 +141,8 @@ All types defined in `src/types.ts`. Key interfaces:
 - UI should feel "hand-crafted" — procedural/organic visuals
 
 ### Current Limitations
-- All state is local (no persistence — resets on refresh)
-- No backend integration despite Supabase dependency
+- ~~All state is local (no persistence — resets on refresh)~~ — Supabase profiles table with RLS
+- ~~No backend integration despite Supabase dependency~~ — Auth + profile persistence active
 - AI mentor is mocked with keyword matching
 - Plant stage gating not enforced (renders based on module number only)
 - `isFamilyMenuOpen` toggles a dropdown but no member selection is implemented (only 1 hardcoded member)
@@ -167,7 +167,7 @@ All types defined in `src/types.ts`. Key interfaces:
 
 **Phase 1.5: UI Gap Fixes (complete)** — Component extraction, TypeScript interfaces, module rituals, micro-cycle, tiered communities, Seed Discovery fix, Harvest persistence
 
-**Phase 2: The Roots (in progress)** — Supabase setup, auth, persist state, Leader Mode, ~~prioritization logic~~, ~~calendar sync~~, notifications
+**Phase 2: The Roots (in progress)** — ~~Supabase setup~~, ~~auth~~, ~~persist state~~, Leader Mode, ~~prioritization logic~~, ~~calendar sync~~, notifications
 
 **Phase 3: The Bloom (future)** — Real AI for The Guide (all 4 touchpoints), Guide personality, Spark Architect, PWA, push notifications, payments
 

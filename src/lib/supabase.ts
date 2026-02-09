@@ -138,8 +138,7 @@ export async function saveProfile(
 
   const { error } = await supabase
     .from('profiles')
-    .update(row)
-    .eq('id', userId);
+    .upsert({ id: userId, ...row });
 
   if (error) {
     console.error('Failed to save profile:', error.message);
