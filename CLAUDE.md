@@ -226,7 +226,11 @@ All types defined in `src/types.ts`. Key interfaces:
 - **Hosting:** Vercel (https://trellis-tau.vercel.app)
 - **Deploy method:** `npx vercel --prod` from project root (GitHub auto-deploy is not connected)
 - **Supabase project:** `hoslzlcbvdynwmsczvnj` (West US / Oregon)
-- **Supabase CLI:** Binary at `/tmp/supabase`, linked to project. Run SQL via Management API:
+- **Supabase CLI:** Binary at `/tmp/supabase`, linked to project ref `hoslzlcbvdynwmsczvnj`
+  - **Install:** `curl -L https://github.com/supabase/cli/releases/latest/download/supabase_darwin_amd64.tar.gz -o /tmp/supabase.tar.gz && tar -xzf /tmp/supabase.tar.gz -C /tmp/`
+  - **Login:** `/tmp/supabase login --no-browser` (opens auth URL, no tokens in chat)
+  - **Link:** `/tmp/supabase link --project-ref hoslzlcbvdynwmsczvnj`
+- **Run SQL via Management API:**
   ```bash
   curl -s -X POST "https://api.supabase.com/v1/projects/hoslzlcbvdynwmsczvnj/database/query" \
     -H "Authorization: Bearer <ACCESS_TOKEN>" \
