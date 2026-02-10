@@ -20,7 +20,7 @@ interface ToastItemProps {
 
 const ToastItem: React.FC<ToastItemProps> = ({ toast, onDismiss }) => {
   const [fading, setFading] = useState(false);
-  const duration = toast.duration ?? 4000;
+  const duration = toast.duration ?? 6000;
 
   useEffect(() => {
     const fadeTimer = setTimeout(() => setFading(true), duration - 300);

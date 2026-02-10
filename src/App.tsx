@@ -280,7 +280,6 @@ const App = () => {
   // ── Notification Helpers ────────────────────────────────────
 
   const notify = useCallback((notification: TrellisNotification, browserNotify = false) => {
-    console.warn('[TRELLIS] notify called:', notification.type, notification.title);
     setFamilyMembers(prev => prev.map(m => {
       if (m.id !== activeMemberId) return m;
       const existing = m.notifications ?? [];
@@ -295,16 +294,12 @@ const App = () => {
       saveProfile(session.user.id, { notifications: updatedNotifs });
     }
 
-    setToasts(prev => {
-      const next = [...prev, {
-        id: notification.id,
-        title: notification.title,
-        message: notification.message,
-        type: notification.type,
-      }];
-      console.warn('[TRELLIS] toasts updated, count:', next.length);
-      return next;
-    });
+    setToasts(prev => [...prev, {
+      id: notification.id,
+      title: notification.title,
+      message: notification.message,
+      type: notification.type,
+    }]);
 
     if (browserNotify) {
       sendBrowserNotification(notification.title, notification.message);
@@ -504,7 +499,6 @@ const App = () => {
     });
     const tierLabel = SOW_TIERS.find(t => t.tier === entry.tier)?.label ?? entry.tier;
     const domainLabel = goals[domain]?.label ?? domain;
-    console.warn('[TRELLIS] completeSow calling notify', tierLabel, domainLabel);
     notify(sowLoggedNotification(tierLabel, domainLabel));
     setShowSow(false);
   };
@@ -749,7 +743,7 @@ const App = () => {
             <span className="text-xs font-bold uppercase tracking-widest hidden md:inline">Consult Guide</span>
           </button>
           <div className="relative">
-            <button onClick={() => setShowNotifications(!showNotifications)} className="relative text-[#2c2c2a]/60 hover:text-[#2c2c2a]">
+            <button onClick={() => { if (!showNotifications) markAllNotificationsRead(); setShowNotifications(!showNotifications); }} className="relative text-[#2c2c2a]/60 hover:text-[#2c2c2a]">
               <Bell size={20}/>
               {(activeMember.notifications ?? []).filter(n => !n.read).length > 0 && (
                 <span className="absolute top-0 right-0 w-2 h-2 bg-[#d4af37] rounded-full"></span>
