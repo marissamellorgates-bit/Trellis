@@ -265,6 +265,7 @@ export interface ToastData {
 
 export interface NotificationCenterProps {
   notifications: TrellisNotification[];
+  onMarkRead: (id: string) => void;
   onMarkAllRead: () => void;
   onClear: () => void;
   onClose: () => void;

@@ -310,6 +310,20 @@ const App = () => {
     setToasts(prev => prev.filter(t => t.id !== id));
   }, []);
 
+  const markNotificationRead = useCallback((id: string) => {
+    setFamilyMembers(prev => prev.map(m => {
+      if (m.id !== activeMemberId) return m;
+      const updated = (m.notifications ?? []).map(n => n.id === id ? { ...n, read: true } : n);
+      return { ...m, notifications: updated };
+    }));
+    if (session?.user) {
+      const current = familyMembers.find(m => m.id === activeMemberId);
+      if (current) {
+        saveProfile(session.user.id, { notifications: (current.notifications ?? []).map(n => n.id === id ? { ...n, read: true } : n) });
+      }
+    }
+  }, [activeMemberId, session, familyMembers]);
+
   const markAllNotificationsRead = useCallback(() => {
     setFamilyMembers(prev => prev.map(m => {
       if (m.id !== activeMemberId) return m;
@@ -752,6 +766,7 @@ const App = () => {
             {showNotifications && (
               <NotificationCenter
                 notifications={activeMember.notifications ?? []}
+                onMarkRead={markNotificationRead}
                 onMarkAllRead={markAllNotificationsRead}
                 onClear={clearAllNotifications}
                 onClose={() => setShowNotifications(false)}

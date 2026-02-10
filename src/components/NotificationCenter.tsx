@@ -27,6 +27,7 @@ function timeAgo(timestamp: string): string {
 
 const NotificationCenter: React.FC<NotificationCenterProps> = ({
   notifications,
+  onMarkRead,
   onMarkAllRead,
   onClear,
   onClose,
@@ -84,10 +85,11 @@ const NotificationCenter: React.FC<NotificationCenterProps> = ({
             notifications.map(n => {
               const Icon = ICON_MAP[n.type] || CheckCircle2;
               return (
-                <div
+                <button
                   key={n.id}
-                  className={`flex items-start gap-3 px-4 py-3 border-b border-[#2c2c2a]/5 last:border-b-0 transition-colors ${
-                    !n.read ? 'bg-[#d4af37]/[0.03]' : ''
+                  onClick={() => !n.read && onMarkRead(n.id)}
+                  className={`w-full flex items-start gap-3 px-4 py-3 border-b border-[#2c2c2a]/5 last:border-b-0 transition-colors text-left ${
+                    !n.read ? 'bg-[#d4af37]/[0.03] hover:bg-[#d4af37]/[0.07] cursor-pointer' : ''
                   }`}
                 >
                   <div className="w-7 h-7 rounded-full bg-[#d4af37]/10 flex items-center justify-center shrink-0 mt-0.5">
@@ -103,7 +105,7 @@ const NotificationCenter: React.FC<NotificationCenterProps> = ({
                     <p className="text-[11px] text-[#2c2c2a]/50 mt-0.5 leading-relaxed">{n.message}</p>
                     <p className="text-[10px] text-[#2c2c2a]/25 mt-1">{timeAgo(n.timestamp)}</p>
                   </div>
-                </div>
+                </button>
               );
             })
           )}
