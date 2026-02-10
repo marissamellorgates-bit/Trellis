@@ -39,6 +39,7 @@ import CommunityGarden from './components/CommunityGarden';
 import SowModal from './components/SowModal';
 import ModuleWorkshopModal from './components/ModuleWorkshopModal';
 import ImportScheduleModal from './components/ImportScheduleModal';
+import LeaderHub from './components/LeaderHub';
 import AuthScreen from './components/AuthScreen';
 import { fetchGoogleCalendarEvents } from './lib/googleCalendar';
 import { supabase, supabaseConfigured, loadProfile, saveProfile } from './lib/supabase';
@@ -170,7 +171,7 @@ const App = () => {
 
   const [familyMembers, setFamilyMembers] = useState<FamilyMember[]>(INITIAL_FAMILY);
   const [activeMemberId] = useState(1);
-  const [viewMode, setViewMode] = useState<'dashboard' | 'flow' | 'community'>('dashboard');
+  const [viewMode, setViewMode] = useState<'dashboard' | 'flow' | 'community' | 'leader'>('dashboard');
   const [isFamilyMenuOpen, setIsFamilyMenuOpen] = useState(false);
   const [showAIMentor, setShowAIMentor] = useState(false);
   const [showSow, setShowSow] = useState(false);
@@ -628,13 +629,13 @@ const App = () => {
         <div className="flex items-center gap-8">
           <img src="/trellis-logo.png" alt="Trellis." className="h-14 mix-blend-multiply rounded-xl" />
           <div className="hidden md:flex gap-1 bg-[#2c2c2a]/5 p-1 rounded-full">
-            {(['dashboard', 'flow', 'community'] as const).map(mode => (
+            {(['dashboard', 'flow', 'community', 'leader'] as const).map(mode => (
               <button
                 key={mode}
                 onClick={() => setViewMode(mode)}
                 className={`px-4 py-1.5 rounded-full text-[10px] font-bold uppercase tracking-widest transition-all ${viewMode === mode ? 'bg-white shadow-sm text-[#2c2c2a]' : 'text-[#2c2c2a]/40 hover:text-[#2c2c2a]'}`}
               >
-                {mode === 'flow' ? 'Daily Flow' : mode.charAt(0).toUpperCase() + mode.slice(1)}
+                {mode === 'flow' ? 'Daily Flow' : mode === 'leader' ? 'Leader Hub' : mode.charAt(0).toUpperCase() + mode.slice(1)}
               </button>
             ))}
           </div>
@@ -672,6 +673,7 @@ const App = () => {
       <main className="max-w-6xl mx-auto px-6 py-12 space-y-12">
         {viewMode === 'flow' && <FlowView schedule={schedule} tasks={tasks} goals={goals} onToggleTask={toggleTask} onCompleteScheduleItem={completeScheduleItem} completedScheduleItems={completedScheduleItems} onOpenImport={() => setShowImportSchedule(true)} />}
         {viewMode === 'community' && <CommunityGarden projects={COMMUNITY_PROJECTS} />}
+        {viewMode === 'leader' && <LeaderHub currentMember={activeMember} />}
         {viewMode === 'dashboard' && (
           <div className="space-y-12">
             {activeMember.projectTitle ? (

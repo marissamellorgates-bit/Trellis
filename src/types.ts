@@ -309,3 +309,7 @@ export interface ModuleWorkshopModalProps {
   member: FamilyMember;
   onUpdateMember: (updates: Partial<FamilyMember>) => void;
 }
+
+export interface LeaderHubProps {
+  currentMember: FamilyMember;
+}

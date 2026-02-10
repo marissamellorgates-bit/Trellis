@@ -48,6 +48,7 @@ src/
     ├── HarvestModal.tsx             # Module 7 completion: wisdom capture + seed scattering
     ├── FlowView.tsx                 # Daily schedule + prioritized task list
     ├── CommunityGarden.tsx          # Community projects with tiered water/graft interactions
+    ├── LeaderHub.tsx                # Family garden overview — read-only member card grid + detail modal
     ├── MicroCycleModal.tsx          # Standalone 4-step practice (Observe → Analyze → Implement → Reflect)
     └── ModuleRitualModal.tsx        # Unique rituals for Modules 2-6
 ```
@@ -167,7 +168,7 @@ All types defined in `src/types.ts`. Key interfaces:
 
 **Phase 1.5: UI Gap Fixes (complete)** — Component extraction, TypeScript interfaces, module rituals, micro-cycle, tiered communities, Seed Discovery fix, Harvest persistence
 
-**Phase 2: The Roots (in progress)** — ~~Supabase setup~~, ~~auth~~, ~~persist state~~, Leader Mode, ~~prioritization logic~~, ~~calendar sync~~, notifications
+**Phase 2: The Roots (in progress)** — ~~Supabase setup~~, ~~auth~~, ~~persist state~~, ~~Leader Mode~~, ~~prioritization logic~~, ~~calendar sync~~, notifications
 
 **Phase 3: The Bloom (future)** — Real AI for The Guide (all 4 touchpoints), Guide personality, Spark Architect, PWA, push notifications, payments
 
