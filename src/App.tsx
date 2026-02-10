@@ -757,7 +757,7 @@ const App = () => {
             <span className="text-xs font-bold uppercase tracking-widest hidden md:inline">Consult Guide</span>
           </button>
           <div className="relative">
-            <button onClick={() => { if (!showNotifications) markAllNotificationsRead(); setShowNotifications(!showNotifications); }} className="relative text-[#2c2c2a]/60 hover:text-[#2c2c2a]">
+            <button onClick={() => setShowNotifications(!showNotifications)} className="relative text-[#2c2c2a]/60 hover:text-[#2c2c2a]">
               <Bell size={20}/>
               {(activeMember.notifications ?? []).filter(n => !n.read).length > 0 && (
                 <span className="absolute top-0 right-0 w-2 h-2 bg-[#d4af37] rounded-full"></span>
