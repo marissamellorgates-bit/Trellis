@@ -28,6 +28,7 @@ import type {
   GoalsMap, DomainKey, MetaDomain, DomainConfig, DomainSubGroup, Task, ScheduleItem,
   FamilyMember, CommunityProject, CommunityConfig, PlantArchetype,
   EthicsCheck, HarvestRecord, SowEntry, SowTier, ModuleInfo,
+  TrellisNotification, ToastData,
 } from './types';
 import { ARCHETYPE_INFO, SOW_TIERS } from './types';
 
@@ -41,8 +42,16 @@ import ModuleWorkshopModal from './components/ModuleWorkshopModal';
 import ImportScheduleModal from './components/ImportScheduleModal';
 import LeaderHub from './components/LeaderHub';
 import AuthScreen from './components/AuthScreen';
+import ToastContainer from './components/Toast';
+import NotificationCenter from './components/NotificationCenter';
 import { fetchGoogleCalendarEvents } from './lib/googleCalendar';
 import { supabase, supabaseConfigured, loadProfile, saveProfile } from './lib/supabase';
+import {
+  moduleAdvanceNotification, harvestCompleteNotification,
+  sowLoggedNotification, taskCompleteNotification,
+  scheduleCompleteNotification, calendarSyncNotification,
+  detectImbalance, sendBrowserNotification,
+} from './lib/notifications';
 
 // ── Constants ─────────────────────────────────────────────────
 
@@ -133,6 +142,7 @@ const INITIAL_FAMILY: FamilyMember[] = [
     questionMap: [],
     experienceLog: [],
     patternJournal: [],
+    notifications: [],
   }
 ];
 
@@ -180,6 +190,9 @@ const App = () => {
   const [completedScheduleItems, setCompletedScheduleItems] = useState<Set<string>>(new Set());
   const [googleToken, setGoogleToken] = useState<string | null>(null);
   const syncIntervalRef = useRef<ReturnType<typeof setInterval> | null>(null);
+  const [toasts, setToasts] = useState<ToastData[]>([]);
+  const [showNotifications, setShowNotifications] = useState(false);
+  const imbalanceCooldownRef = useRef(0);
 
   const activeMember = familyMembers.find(m => m.id === activeMemberId) || familyMembers[0];
   const goals = activeMember.goals;
@@ -243,6 +256,7 @@ const App = () => {
         defaultMember.questionMap = [];
         defaultMember.experienceLog = [];
         defaultMember.patternJournal = [];
+        defaultMember.notifications = [];
         setFamilyMembers([defaultMember]);
 
         // Insert profile row so future saves work
@@ -260,6 +274,62 @@ const App = () => {
     // Fire-and-forget DB save
     if (session?.user) {
       saveProfile(session.user.id, updates);
+    }
+  }, [activeMemberId, session]);
+
+  // ── Notification Helpers ────────────────────────────────────
+
+  const notify = useCallback((notification: TrellisNotification, browserNotify = false) => {
+    setFamilyMembers(prev => prev.map(m => {
+      if (m.id !== activeMemberId) return m;
+      const updated = [notification, ...m.notifications].slice(0, 50);
+      return { ...m, notifications: updated };
+    }));
+
+    if (session?.user) {
+      const current = familyMembers.find(m => m.id === activeMemberId);
+      const updatedNotifs = current
+        ? [notification, ...current.notifications].slice(0, 50)
+        : [notification];
+      saveProfile(session.user.id, { notifications: updatedNotifs });
+    }
+
+    setToasts(prev => [...prev, {
+      id: notification.id,
+      title: notification.title,
+      message: notification.message,
+      type: notification.type,
+    }]);
+
+    if (browserNotify) {
+      sendBrowserNotification(notification.title, notification.message);
+    }
+  }, [activeMemberId, session, familyMembers]);
+
+  const dismissToast = useCallback((id: string) => {
+    setToasts(prev => prev.filter(t => t.id !== id));
+  }, []);
+
+  const markAllNotificationsRead = useCallback(() => {
+    setFamilyMembers(prev => prev.map(m => {
+      if (m.id !== activeMemberId) return m;
+      const updated = m.notifications.map(n => ({ ...n, read: true }));
+      return { ...m, notifications: updated };
+    }));
+    if (session?.user) {
+      const current = familyMembers.find(m => m.id === activeMemberId);
+      if (current) {
+        saveProfile(session.user.id, { notifications: current.notifications.map(n => ({ ...n, read: true })) });
+      }
+    }
+  }, [activeMemberId, session, familyMembers]);
+
+  const clearAllNotifications = useCallback(() => {
+    setFamilyMembers(prev => prev.map(m =>
+      m.id === activeMemberId ? { ...m, notifications: [] } : m
+    ));
+    if (session?.user) {
+      saveProfile(session.user.id, { notifications: [] });
     }
   }, [activeMemberId, session]);
 
@@ -385,6 +455,7 @@ const App = () => {
       experienceLog: [],
       patternJournal: [],
     });
+    notify(harvestCompleteNotification(activeMember.projectTitle));
     setIsSynthesizing(false);
     setHarvestWisdom("");
     setHarvestSharing([]);
@@ -396,6 +467,8 @@ const App = () => {
     const next = activeMember.currentModule + 1;
     if (next <= 7) {
       updateActiveMember({ currentModule: next });
+      const mod = PERMACOGNITION_MODULES[next - 1];
+      if (mod) notify(moduleAdvanceNotification(next, mod.title));
     } else {
       setIsSynthesizing(true);
     }
@@ -424,6 +497,9 @@ const App = () => {
       sowLog: [...activeMember.sowLog, newEntry],
       goals: updatedGoals,
     });
+    const tierLabel = SOW_TIERS.find(t => t.tier === entry.tier)?.label ?? entry.tier;
+    const domainLabel = goals[domain]?.label ?? domain;
+    notify(sowLoggedNotification(tierLabel, domainLabel));
     setShowSow(false);
   };
 
@@ -474,6 +550,9 @@ const App = () => {
         const merged = [...nonGoogle, ...keptGoogle, ...freshEvents].sort((a, b) => a.time.localeCompare(b.time));
         return { ...m, schedule: merged };
       }));
+      if (freshEvents.length > 0) {
+        notify(calendarSyncNotification(freshEvents.length));
+      }
     } catch {
       // Token expired — stop syncing
       setGoogleToken(null);
@@ -497,6 +576,17 @@ const App = () => {
       if (syncIntervalRef.current) clearInterval(syncIntervalRef.current);
     };
   }, [googleToken]);
+
+  // ── Imbalance Detection ──────────────────────────────────
+  useEffect(() => {
+    const now = Date.now();
+    if (now - imbalanceCooldownRef.current < 60 * 60 * 1000) return;
+    const alert = detectImbalance(landScore, seaScore, skyScore);
+    if (alert) {
+      imbalanceCooldownRef.current = now;
+      notify(alert, true);
+    }
+  }, [landScore, seaScore, skyScore]);
 
   const autoSow = (note: string, domain: DomainKey | string, tier: SowTier) => {
     const entry: SowEntry = {
@@ -530,6 +620,7 @@ const App = () => {
     if (!wasDone) {
       const tier = tierFromMinutes(task.estimatedMinutes ?? 15);
       autoSow(`Completed: ${task.title}`, task.domain, tier);
+      notify(taskCompleteNotification(task.title));
     }
   };
 
@@ -546,6 +637,7 @@ const App = () => {
       item.type === 'bio' ? 'biological' :
       'professionalExchange';
     autoSow(`Completed: ${item.title}`, domainGuess, tier);
+    notify(scheduleCompleteNotification(item.title));
   };
 
   // ── Render ────────────────────────────────────────────────
@@ -578,6 +670,7 @@ const App = () => {
 
   return (
     <div className="min-h-screen bg-[#fdfbf7] text-[#2c2c2a] font-sans selection:bg-[#2c2c2a] selection:text-[#fdfbf7]">
+      <ToastContainer toasts={toasts} onDismiss={dismissToast} />
       <AIMentorPanel
         isOpen={showAIMentor}
         onClose={() => setShowAIMentor(false)}
@@ -649,7 +742,22 @@ const App = () => {
             <Sparkles size={16} />
             <span className="text-xs font-bold uppercase tracking-widest hidden md:inline">Consult Guide</span>
           </button>
-          <button className="relative text-[#2c2c2a]/60 hover:text-[#2c2c2a]"><Bell size={20}/><span className="absolute top-0 right-0 w-2 h-2 bg-[#d4af37] rounded-full"></span></button>
+          <div className="relative">
+            <button onClick={() => setShowNotifications(!showNotifications)} className="relative text-[#2c2c2a]/60 hover:text-[#2c2c2a]">
+              <Bell size={20}/>
+              {activeMember.notifications.filter(n => !n.read).length > 0 && (
+                <span className="absolute top-0 right-0 w-2 h-2 bg-[#d4af37] rounded-full"></span>
+              )}
+            </button>
+            {showNotifications && (
+              <NotificationCenter
+                notifications={activeMember.notifications}
+                onMarkAllRead={markAllNotificationsRead}
+                onClear={clearAllNotifications}
+                onClose={() => setShowNotifications(false)}
+              />
+            )}
+          </div>
           <div className="relative">
             <button className="flex items-center gap-3 bg-[#2c2c2a] text-[#fdfbf7] px-4 py-2 rounded-full hover:bg-[#d4af37] hover:text-[#2c2c2a] transition-all" onClick={() => setIsFamilyMenuOpen(!isFamilyMenuOpen)}>
               <span className="text-xs font-bold uppercase tracking-widest">{activeMember.name}</span>

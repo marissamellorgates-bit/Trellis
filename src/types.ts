@@ -230,6 +230,44 @@ export interface FamilyMember {
   questionMap: QuestionEntry[];
   experienceLog: ExperienceEntry[];
   patternJournal: PatternEntry[];
+  notifications: TrellisNotification[];
+}
+
+// ── Notifications ──────────────────────────────────────────────
+
+export type NotificationType =
+  | 'module_advance'
+  | 'harvest_complete'
+  | 'sow_logged'
+  | 'task_complete'
+  | 'schedule_complete'
+  | 'calendar_synced'
+  | 'imbalance_alert'
+  | 'system';
+
+export interface TrellisNotification {
+  id: string;
+  type: NotificationType;
+  title: string;
+  message: string;
+  timestamp: string;
+  read: boolean;
+  domain?: MetaDomain;
+}
+
+export interface ToastData {
+  id: string;
+  title: string;
+  message: string;
+  type: NotificationType;
+  duration?: number;
+}
+
+export interface NotificationCenterProps {
+  notifications: TrellisNotification[];
+  onMarkAllRead: () => void;
+  onClear: () => void;
+  onClose: () => void;
 }
 
 // ── AI Mentor ─────────────────────────────────────────────────

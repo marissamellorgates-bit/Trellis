@@ -43,6 +43,7 @@ interface ProfileRow {
   question_map: FamilyMember['questionMap'];
   experience_log: FamilyMember['experienceLog'];
   pattern_journal: FamilyMember['patternJournal'];
+  notifications: FamilyMember['notifications'];
 }
 
 // ── Serialization Helpers ────────────────────────────────────
@@ -104,6 +105,7 @@ export async function loadProfile(
     questionMap: row.question_map || [],
     experienceLog: row.experience_log || [],
     patternJournal: row.pattern_journal || [],
+    notifications: row.notifications || [],
   };
 }
 
@@ -133,6 +135,7 @@ export async function saveProfile(
   if (updates.questionMap !== undefined) row.question_map = updates.questionMap;
   if (updates.experienceLog !== undefined) row.experience_log = updates.experienceLog;
   if (updates.patternJournal !== undefined) row.pattern_journal = updates.patternJournal;
+  if (updates.notifications !== undefined) row.notifications = updates.notifications;
 
   if (Object.keys(row).length === 0) return;
 

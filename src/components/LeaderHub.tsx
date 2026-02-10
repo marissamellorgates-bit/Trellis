@@ -100,6 +100,7 @@ const MOCK_MEMBERS: Omit<FamilyMember, 'goals'>[] = [
     questionMap: [],
     experienceLog: [],
     patternJournal: [],
+    notifications: [],
   },
   {
     id: 101,
@@ -118,6 +119,7 @@ const MOCK_MEMBERS: Omit<FamilyMember, 'goals'>[] = [
     questionMap: [],
     experienceLog: [],
     patternJournal: [],
+    notifications: [],
   },
   {
     id: 102,
@@ -136,6 +138,7 @@ const MOCK_MEMBERS: Omit<FamilyMember, 'goals'>[] = [
     questionMap: [],
     experienceLog: [],
     patternJournal: [],
+    notifications: [],
   },
 ];
 

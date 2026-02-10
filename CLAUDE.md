@@ -41,7 +41,13 @@ src/
 ├── App.tsx                          # Root component, state management, layout
 ├── types.ts                         # All TypeScript interfaces and type definitions
 ├── index.css                        # Tailwind + custom keyframe animations
-├── main.tsx                         # React entry point
+├── main.tsx                         # React entry point + PWA service worker registration
+├── lib/
+│   ├── supabase.ts                  # Supabase client, profile load/save
+│   ├── notifications.ts             # Notification factories, imbalance detector, browser API
+│   ├── googleCalendar.ts            # Google Calendar API fetch
+│   ├── icsParser.ts                 # ICS file parser
+│   └── eventTypeMapper.ts           # Calendar event type mapping
 └── components/
     ├── PlantVisual.tsx              # Procedural SVG plant (7 stages, 3 archetypes)
     ├── AIMentorPanel.tsx            # Sliding side panel chat with The Guide (mocked)
@@ -50,7 +56,9 @@ src/
     ├── CommunityGarden.tsx          # Community projects with tiered water/graft interactions
     ├── LeaderHub.tsx                # Family garden overview — read-only member card grid + detail modal
     ├── MicroCycleModal.tsx          # Standalone 4-step practice (Observe → Analyze → Implement → Reflect)
-    └── ModuleRitualModal.tsx        # Unique rituals for Modules 2-6
+    ├── ModuleRitualModal.tsx        # Unique rituals for Modules 2-6
+    ├── Toast.tsx                    # Auto-dismissing toast notifications (bottom-right, z-200)
+    └── NotificationCenter.tsx       # Bell dropdown — notification history with mark-read/clear
 ```
 
 ### Key Components
@@ -168,9 +176,9 @@ All types defined in `src/types.ts`. Key interfaces:
 
 **Phase 1.5: UI Gap Fixes (complete)** — Component extraction, TypeScript interfaces, module rituals, micro-cycle, tiered communities, Seed Discovery fix, Harvest persistence
 
-**Phase 2: The Roots (in progress)** — ~~Supabase setup~~, ~~auth~~, ~~persist state~~, ~~Leader Mode~~, ~~prioritization logic~~, ~~calendar sync~~, notifications
+**Phase 2: The Roots (in progress)** — ~~Supabase setup~~, ~~auth~~, ~~persist state~~, ~~Leader Mode~~, ~~prioritization logic~~, ~~calendar sync~~, ~~notifications~~
 
-**Phase 3: The Bloom (future)** — Real AI for The Guide (all 4 touchpoints), Guide personality, Spark Architect, PWA, push notifications, payments
+**Phase 3: The Bloom (future)** — Real AI for The Guide (all 4 touchpoints), Guide personality, Spark Architect, ~~PWA~~, ~~push notifications~~, payments
 
 **Phase 4: The Fruit** — Community marketplace, content publishing, analytics dashboards
 
