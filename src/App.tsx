@@ -280,6 +280,7 @@ const App = () => {
   // ── Notification Helpers ────────────────────────────────────
 
   const notify = useCallback((notification: TrellisNotification, browserNotify = false) => {
+    console.warn('[TRELLIS] notify called:', notification.type, notification.title);
     setFamilyMembers(prev => prev.map(m => {
       if (m.id !== activeMemberId) return m;
       const existing = m.notifications ?? [];
@@ -294,12 +295,16 @@ const App = () => {
       saveProfile(session.user.id, { notifications: updatedNotifs });
     }
 
-    setToasts(prev => [...prev, {
-      id: notification.id,
-      title: notification.title,
-      message: notification.message,
-      type: notification.type,
-    }]);
+    setToasts(prev => {
+      const next = [...prev, {
+        id: notification.id,
+        title: notification.title,
+        message: notification.message,
+        type: notification.type,
+      }];
+      console.warn('[TRELLIS] toasts updated, count:', next.length);
+      return next;
+    });
 
     if (browserNotify) {
       sendBrowserNotification(notification.title, notification.message);
@@ -499,6 +504,7 @@ const App = () => {
     });
     const tierLabel = SOW_TIERS.find(t => t.tier === entry.tier)?.label ?? entry.tier;
     const domainLabel = goals[domain]?.label ?? domain;
+    console.warn('[TRELLIS] completeSow calling notify', tierLabel, domainLabel);
     notify(sowLoggedNotification(tierLabel, domainLabel));
     setShowSow(false);
   };
