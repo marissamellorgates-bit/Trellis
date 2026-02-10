@@ -282,15 +282,15 @@ const App = () => {
   const notify = useCallback((notification: TrellisNotification, browserNotify = false) => {
     setFamilyMembers(prev => prev.map(m => {
       if (m.id !== activeMemberId) return m;
-      const updated = [notification, ...m.notifications].slice(0, 50);
+      const existing = m.notifications ?? [];
+      const updated = [notification, ...existing].slice(0, 50);
       return { ...m, notifications: updated };
     }));
 
     if (session?.user) {
       const current = familyMembers.find(m => m.id === activeMemberId);
-      const updatedNotifs = current
-        ? [notification, ...current.notifications].slice(0, 50)
-        : [notification];
+      const existing = current?.notifications ?? [];
+      const updatedNotifs = [notification, ...existing].slice(0, 50);
       saveProfile(session.user.id, { notifications: updatedNotifs });
     }
 
@@ -313,13 +313,13 @@ const App = () => {
   const markAllNotificationsRead = useCallback(() => {
     setFamilyMembers(prev => prev.map(m => {
       if (m.id !== activeMemberId) return m;
-      const updated = m.notifications.map(n => ({ ...n, read: true }));
+      const updated = (m.notifications ?? []).map(n => ({ ...n, read: true }));
       return { ...m, notifications: updated };
     }));
     if (session?.user) {
       const current = familyMembers.find(m => m.id === activeMemberId);
       if (current) {
-        saveProfile(session.user.id, { notifications: current.notifications.map(n => ({ ...n, read: true })) });
+        saveProfile(session.user.id, { notifications: (current.notifications ?? []).map(n => ({ ...n, read: true })) });
       }
     }
   }, [activeMemberId, session, familyMembers]);
@@ -745,13 +745,13 @@ const App = () => {
           <div className="relative">
             <button onClick={() => setShowNotifications(!showNotifications)} className="relative text-[#2c2c2a]/60 hover:text-[#2c2c2a]">
               <Bell size={20}/>
-              {activeMember.notifications.filter(n => !n.read).length > 0 && (
+              {(activeMember.notifications ?? []).filter(n => !n.read).length > 0 && (
                 <span className="absolute top-0 right-0 w-2 h-2 bg-[#d4af37] rounded-full"></span>
               )}
             </button>
             {showNotifications && (
               <NotificationCenter
-                notifications={activeMember.notifications}
+                notifications={activeMember.notifications ?? []}
                 onMarkAllRead={markAllNotificationsRead}
                 onClear={clearAllNotifications}
                 onClose={() => setShowNotifications(false)}
