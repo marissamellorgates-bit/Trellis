@@ -1339,7 +1339,7 @@ const App = () => {
                   )}
 
                   <label className="text-[10px] font-bold uppercase tracking-widest opacity-50">Step 2: Domain Mapping</label>
-                  <div className="space-y-3">
+                  <div className="space-y-5">
                     {([
                       { label: 'Land', subtitle: 'Foundation', keys: ['biological', 'mentalClarity', 'environmentalOrder', 'coreCompetencies', 'experimentalTendrils', 'reflectiveSynthesis', 'passiveRestoration', 'activePlay', 'solitude'] as DomainKey[] },
                       { label: 'Sea', subtitle: 'Social Space', keys: ['innerCircle', 'socialCommunion', 'safePort', 'professionalExchange', 'marketRealities', 'instructionalCurrent', 'networking', 'culturalImmersion', 'publicReputation'] as DomainKey[] },
@@ -1347,8 +1347,8 @@ const App = () => {
                     ]).map(group => (
                       <div key={group.label}>
                         <div className="flex items-center gap-2 mb-2">
-                          <span className="text-[10px] font-bold uppercase tracking-widest text-[#fdfbf7]/30">{group.label}</span>
-                          <span className="text-[9px] text-[#fdfbf7]/15 italic normal-case">{group.subtitle}</span>
+                          <span className="text-[11px] font-bold uppercase tracking-widest text-[#d4af37]">{group.label}</span>
+                          <span className="text-[10px] text-[#fdfbf7]/40 italic normal-case">{group.subtitle}</span>
                         </div>
                         <div className="flex flex-wrap gap-2">
                           {group.keys.map(k => (
