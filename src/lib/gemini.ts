@@ -189,11 +189,14 @@ ARCHETYPES (choose exactly one):
 
 Respond ONLY with valid JSON in this exact format:
 {
+  "suggestedTitle": "A concise, inspiring 2-5 word project title",
   "suggestedDomains": ["domain1", "domain2", "domain3"],
   "suggestedArchetype": "sunflower",
   "domainRationale": "Brief explanation of why these domains were chosen.",
   "archetypeRationale": "Brief explanation of why this archetype fits."
-}`;
+}
+
+For suggestedTitle: Create a short, evocative project name (2-5 words) that captures the essence of the goal. Examples: "Trail Runner's Journey", "Garden to Table", "Code & Create". Do NOT just repeat the goal text.`;
 
 // ── API Call Helper ─────────────────────────────────────────
 
@@ -356,6 +359,7 @@ export async function sparkArchitectAnalyze(
       : 'sunflower';
 
     return {
+      suggestedTitle: parsed.suggestedTitle || '',
       suggestedDomains: filteredDomains.length > 0 ? filteredDomains : ['coreCompetencies'],
       suggestedArchetype: archetype,
       domainRationale: parsed.domainRationale || '',

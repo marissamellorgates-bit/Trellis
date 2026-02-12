@@ -6,7 +6,7 @@ import {
   Lock, ChevronDown,
   Building, Home, Tent, Bell,
   LogOut, Gift, CreditCard, Clock,
-  Droplets, Eye, FolderOpen,
+  Droplets, Eye, FolderOpen, Pencil,
   Wrench, FlaskConical, BookOpen,
   Moon, Gamepad2, User,
   // Sea — Harbor
@@ -221,6 +221,10 @@ const App = () => {
   const [selectedArchetype, setSelectedArchetype] = useState<PlantArchetype | null>(null);
   const [sparkAnalyzing, setSparkAnalyzing] = useState(false);
   const [sparkSuggestion, setSparkSuggestion] = useState<SparkResult | null>(null);
+  const [sparkTitle, setSparkTitle] = useState('');
+  const [editingProject, setEditingProject] = useState(false);
+  const [editTitle, setEditTitle] = useState('');
+  const [editArchetype, setEditArchetype] = useState<PlantArchetype>('sunflower');
 
   // ── Auth Bootstrap ─────────────────────────────────────────
 
@@ -449,7 +453,7 @@ const App = () => {
   const finalizeDiscovery = () => {
     if (!selectedArchetype) return;
     updateActiveMember({
-      projectTitle: sparkInput,
+      projectTitle: sparkTitle.trim() || sparkInput,
       projectPlant: selectedArchetype,
       projectImpactVectors: selectedDiscoveryVectors,
       projectEthicsCheck: { ...ethicsCheck },
@@ -458,6 +462,7 @@ const App = () => {
     });
     setIsArchitecting(false);
     setSparkInput("");
+    setSparkTitle("");
     setSelectedDiscoveryVectors([]);
     setEthicsCheck({ earth: false, people: false, fair: false });
     setSharingScope(['private']);
@@ -919,39 +924,98 @@ const App = () => {
           <div className="space-y-12">
             {activeMember.projectTitle ? (
               <div className="bg-white rounded-3xl border border-[#2c2c2a]/10 p-8 flex justify-between items-center relative">
-                <div className="relative z-10 space-y-4">
-                  <span className="text-[10px] font-bold uppercase tracking-widest text-[#d4af37]">Active Project</span>
-                  <h2 className="font-serif text-4xl italic">{activeMember.projectTitle}</h2>
-                  <div className="flex gap-2">
-                    <span className="text-xs font-bold uppercase bg-[#2c2c2a]/5 px-2 py-1 rounded text-[#2c2c2a]/60">Module {activeMember.currentModule}</span>
-                    <span className="text-xs font-bold uppercase bg-[#2c2c2a]/5 px-2 py-1 rounded text-[#2c2c2a]/60 capitalize">{activeMember.projectPlant} Archetype</span>
+                <div className="relative z-10 space-y-4 flex-1">
+                  <div className="flex items-center gap-2">
+                    <span className="text-[10px] font-bold uppercase tracking-widest text-[#d4af37]">Active Project</span>
+                    {!editingProject && (
+                      <button
+                        onClick={() => { setEditTitle(activeMember.projectTitle); setEditArchetype(activeMember.projectPlant); setEditingProject(true); }}
+                        className="text-[#2c2c2a]/20 hover:text-[#2c2c2a]/60 transition-colors"
+                        title="Edit project"
+                      >
+                        <Pencil size={12} />
+                      </button>
+                    )}
                   </div>
-                  {activeMember.currentModule >= 2 && activeMember.currentModule <= 6 && (
-                    <button
-                      onClick={() => setShowModuleWorkshop(true)}
-                      className="mt-2 px-4 py-2 rounded-full text-xs font-bold uppercase tracking-widest bg-[#d4af37]/10 text-[#d4af37] hover:bg-[#d4af37] hover:text-[#2c2c2a] transition-all"
-                    >
-                      Enter {PERMACOGNITION_MODULES[activeMember.currentModule - 1]?.title}
-                    </button>
-                  )}
-                  {activeMember.currentModule === 7 && (
-                    <button
-                      onClick={() => setIsSynthesizing(true)}
-                      className="mt-2 px-4 py-2 rounded-full text-xs font-bold uppercase tracking-widest bg-[#d4af37]/10 text-[#d4af37] hover:bg-[#d4af37] hover:text-[#2c2c2a] transition-all"
-                    >
-                      Begin Harvest
-                    </button>
-                  )}
-                  {session && (
-                    <button
-                      onClick={() => setViewMode('community')}
-                      className="mt-2 ml-2 px-4 py-2 rounded-full text-xs font-bold uppercase tracking-widest border border-[#2c2c2a]/10 text-[#2c2c2a]/50 hover:bg-[#2c2c2a] hover:text-white transition-all"
-                    >
-                      Share to Community
-                    </button>
+                  {editingProject ? (
+                    <div className="space-y-3">
+                      <input
+                        type="text"
+                        value={editTitle}
+                        onChange={e => setEditTitle(e.target.value)}
+                        className="w-full font-serif text-3xl italic bg-transparent border-b-2 border-[#d4af37] outline-none pb-1"
+                        autoFocus
+                      />
+                      <div className="flex gap-2">
+                        {ARCHETYPE_INFO.map(a => (
+                          <button
+                            key={a.type}
+                            onClick={() => setEditArchetype(a.type)}
+                            className={`px-3 py-1.5 rounded-full text-[10px] font-bold uppercase tracking-widest transition-all ${
+                              editArchetype === a.type ? 'bg-[#d4af37] text-[#2c2c2a]' : 'bg-[#2c2c2a]/5 text-[#2c2c2a]/40 hover:text-[#2c2c2a]'
+                            }`}
+                          >
+                            {a.icon} {a.name}
+                          </button>
+                        ))}
+                      </div>
+                      <div className="flex gap-2">
+                        <button
+                          onClick={() => {
+                            if (editTitle.trim()) {
+                              updateActiveMember({ projectTitle: editTitle.trim(), projectPlant: editArchetype });
+                            }
+                            setEditingProject(false);
+                          }}
+                          className="px-4 py-2 rounded-full text-xs font-bold uppercase tracking-widest bg-[#d4af37] text-[#2c2c2a] hover:bg-[#d4af37]/80 transition-all"
+                        >
+                          Save
+                        </button>
+                        <button
+                          onClick={() => setEditingProject(false)}
+                          className="px-4 py-2 rounded-full text-xs font-bold uppercase tracking-widest text-[#2c2c2a]/40 hover:text-[#2c2c2a] transition-all"
+                        >
+                          Cancel
+                        </button>
+                      </div>
+                    </div>
+                  ) : (
+                    <>
+                      <h2 className="font-serif text-4xl italic">{activeMember.projectTitle}</h2>
+                      <div className="flex gap-2">
+                        <span className="text-xs font-bold uppercase bg-[#2c2c2a]/5 px-2 py-1 rounded text-[#2c2c2a]/60">Module {activeMember.currentModule}</span>
+                        <span className="text-xs font-bold uppercase bg-[#2c2c2a]/5 px-2 py-1 rounded text-[#2c2c2a]/60 capitalize">{activeMember.projectPlant} Archetype</span>
+                      </div>
+                      <div className="flex flex-wrap gap-2">
+                        {activeMember.currentModule >= 2 && activeMember.currentModule <= 6 && (
+                          <button
+                            onClick={() => setShowModuleWorkshop(true)}
+                            className="px-4 py-2 rounded-full text-xs font-bold uppercase tracking-widest bg-[#d4af37]/10 text-[#d4af37] hover:bg-[#d4af37] hover:text-[#2c2c2a] transition-all"
+                          >
+                            Enter {PERMACOGNITION_MODULES[activeMember.currentModule - 1]?.title}
+                          </button>
+                        )}
+                        {activeMember.currentModule === 7 && (
+                          <button
+                            onClick={() => setIsSynthesizing(true)}
+                            className="px-4 py-2 rounded-full text-xs font-bold uppercase tracking-widest bg-[#d4af37]/10 text-[#d4af37] hover:bg-[#d4af37] hover:text-[#2c2c2a] transition-all"
+                          >
+                            Begin Harvest
+                          </button>
+                        )}
+                        {session && (
+                          <button
+                            onClick={() => setViewMode('community')}
+                            className="px-4 py-2 rounded-full text-xs font-bold uppercase tracking-widest border border-[#2c2c2a]/10 text-[#2c2c2a]/50 hover:bg-[#2c2c2a] hover:text-white transition-all"
+                          >
+                            Share to Community
+                          </button>
+                        )}
+                      </div>
+                    </>
                   )}
                 </div>
-                <div className="relative w-56 h-64 shrink-0"><PlantVisual stage={activeMember.currentModule} type={activeMember.projectPlant}/></div>
+                <div className="relative w-56 h-64 shrink-0"><PlantVisual stage={activeMember.currentModule} type={editingProject ? editArchetype : activeMember.projectPlant}/></div>
               </div>
             ) : (
               <div className="bg-white border-2 border-dashed border-[#2c2c2a]/10 rounded-3xl p-16 text-center space-y-6">
@@ -1080,10 +1144,11 @@ const App = () => {
                           setSparkSuggestion(result);
                           setSelectedDiscoveryVectors(result.suggestedDomains);
                           setSelectedArchetype(result.suggestedArchetype);
+                          if (result.suggestedTitle) setSparkTitle(result.suggestedTitle);
                         } catch (err) {
                           console.error('Spark Architect error:', err);
                           const msg = err instanceof GeminiError ? err.message : 'Could not analyze. Try again.';
-                          setSparkSuggestion({ suggestedDomains: [], suggestedArchetype: 'sunflower', domainRationale: msg, archetypeRationale: '' });
+                          setSparkSuggestion({ suggestedTitle: '', suggestedDomains: [], suggestedArchetype: 'sunflower', domainRationale: msg, archetypeRationale: '' });
                         } finally {
                           setSparkAnalyzing(false);
                         }
@@ -1094,6 +1159,20 @@ const App = () => {
                       <Sparkles size={14} />
                       {sparkAnalyzing ? 'Analyzing...' : 'Analyze with Spark Architect'}
                     </button>
+                  )}
+
+                  {sparkTitle && (
+                    <div className="space-y-2">
+                      <label className="text-[10px] font-bold uppercase tracking-widest opacity-50">Project Title</label>
+                      <input
+                        type="text"
+                        value={sparkTitle}
+                        onChange={e => setSparkTitle(e.target.value)}
+                        className="w-full bg-[#fdfbf7]/5 border border-[#fdfbf7]/10 rounded-xl px-4 py-3 text-lg focus:border-[#d4af37] outline-none"
+                        placeholder="Your project title"
+                      />
+                      <p className="text-[10px] text-[#d4af37]/60 italic">Suggested by Spark Architect — feel free to edit</p>
+                    </div>
                   )}
 
                   <label className="text-[10px] font-bold uppercase tracking-widest opacity-50">Step 2: Domain Mapping</label>

@@ -4,6 +4,13 @@ import type { FlowViewProps, ScheduleItem, DomainKey } from '../types';
 const scheduleItemKey = (item: ScheduleItem): string =>
   item.sourceId ?? `${item.time}-${item.title}`;
 
+const formatTime12 = (time24: string): string => {
+  const [h, m] = time24.split(':').map(Number);
+  const period = h >= 12 ? 'pm' : 'am';
+  const h12 = h === 0 ? 12 : h > 12 ? h - 12 : h;
+  return `${h12}:${String(m).padStart(2, '0')}${period}`;
+};
+
 const SourceBadge = ({ source }: { source?: ScheduleItem['source'] }) => {
   if (!source || source === 'manual') return null;
   const label = source === 'google' ? 'GCal' : 'Imported';
@@ -41,7 +48,7 @@ const FlowView = ({ schedule, tasks, goals, onToggleTask, onCompleteScheduleItem
             const done = completedScheduleItems.has(key);
             return (
               <div key={key} className="flex gap-4 items-start group">
-                <span className="text-xs font-mono text-[#2c2c2a]/40 w-12 pt-1">{item.time}</span>
+                <span className="text-xs font-mono text-[#2c2c2a]/40 w-14 pt-1">{formatTime12(item.time)}</span>
                 <button
                   onClick={() => !done && onCompleteScheduleItem(i)}
                   className={`flex-1 p-3 rounded-xl border-l-4 text-sm font-medium transition-all text-left ${

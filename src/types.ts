@@ -300,6 +300,7 @@ export interface AIMentorPanelProps {
 }
 
 export interface SparkResult {
+  suggestedTitle: string;
   suggestedDomains: DomainKey[];
   suggestedArchetype: PlantArchetype;
   domainRationale: string;
