@@ -79,7 +79,7 @@ src/
 
 ### Key Components
 
-- **`App`** — Root component. Manages all state via `useState`. Contains four view modes, Seed Discovery flow ("Focus Project"), notification system, shelved projects, dashboard inline editing, and layout. ~1100 lines.
+- **`App`** — Root component. Manages all state via `useState`. Contains four view modes, Seed Discovery flow, delete/abandon projects, notification system, shelved projects, dashboard inline editing, and layout. ~1100 lines.
 - **`PlantVisual`** — Procedural SVG plant generation with 7 stages and 3 archetypes (sunflower, oak, cactus). Uses unique SVG filter IDs via `useId()` to prevent collisions. Keyframe animation in `index.css`.
 - **`AIMentorPanel`** — Sliding side panel chat with "The Guide". Uses **Gemini 2.5 Flash** for Socratic questioning within the 7-Module framework, prioritizing "Earth Care, People Care, Fair Share." Falls back to mock keyword matching when no API key is configured. Supports AbortController cancel, error handling, and persisted chat history.
 - **`MicroCycleModal`** — Standalone 4-step practice loop (Observe → Analyze → Implement → Reflect). Independent of module progression. Users can run anytime.
@@ -140,10 +140,13 @@ User selects archetype during Seed Discovery (Step 3). Spark Architect AI sugges
 - **Step 4: Ethics Check** — Earth Care, People Care, Share the Harvest toggles.
 - **Step 5: Pollination Strategy** — Select sharing communities.
 
-### Shelved Projects (Focus Projects)
+### Shelved Projects
 - Users can save ("shelve") their current project and start a new one
 - Maximum 3 total projects (1 active + 2 shelved)
-- Resume saved projects from the "No Focus Project" empty state
+- Resume saved projects from the "No Project" empty state
+- Active projects can be abandoned (clears without harvest record, archives from community if published)
+- Shelved projects can be deleted via X button on each card
+- Both delete actions require inline confirmation before executing
 - Swapping projects auto-shelves the current one
 - Shelved data includes: title, plant, module, impact vectors, ethics check, sharing scope, visibility, knowledge log, question map, experience log, pattern journal, chat history
 - Stored in `profiles.shelved_projects` (jsonb column)
@@ -373,7 +376,7 @@ All types defined in `src/types.ts`. Key interfaces:
 
 **Phase 4: The Fruit (complete)** — ~~Community marketplace~~, ~~content publishing~~, ~~analytics dashboards~~, ~~DB-backed interactions~~, ~~project views tracking~~
 
-**Phase 4.5: UX Polish (complete)** — ~~12-hour time format~~, ~~AI-generated project titles~~, ~~dashboard inline editing~~, ~~shelved projects (Focus Projects)~~, ~~3-project limit~~
+**Phase 4.5: UX Polish (complete)** — ~~12-hour time format~~, ~~AI-generated project titles~~, ~~dashboard inline editing~~, ~~shelved projects~~, ~~3-project limit~~
 
 **Phase 5: Guided Discovery (complete)** — ~~Guided goal refinement with The Guide in Seed Discovery~~, ~~SparkRefinement inline chat component~~, ~~Auto-trigger Spark Architect after refinement~~
 
