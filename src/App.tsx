@@ -1339,10 +1339,24 @@ const App = () => {
                   )}
 
                   <label className="text-[10px] font-bold uppercase tracking-widest opacity-50">Step 2: Domain Mapping</label>
-                  <div className="flex flex-wrap gap-2">
-                    {ALL_DOMAIN_KEYS.map(k => (
-                      <button key={k} onClick={() => setSelectedDiscoveryVectors(v => v.includes(k) ? v.filter(x => x !== k) : [...v, k])}
-                        className={`px-3 py-1 rounded-full text-[10px] font-bold uppercase border transition-all ${selectedDiscoveryVectors.includes(k) ? 'bg-[#d4af37] border-[#d4af37] text-[#2c2c2a]' : 'border-white/10 opacity-40'}`}>{DEFAULT_GOALS[k].label}</button>
+                  <div className="space-y-3">
+                    {([
+                      { label: 'Land', subtitle: 'Foundation', keys: ['biological', 'mentalClarity', 'environmentalOrder', 'coreCompetencies', 'experimentalTendrils', 'reflectiveSynthesis', 'passiveRestoration', 'activePlay', 'solitude'] as DomainKey[] },
+                      { label: 'Sea', subtitle: 'Social Space', keys: ['innerCircle', 'socialCommunion', 'safePort', 'professionalExchange', 'marketRealities', 'instructionalCurrent', 'networking', 'culturalImmersion', 'publicReputation'] as DomainKey[] },
+                      { label: 'Sky', subtitle: 'Aspiration', keys: ['creativeFlow', 'physicalExhilaration', 'aweAndWonder', 'radicalImagination', 'beautyExploration', 'emotionalRelease', 'spiritualPurpose', 'lifeVision', 'purePlay'] as DomainKey[] },
+                    ]).map(group => (
+                      <div key={group.label}>
+                        <div className="flex items-center gap-2 mb-2">
+                          <span className="text-[10px] font-bold uppercase tracking-widest text-[#fdfbf7]/30">{group.label}</span>
+                          <span className="text-[9px] text-[#fdfbf7]/15 italic normal-case">{group.subtitle}</span>
+                        </div>
+                        <div className="flex flex-wrap gap-2">
+                          {group.keys.map(k => (
+                            <button key={k} onClick={() => setSelectedDiscoveryVectors(v => v.includes(k) ? v.filter(x => x !== k) : [...v, k])}
+                              className={`px-3 py-1 rounded-full text-[10px] font-bold uppercase border transition-all ${selectedDiscoveryVectors.includes(k) ? 'bg-[#d4af37] border-[#d4af37] text-[#2c2c2a]' : 'border-white/10 opacity-40'}`}>{DEFAULT_GOALS[k].label}</button>
+                          ))}
+                        </div>
+                      </div>
                     ))}
                   </div>
                   {sparkSuggestion?.domainRationale && (
