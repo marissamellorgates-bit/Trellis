@@ -1140,33 +1140,33 @@ const App = () => {
                           className="px-4 py-2 rounded-full text-xs font-bold uppercase tracking-widest border border-[#2c2c2a]/10 text-[#2c2c2a]/50 hover:bg-[#2c2c2a] hover:text-white transition-all disabled:opacity-30 disabled:cursor-not-allowed disabled:hover:bg-transparent disabled:hover:text-[#2c2c2a]/50"
                           title={(activeMember.shelvedProjects ?? []).length >= 2 ? 'Max 3 projects — finish or harvest one first' : undefined}
                         >
-                          New Focus Project
+                          New Project
                         </button>
-                        {confirmDelete?.type === 'active' ? (
-                          <span className="flex items-center gap-2">
-                            <span className="text-[10px] text-red-500/80">Abandon this project? Progress won't be saved.</span>
-                            <button
-                              onClick={abandonActiveProject}
-                              className="px-3 py-1.5 rounded-full text-[10px] font-bold uppercase tracking-widest bg-red-500/10 text-red-500 hover:bg-red-500 hover:text-white transition-all"
-                            >
-                              Yes, abandon
-                            </button>
-                            <button
-                              onClick={() => setConfirmDelete(null)}
-                              className="px-3 py-1.5 rounded-full text-[10px] font-bold uppercase tracking-widest text-[#2c2c2a]/40 hover:text-[#2c2c2a] transition-all"
-                            >
-                              Cancel
-                            </button>
-                          </span>
-                        ) : (
-                          <button
-                            onClick={() => setConfirmDelete({ type: 'active' })}
-                            className="px-4 py-2 rounded-full text-xs font-bold uppercase tracking-widest text-red-400/50 hover:text-red-500 transition-all"
-                          >
-                            Abandon Project
-                          </button>
-                        )}
                       </div>
+                      {confirmDelete?.type === 'active' ? (
+                        <div className="flex items-center gap-2 mt-2">
+                          <span className="text-[9px] text-red-500/80">Abandon this project? Progress won't be saved.</span>
+                          <button
+                            onClick={abandonActiveProject}
+                            className="px-2.5 py-1 rounded-full text-[9px] font-bold uppercase tracking-widest bg-red-500/10 text-red-500 hover:bg-red-500 hover:text-white transition-all"
+                          >
+                            Yes, abandon
+                          </button>
+                          <button
+                            onClick={() => setConfirmDelete(null)}
+                            className="px-2.5 py-1 rounded-full text-[9px] font-bold uppercase tracking-widest text-[#2c2c2a]/30 hover:text-[#2c2c2a] transition-all"
+                          >
+                            Cancel
+                          </button>
+                        </div>
+                      ) : (
+                        <button
+                          onClick={() => setConfirmDelete({ type: 'active' })}
+                          className="mt-2 text-[9px] font-bold uppercase tracking-widest text-red-300/40 hover:text-red-400 transition-all"
+                        >
+                          Abandon Project
+                        </button>
+                      )}
                     </>
                   )}
                 </div>
@@ -1174,7 +1174,7 @@ const App = () => {
               </div>
             ) : isArchitecting ? null : (
               <div className="bg-white border-2 border-dashed border-[#2c2c2a]/10 rounded-3xl p-16 text-center space-y-6">
-                <h2 className="font-serif text-3xl">No Focus Project</h2>
+                <h2 className="font-serif text-3xl">No Project</h2>
                 <p className="text-sm text-[#2c2c2a]/40">Start a new focus project or resume a saved one.</p>
                 {(activeMember.shelvedProjects ?? []).length > 0 && (
                   <div className="mt-4">
@@ -1241,7 +1241,7 @@ const App = () => {
                   disabled={(activeMember.shelvedProjects ?? []).length >= 3}
                   className="bg-[#2c2c2a] text-[#fdfbf7] px-8 py-4 rounded-full font-bold uppercase disabled:opacity-30 disabled:cursor-not-allowed"
                 >
-                  {(activeMember.shelvedProjects ?? []).length >= 3 ? 'Max 3 Projects Reached' : 'Start Focus Project'}
+                  {(activeMember.shelvedProjects ?? []).length >= 3 ? 'Max 3 Projects Reached' : 'Start Project'}
                 </button>
               </div>
             )}
