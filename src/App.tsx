@@ -1323,11 +1323,17 @@ const App = () => {
                 <div className="space-y-8 border-l border-white/10 pl-0 md:pl-12">
                   <div className="space-y-4">
                     <label className="text-[10px] font-bold uppercase tracking-widest opacity-50">Step 4: Ethics Check</label>
+                    <p className="text-xs text-white/30">Does your project honor these permaculture principles?</p>
                     <div className="flex gap-2">
-                      {(['earth', 'people', 'fair'] as const).map(e => (
-                        <button key={e} onClick={() => setEthicsCheck(p => ({...p, [e]: !p[e]}))} className={`flex-1 flex flex-col items-center gap-2 px-2 py-3 rounded-lg text-[10px] font-bold uppercase transition-all ${ethicsCheck[e] ? 'bg-white/10 text-white border border-[#d4af37]' : 'bg-white/5 text-white/40 border border-transparent'}`}>
-                          {ethicsCheck[e] ? <CheckCircle2 size={16} className="text-[#d4af37]"/> : <div className="w-4 h-4 rounded-full border border-current"/>}
-                          {e === 'fair' ? 'Fair Share' : `${e === 'earth' ? 'Earth' : 'People'} Care`}
+                      {([
+                        { key: 'earth' as const, label: 'Earth Care', desc: 'Nurtures the environment and natural systems' },
+                        { key: 'people' as const, label: 'People Care', desc: 'Supports well-being of yourself and others' },
+                        { key: 'fair' as const, label: 'Share the Harvest', desc: 'Shares surplus and limits consumption' },
+                      ]).map(({ key, label, desc }) => (
+                        <button key={key} onClick={() => setEthicsCheck(p => ({...p, [key]: !p[key]}))} className={`flex-1 flex flex-col items-center gap-2 px-3 py-4 rounded-lg transition-all ${ethicsCheck[key] ? 'bg-white/10 text-white border border-[#d4af37]' : 'bg-white/5 text-white/40 border border-transparent'}`}>
+                          {ethicsCheck[key] ? <CheckCircle2 size={16} className="text-[#d4af37]"/> : <div className="w-4 h-4 rounded-full border border-current"/>}
+                          <span className="text-[10px] font-bold uppercase">{label}</span>
+                          <span className="text-[9px] opacity-50 normal-case font-normal leading-tight">{desc}</span>
                         </button>
                       ))}
                     </div>
