@@ -1,5 +1,5 @@
 import { createClient } from '@supabase/supabase-js';
-import type { GoalsMap, DomainKey, FamilyMember, PlantArchetype, SubscriptionStatus } from '../types';
+import type { GoalsMap, DomainKey, FamilyMember, PlantArchetype, SubscriptionStatus, UserCommunity } from '../types';
 
 // ── Supabase Client ──────────────────────────────────────────
 
@@ -46,6 +46,7 @@ interface ProfileRow {
   notifications: FamilyMember['notifications'];
   chat_history: FamilyMember['chatHistory'];
   shelved_projects: FamilyMember['shelvedProjects'];
+  custom_communities: UserCommunity[] | null;
   trial_start: string | null;
   subscription_status: SubscriptionStatus | null;
   stripe_customer_id: string | null;
@@ -116,6 +117,7 @@ export async function loadProfile(
     notifications: row.notifications || [],
     chatHistory: row.chat_history ?? [],
     shelvedProjects: row.shelved_projects ?? [],
+    customCommunities: row.custom_communities ?? undefined,
     trialStart: row.trial_start ?? undefined,
     subscriptionStatus: row.subscription_status ?? 'trialing',
     stripeCustomerId: row.stripe_customer_id ?? undefined,
@@ -154,6 +156,7 @@ export async function saveProfile(
   if (updates.notifications !== undefined) row.notifications = updates.notifications;
   if (updates.chatHistory !== undefined) row.chat_history = updates.chatHistory;
   if (updates.shelvedProjects !== undefined) row.shelved_projects = updates.shelvedProjects;
+  if (updates.customCommunities !== undefined) row.custom_communities = updates.customCommunities;
   if (updates.trialStart !== undefined) row.trial_start = updates.trialStart;
   if (updates.subscriptionStatus !== undefined) row.subscription_status = updates.subscriptionStatus;
   if (updates.stripeCustomerId !== undefined) row.stripe_customer_id = updates.stripeCustomerId;

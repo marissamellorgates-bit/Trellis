@@ -3,9 +3,9 @@ import {
   Mountain, Anchor, Wind, Shield, Sparkles,
   CheckCircle2,
   Sprout,
-  Lock, ChevronDown,
-  Building, Home, Tent, Bell,
-  LogOut, Gift, CreditCard, Clock,
+  ChevronDown,
+  Home, Bell,
+  LogOut, Gift, CreditCard, Clock, Settings,
   Droplets, Eye, FolderOpen, Pencil, X,
   Wrench, FlaskConical, BookOpen,
   Moon, Gamepad2, User,
@@ -26,15 +26,18 @@ import type { Session } from '@supabase/supabase-js';
 
 import type {
   GoalsMap, DomainKey, MetaDomain, DomainConfig, DomainSubGroup, Task, ScheduleItem,
-  FamilyMember, CommunityConfig, PlantArchetype,
+  FamilyMember, PlantArchetype,
   EthicsCheck, HarvestRecord, SowEntry, SowTier, ModuleInfo,
   TrellisNotification, ToastData, AIMessage, SparkResult, ShelvedProject,
+  UserCommunity,
 } from './types';
 import { ARCHETYPE_INFO, SOW_TIERS } from './types';
 import { isGeminiConfigured, sparkArchitectAnalyze, GeminiError } from './lib/gemini';
 import SparkRefinement from './components/SparkRefinement';
 import { stripeConfigured, getSubscriptionInfo, createPortalSession } from './lib/subscription';
 
+import CommunitySettingsModal from './components/CommunitySettingsModal';
+import { ensureDefaults, resolveCommunitiesForUI } from './lib/communityIcons';
 import PlantVisual from './components/PlantVisual';
 import AIMentorPanel from './components/AIMentorPanel';
 import HarvestModal from './components/HarvestModal';
@@ -100,14 +103,6 @@ const DEFAULT_GOALS: GoalsMap = {
   lifeVision: { completed: 0.0, total: 4, label: 'Vision', icon: Telescope, goal: "Dream about the long term" },
   purePlay: { completed: 0.0, total: 3, label: 'Freedom', icon: Dice1, goal: "No-goal, no-outcome play" },
 };
-
-const AVAILABLE_COMMUNITIES: CommunityConfig[] = [
-  { id: 'private', name: 'Private Greenhouse', icon: Lock, type: 'personal' },
-  { id: 'family', name: 'Family Garden', icon: Home, type: 'family' },
-  { id: 'work', name: 'Work Orchard', icon: Briefcase, type: 'business' },
-  { id: 'town', name: 'Local Community', icon: Building, type: 'local' },
-  { id: 'church', name: 'Faith Community', icon: Tent, type: 'org' }
-];
 
 const INITIAL_TASKS: Task[] = [
   { id: 1, title: "Buy organic potting soil", domain: 'environmentalOrder', isProjectRelated: true, done: false, due: 'Today', estimatedMinutes: 45 },
@@ -208,6 +203,10 @@ const App = () => {
   const tasks = activeMember.tasks;
   const schedule = activeMember.schedule;
 
+  // Derive communities from member data
+  const userCommunities = ensureDefaults(activeMember.customCommunities);
+  const resolvedCommunities = resolveCommunitiesForUI(userCommunities);
+
   const [activeDomain, setActiveDomain] = useState<MetaDomain>('land');
   const [expandedGroup, setExpandedGroup] = useState<string | null>(null);
 
@@ -229,6 +228,8 @@ const App = () => {
   const [editTitle, setEditTitle] = useState('');
   const [editArchetype, setEditArchetype] = useState<PlantArchetype>('sunflower');
   const [confirmDelete, setConfirmDelete] = useState<{ type: 'active' | 'shelved'; shelvedId?: number } | null>(null);
+  const [showCommunitySettings, setShowCommunitySettings] = useState(false);
+  const [quickAddName, setQuickAddName] = useState('');
 
   // ── Auth Bootstrap ─────────────────────────────────────────
 
@@ -898,7 +899,7 @@ const App = () => {
         isOpen={isSynthesizing}
         wisdom={harvestWisdom}
         sharing={harvestSharing}
-        communities={AVAILABLE_COMMUNITIES}
+        communities={resolvedCommunities}
         onWisdomChange={setHarvestWisdom}
         onSharingChange={setHarvestSharing}
         onFinalize={finalizeHarvest}
@@ -926,6 +927,13 @@ const App = () => {
         onClose={() => setShowImportSchedule(false)}
         onImport={handleImportScheduleItems}
         existingSourceIds={existingSourceIds}
+      />
+
+      <CommunitySettingsModal
+        isOpen={showCommunitySettings}
+        communities={userCommunities}
+        onSave={(updated) => updateActiveMember({ customCommunities: updated })}
+        onClose={() => setShowCommunitySettings(false)}
       />
 
       {/* Nav */}
@@ -1008,6 +1016,13 @@ const App = () => {
                     <span className="font-bold uppercase tracking-widest text-[10px]">Gift Trellis</span>
                   </button>
                 )}
+                <button
+                  onClick={() => { setShowCommunitySettings(true); setIsFamilyMenuOpen(false); }}
+                  className="w-full flex items-center gap-3 px-4 py-2 text-sm text-[#2c2c2a]/60 hover:text-[#2c2c2a] hover:bg-[#2c2c2a]/5 transition-all"
+                >
+                  <Settings size={14} />
+                  <span className="font-bold uppercase tracking-widest text-[10px]">My Communities</span>
+                </button>
                 <button
                   onClick={handleLogout}
                   className="w-full flex items-center gap-3 px-4 py-2 text-sm text-[#2c2c2a]/60 hover:text-[#2c2c2a] hover:bg-[#2c2c2a]/5 transition-all"
@@ -1499,13 +1514,49 @@ const App = () => {
                   <div className="space-y-4">
                     <label className="text-[10px] font-bold uppercase tracking-widest opacity-50">Step 5: Pollination Strategy</label>
                     <div className="grid grid-cols-1 gap-2">
-                      {AVAILABLE_COMMUNITIES.map(c => (
+                      {resolvedCommunities.map(c => (
                         <button key={c.id} onClick={() => setSharingScope(s => s.includes(c.id) ? s.filter(x => x !== c.id) : [...s, c.id])} className={`flex items-center justify-between px-4 py-3 rounded-xl border text-sm font-bold transition-all ${sharingScope.includes(c.id) ? 'bg-[#d4af37] border-[#d4af37] text-[#2c2c2a]' : 'border-white/10 text-white/40 hover:bg-white/5'}`}>
                           <div className="flex items-center gap-3">{React.createElement(c.icon, { size: 16 })}<span>{c.name}</span></div>
                           {sharingScope.includes(c.id) && <CheckCircle2 size={16}/>}
                         </button>
                       ))}
                     </div>
+                    {userCommunities.length < 10 && (
+                      <form
+                        onSubmit={e => {
+                          e.preventDefault();
+                          if (!quickAddName.trim()) return;
+                          const newCommunity: UserCommunity = {
+                            id: `custom-${Date.now()}`,
+                            name: quickAddName.trim(),
+                            iconKey: 'Users',
+                            type: 'custom',
+                            isDefault: false,
+                          };
+                          const updated = [...userCommunities, newCommunity];
+                          updateActiveMember({ customCommunities: updated });
+                          setSharingScope(s => [...s, newCommunity.id]);
+                          setQuickAddName('');
+                        }}
+                        className="flex items-center gap-2"
+                      >
+                        <input
+                          type="text"
+                          value={quickAddName}
+                          onChange={e => setQuickAddName(e.target.value)}
+                          placeholder="Add a community..."
+                          className="flex-1 bg-[#fdfbf7]/5 border border-[#fdfbf7]/10 rounded-xl px-3 py-2 text-sm outline-none focus:border-[#d4af37] placeholder:text-white/20"
+                          maxLength={40}
+                        />
+                        <button
+                          type="submit"
+                          disabled={!quickAddName.trim()}
+                          className="px-3 py-2 rounded-xl text-[10px] font-bold uppercase tracking-widest bg-[#d4af37]/20 text-[#d4af37] hover:bg-[#d4af37] hover:text-[#2c2c2a] transition-all disabled:opacity-20"
+                        >
+                          Add
+                        </button>
+                      </form>
+                    )}
                   </div>
                 </div>
               </div>

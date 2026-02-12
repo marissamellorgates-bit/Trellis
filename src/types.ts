@@ -171,6 +171,14 @@ export interface CommunityConfig {
   type: string;
 }
 
+export interface UserCommunity {
+  id: string;
+  name: string;
+  iconKey: string;
+  type: string;
+  isDefault: boolean;
+}
+
 export type WateringTier = 'light-rain' | 'steady-rain' | 'downpour' | 'flood';
 export type GraftingTier = 'budding' | 'branch-graft' | 'full-graft';
 
@@ -245,6 +253,7 @@ export interface FamilyMember {
   notifications: TrellisNotification[];
   chatHistory: AIMessage[];
   shelvedProjects: ShelvedProject[];
+  customCommunities?: UserCommunity[];
   trialStart?: string;
   subscriptionStatus?: SubscriptionStatus;
   stripeCustomerId?: string;
