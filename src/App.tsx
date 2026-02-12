@@ -6,7 +6,7 @@ import {
   Lock, ChevronDown,
   Building, Home, Tent, Bell,
   LogOut, Gift, CreditCard, Clock,
-  Droplets, Eye, FolderOpen, Pencil,
+  Droplets, Eye, FolderOpen, Pencil, X,
   Wrench, FlaskConical, BookOpen,
   Moon, Gamepad2, User,
   // Sea — Harbor
@@ -58,7 +58,7 @@ import {
   scheduleCompleteNotification, calendarSyncNotification,
   detectImbalance, sendBrowserNotification,
 } from './lib/notifications';
-import { syncActiveProject } from './lib/community';
+import { syncActiveProject, archiveProject } from './lib/community';
 
 // ── Constants ─────────────────────────────────────────────────
 
@@ -228,6 +228,7 @@ const App = () => {
   const [editingProject, setEditingProject] = useState(false);
   const [editTitle, setEditTitle] = useState('');
   const [editArchetype, setEditArchetype] = useState<PlantArchetype>('sunflower');
+  const [confirmDelete, setConfirmDelete] = useState<{ type: 'active' | 'shelved'; shelvedId?: number } | null>(null);
 
   // ── Auth Bootstrap ─────────────────────────────────────────
 
@@ -553,6 +554,44 @@ const App = () => {
       patternJournal: shelved.patternJournal,
       chatHistory: shelved.chatHistory,
     });
+  };
+
+  // ── Delete / Abandon Project ────────────────────────────
+
+  const abandonActiveProject = async () => {
+    // Archive from community if published
+    if (session?.user) {
+      const { data: existing } = await supabase
+        .from('community_projects')
+        .select('id, status')
+        .eq('user_id', session.user.id)
+        .eq('title', activeMember.projectTitle)
+        .limit(1);
+      if (existing && existing.length > 0 && existing[0].status === 'published') {
+        archiveProject(existing[0].id);
+      }
+    }
+
+    updateActiveMember({
+      projectTitle: '',
+      currentModule: 1,
+      projectImpactVectors: [],
+      projectEthicsCheck: undefined,
+      projectSharingScope: ['private'],
+      projectVisibility: [],
+      knowledgeLog: [],
+      questionMap: [],
+      experienceLog: [],
+      patternJournal: [],
+      chatHistory: [],
+    });
+    setConfirmDelete(null);
+  };
+
+  const deleteShelvedProject = (shelvedId: number) => {
+    const filtered = (activeMember.shelvedProjects ?? []).filter(p => p.id !== shelvedId);
+    updateActiveMember({ shelvedProjects: filtered });
+    setConfirmDelete(null);
   };
 
   // ── Harvest ───────────────────────────────────────────────
@@ -1103,6 +1142,30 @@ const App = () => {
                         >
                           New Focus Project
                         </button>
+                        {confirmDelete?.type === 'active' ? (
+                          <span className="flex items-center gap-2">
+                            <span className="text-[10px] text-red-500/80">Abandon this project? Progress won't be saved.</span>
+                            <button
+                              onClick={abandonActiveProject}
+                              className="px-3 py-1.5 rounded-full text-[10px] font-bold uppercase tracking-widest bg-red-500/10 text-red-500 hover:bg-red-500 hover:text-white transition-all"
+                            >
+                              Yes, abandon
+                            </button>
+                            <button
+                              onClick={() => setConfirmDelete(null)}
+                              className="px-3 py-1.5 rounded-full text-[10px] font-bold uppercase tracking-widest text-[#2c2c2a]/40 hover:text-[#2c2c2a] transition-all"
+                            >
+                              Cancel
+                            </button>
+                          </span>
+                        ) : (
+                          <button
+                            onClick={() => setConfirmDelete({ type: 'active' })}
+                            className="px-4 py-2 rounded-full text-xs font-bold uppercase tracking-widest text-red-400/50 hover:text-red-500 transition-all"
+                          >
+                            Abandon Project
+                          </button>
+                        )}
                       </div>
                     </>
                   )}
@@ -1118,14 +1181,44 @@ const App = () => {
                     <p className="text-[10px] font-bold uppercase tracking-widest text-[#2c2c2a]/40 mb-3">Saved Projects</p>
                     <div className="flex gap-3 justify-center flex-wrap">
                       {(activeMember.shelvedProjects ?? []).map(sp => (
-                        <button
-                          key={sp.id}
-                          onClick={() => resumeProject(sp.id)}
-                          className="px-4 py-3 bg-white border border-[#2c2c2a]/10 rounded-xl text-left hover:border-[#d4af37] hover:shadow-md transition-all group"
-                        >
-                          <span className="block text-sm font-bold text-[#2c2c2a] group-hover:text-[#d4af37]">{sp.title}</span>
-                          <span className="text-[10px] text-[#2c2c2a]/40 capitalize">{sp.plant} — Module {sp.module}</span>
-                        </button>
+                        <div key={sp.id} className="relative">
+                          {confirmDelete?.type === 'shelved' && confirmDelete.shelvedId === sp.id ? (
+                            <div className="px-4 py-3 bg-white border border-red-300 rounded-xl text-center space-y-2">
+                              <span className="block text-[10px] text-red-500/80">Delete this project?</span>
+                              <div className="flex gap-2 justify-center">
+                                <button
+                                  onClick={() => deleteShelvedProject(sp.id)}
+                                  className="px-3 py-1 rounded-full text-[10px] font-bold uppercase tracking-widest bg-red-500/10 text-red-500 hover:bg-red-500 hover:text-white transition-all"
+                                >
+                                  Yes
+                                </button>
+                                <button
+                                  onClick={() => setConfirmDelete(null)}
+                                  className="px-3 py-1 rounded-full text-[10px] font-bold uppercase tracking-widest text-[#2c2c2a]/40 hover:text-[#2c2c2a] transition-all"
+                                >
+                                  No
+                                </button>
+                              </div>
+                            </div>
+                          ) : (
+                            <button
+                              onClick={() => resumeProject(sp.id)}
+                              className="px-4 py-3 bg-white border border-[#2c2c2a]/10 rounded-xl text-left hover:border-[#d4af37] hover:shadow-md transition-all group pr-8"
+                            >
+                              <span className="block text-sm font-bold text-[#2c2c2a] group-hover:text-[#d4af37]">{sp.title}</span>
+                              <span className="text-[10px] text-[#2c2c2a]/40 capitalize">{sp.plant} — Module {sp.module}</span>
+                            </button>
+                          )}
+                          {!(confirmDelete?.type === 'shelved' && confirmDelete.shelvedId === sp.id) && (
+                            <button
+                              onClick={(e) => { e.stopPropagation(); setConfirmDelete({ type: 'shelved', shelvedId: sp.id }); }}
+                              className="absolute top-1 right-1 p-1 rounded-full text-[#2c2c2a]/20 hover:text-red-400 hover:bg-red-50 transition-all"
+                              title="Delete project"
+                            >
+                              <X size={12} />
+                            </button>
+                          )}
+                        </div>
                       ))}
                     </div>
                   </div>
