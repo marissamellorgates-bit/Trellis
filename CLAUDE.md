@@ -51,7 +51,7 @@ src/
 ├── lib/
 │   ├── supabase.ts                  # Supabase client, profile load/save
 │   ├── community.ts                 # Community marketplace CRUD (projects, interactions, views, analytics)
-│   ├── gemini.ts                    # Gemini 2.5 Flash API client (Guide + Spark Architect)
+│   ├── gemini.ts                    # Gemini 2.5 Flash API client (Guide + Spark Architect + Spark Refinement)
 │   ├── notifications.ts             # Notification factories, imbalance detector, browser API
 │   ├── subscription.ts              # Subscription status helpers, Stripe checkout/portal wrappers
 │   ├── googleCalendar.ts            # Google Calendar API fetch
@@ -72,6 +72,7 @@ src/
     ├── PaywallScreen.tsx            # Full-screen paywall with monthly/annual pricing cards
     ├── GiftModal.tsx                # Gift subscription purchase modal
     ├── GiftRedeemBanner.tsx         # Banner for redeeming gifted subscriptions
+    ├── SparkRefinement.tsx           # Inline AI chat for refining goals in Seed Discovery Step 1
     ├── Toast.tsx                    # Auto-dismissing toast notifications (bottom-right, z-200)
     └── NotificationCenter.tsx       # Bell dropdown — notification history with mark-read/clear
 ```
@@ -89,6 +90,7 @@ src/
 - **`ProjectDetailModal`** — Full project view with plant visual, stats, interaction history, and water/graft tier selectors. Records views on open.
 - **`PublishProjectModal`** — Publish active project to the community. Pre-fills from current project, allows editing description/tags/visibility.
 - **`AnalyticsDashboard`** — Overview and per-project analytics. SVG bar chart for views by day (30d), interaction tier breakdowns, recent interaction list.
+- **`SparkRefinement`** — Inline AI chat widget in Seed Discovery Step 1. User's initial spark is auto-sent to The Guide, who asks 2-3 clarifying questions, then suggests a refined goal. Editable refined goal textarea with gold border. On accept, auto-triggers Spark Architect analysis. Only appears when AI is configured.
 - **`Toast`** — Auto-dismissing toast popups (fixed bottom-right, z-200). 6-second duration with fade-out animation. Type-specific icons (Sprout, CheckCircle2, AlertTriangle, Calendar).
 - **`NotificationCenter`** — Bell dropdown with notification history. Supports tap-to-mark-read on individual items, mark-all-read, clear-all. Shows "Enable Push Notifications" button when browser permission is `default`. Newest-first, max-h-80 scrollable list.
 
@@ -195,6 +197,19 @@ User selects archetype during Seed Discovery (Step 3). Spark Architect AI sugges
 - **Fallback:** When `VITE_GEMINI_API_KEY` is not set, uses mock keyword matching (demo mode)
 - Chat history clears on Harvest (new project = fresh conversation)
 - Config: temperature 0.8, maxOutputTokens 500
+
+**Spark Refinement (Guided Goal Refinement):**
+- Inline AI chat in Seed Discovery Step 1 — helps users turn vague ideas into clear, measurable goals
+- "Refine with The Guide" button appears alongside "Analyze with Spark Architect" when AI is configured + text entered
+- On click, replaces the textarea with a compact chat widget (`SparkRefinement` component)
+- AI asks one clarifying question at a time (warm, direct tone — no riddles)
+- After 2-3 exchanges, suggests a refined goal as JSON: `{"refinedGoal": "...", "suggestedTitle": "..."}`
+- Refined goal appears in an editable textarea with gold border; user can modify before accepting
+- On accept: sets `sparkInput` to refined goal, auto-triggers Spark Architect analysis
+- "Back to editing" returns to the original textarea with text intact
+- Uses `refineSparkGoal()` in `gemini.ts` with `SPARK_REFINEMENT_SYSTEM_PROMPT`
+- Config: temperature 0.8, maxOutputTokens 500
+- Without AI key: button hidden, flow unchanged
 
 **Spark Architect:**
 - AI auto-analyzes goal text during Seed Discovery Step 1
@@ -303,6 +318,7 @@ All types defined in `src/types.ts`. Key interfaces:
 - `DBCommunityProject`, `DBInteraction`, `MarketplaceFilters`, `ProjectAnalytics` — community marketplace types
 - `ShelvedProject` — saved project state (title, plant, module, logs, chat history)
 - `SparkResult` — `{ suggestedTitle, suggestedDomains, suggestedArchetype, domainRationale, archetypeRationale }`
+- `RefinementResponse` — `{ text, refinedGoal?, suggestedTitle? }` — returned by `refineSparkGoal()`
 - `KnowledgeEntry`, `QuestionEntry`, `ExperienceEntry`, `PatternEntry` — module ritual data
 
 ### Design System
@@ -350,6 +366,8 @@ All types defined in `src/types.ts`. Key interfaces:
 **Phase 4: The Fruit (complete)** — ~~Community marketplace~~, ~~content publishing~~, ~~analytics dashboards~~, ~~DB-backed interactions~~, ~~project views tracking~~
 
 **Phase 4.5: UX Polish (complete)** — ~~12-hour time format~~, ~~AI-generated project titles~~, ~~dashboard inline editing~~, ~~shelved projects (Focus Projects)~~, ~~3-project limit~~
+
+**Phase 5: Guided Discovery (complete)** — ~~Guided goal refinement with The Guide in Seed Discovery~~, ~~SparkRefinement inline chat component~~, ~~Auto-trigger Spark Architect after refinement~~
 
 **DB migration required for Phase 4:** 3 new tables (`community_projects`, `community_interactions`, `project_views`) with RLS, triggers, and indexes. See migration SQL in project docs.
 
