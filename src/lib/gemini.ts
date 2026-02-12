@@ -268,6 +268,65 @@ async function callGemini(
   return text;
 }
 
+// ── Spark Refinement ────────────────────────────────────
+
+const SPARK_REFINEMENT_SYSTEM_PROMPT = `You are The Guide — a warm, practical mentor helping someone turn a vague dream into a clear, measurable project goal.
+
+YOUR APPROACH:
+- Ask ONE question at a time. Keep it short and direct.
+- Start by understanding what they want to achieve and why it matters to them.
+- Then help them get specific: What does success look like? By when? How will they know they've made progress?
+- After 2-3 exchanges, suggest a refined goal statement.
+- Be warm but direct — no riddles, no excessive metaphors. Talk like a thoughtful friend who asks great questions.
+- Keep responses to 2-3 sentences max.
+
+WHEN YOU'RE READY TO SUGGEST A REFINED GOAL (after 2-3 exchanges):
+End your response with a JSON object on its own line:
+{"refinedGoal": "A clear, specific, measurable goal statement", "suggestedTitle": "2-5 word project name"}
+
+The refinedGoal should be a single sentence that is specific, measurable, and time-bound where possible.
+The suggestedTitle should be a short, evocative project name (2-5 words).
+Only include this JSON when you have enough information to write a good goal. Do not rush it.`;
+
+export interface RefinementResponse {
+  text: string;
+  refinedGoal?: string;
+  suggestedTitle?: string;
+}
+
+export async function refineSparkGoal(
+  messages: { role: 'user' | 'model'; text: string }[],
+  signal?: AbortSignal,
+): Promise<RefinementResponse> {
+  const contents: GeminiContent[] = messages.map(msg => ({
+    role: msg.role,
+    parts: [{ text: msg.text }],
+  }));
+
+  const rawText = await callGemini(contents, SPARK_REFINEMENT_SYSTEM_PROMPT, 500, signal);
+
+  // Try to extract a refined goal JSON from the end of the response
+  const goalMatch = rawText.match(/\{"refinedGoal"\s*:[\s\S]*\}\s*$/);
+  let refinedGoal: string | undefined;
+  let suggestedTitle: string | undefined;
+  let displayText = rawText;
+
+  if (goalMatch) {
+    try {
+      const parsed = JSON.parse(goalMatch[0]);
+      if (parsed.refinedGoal) {
+        refinedGoal = parsed.refinedGoal;
+        suggestedTitle = parsed.suggestedTitle;
+        displayText = rawText.slice(0, goalMatch.index).trim();
+      }
+    } catch {
+      // Malformed JSON — treat entire response as text
+    }
+  }
+
+  return { text: displayText, refinedGoal, suggestedTitle };
+}
+
 // ── Public API ──────────────────────────────────────────────
 
 interface GuideResponse {
