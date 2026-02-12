@@ -78,13 +78,13 @@ src/
 
 ### Key Components
 
-- **`App`** — Root component. Manages all state via `useState`. Contains four view modes, Seed Discovery flow, notification system, and dashboard layout. ~960 lines.
+- **`App`** — Root component. Manages all state via `useState`. Contains four view modes, Seed Discovery flow ("Focus Project"), notification system, shelved projects, dashboard inline editing, and layout. ~1100 lines.
 - **`PlantVisual`** — Procedural SVG plant generation with 7 stages and 3 archetypes (sunflower, oak, cactus). Uses unique SVG filter IDs via `useId()` to prevent collisions. Keyframe animation in `index.css`.
 - **`AIMentorPanel`** — Sliding side panel chat with "The Guide". Uses **Gemini 2.5 Flash** for Socratic questioning within the 7-Module framework, prioritizing "Earth Care, People Care, Fair Share." Falls back to mock keyword matching when no API key is configured. Supports AbortController cancel, error handling, and persisted chat history.
 - **`MicroCycleModal`** — Standalone 4-step practice loop (Observe → Analyze → Implement → Reflect). Independent of module progression. Users can run anytime.
 - **`ModuleRitualModal`** — Unique ritual for each module (2-6): Roots (knowledge logging), Stem (experiential learning), Leaves (pattern journal + clearing practice), Bloom (community sharing), Fruit (abundance tracking).
 - **`HarvestModal`** — Module 7 completion: captures wisdom, sharing choices. Persists harvest to `harvestHistory` array on the member.
-- **`FlowView`** — Daily schedule timeline + task list with domain tags.
+- **`FlowView`** — Daily schedule timeline (12-hour format) + task list with domain tags.
 - **`MarketplaceView`** — DB-backed community marketplace. Search, filter by archetype, sort (newest/most watered/most grafted/most viewed). Publish projects, view analytics. Replaces the old `CommunityGarden`.
 - **`ProjectDetailModal`** — Full project view with plant visual, stats, interaction history, and water/graft tier selectors. Records views on open.
 - **`PublishProjectModal`** — Publish active project to the community. Pre-fills from current project, allows editing description/tags/visibility.
@@ -129,7 +129,20 @@ Module advancement comes from completing that module's unique process, NOT from 
 - **Oak** = "The Builder" (legacy/financial/long-term)
 - **Cactus** = "The Survivor" (resilience/health/efficiency)
 
-User selects archetype during Seed Discovery (Step 3). AI suggestion planned for Phase 3.
+User selects archetype during Seed Discovery (Step 3). Spark Architect AI suggests title, domains, and archetype.
+
+### Shelved Projects (Focus Projects)
+- Users can save ("shelve") their current project and start a new one
+- Maximum 3 total projects (1 active + 2 shelved)
+- Resume saved projects from the "No Focus Project" empty state
+- Swapping projects auto-shelves the current one
+- Shelved data includes: title, plant, module, impact vectors, ethics check, sharing scope, visibility, knowledge log, question map, experience log, pattern journal, chat history
+- Stored in `profiles.shelved_projects` (jsonb column)
+
+### Dashboard Inline Editing
+- Pencil icon on active project card opens inline edit mode
+- Edit project title and archetype without going through Seed Discovery
+- Save/Cancel buttons with immediate persistence
 
 ### Community Interactions (Tiered)
 
@@ -281,14 +294,15 @@ UPDATE profiles SET trial_start = now(), subscription_status = 'trialing' WHERE 
 ### Data Model (TypeScript)
 
 All types defined in `src/types.ts`. Key interfaces:
-- `FamilyMember` — includes `harvestHistory`, `sowLog`, `knowledgeLog`, `questionMap`, `experienceLog`, `patternJournal`, `notifications`, `chatHistory`
+- `FamilyMember` — includes `harvestHistory`, `sowLog`, `knowledgeLog`, `questionMap`, `experienceLog`, `patternJournal`, `notifications`, `chatHistory`, `shelvedProjects`
 - `GoalsMap` — `Record<DomainKey, Goal>`
 - `HarvestRecord` — persisted harvest wisdom + sharing choices
 - `TrellisNotification` — `{ id, type, title, message, timestamp, read, domain? }`
 - `ToastData` — `{ id, title, message, type, duration? }`
 - `NotificationType` — union of 10 event types
 - `DBCommunityProject`, `DBInteraction`, `MarketplaceFilters`, `ProjectAnalytics` — community marketplace types
-- `SparkResult` — `{ suggestedDomains, suggestedArchetype, domainRationale, archetypeRationale }`
+- `ShelvedProject` — saved project state (title, plant, module, logs, chat history)
+- `SparkResult` — `{ suggestedTitle, suggestedDomains, suggestedArchetype, domainRationale, archetypeRationale }`
 - `KnowledgeEntry`, `QuestionEntry`, `ExperienceEntry`, `PatternEntry` — module ritual data
 
 ### Design System
@@ -329,13 +343,17 @@ All types defined in `src/types.ts`. Key interfaces:
 
 **Phase 2: The Roots (complete)** — ~~Supabase setup~~, ~~auth~~, ~~persist state~~, ~~Leader Mode~~, ~~prioritization logic~~, ~~calendar sync~~, ~~notifications~~
 
-**Phase 3: The Bloom (in progress)** — ~~Real AI for The Guide~~, ~~Guide personality~~, ~~Spark Architect~~, ~~PWA~~, ~~push notifications~~, ~~payments~~
+**Phase 3: The Bloom (complete)** — ~~Real AI for The Guide~~, ~~Guide personality~~, ~~Spark Architect~~, ~~PWA~~, ~~push notifications~~, ~~payments~~
 
 **Phase 3.5: Payments Go-Live (pending setup)** — Stripe Dashboard (product + prices + portal + webhook), DB migration (6 columns + gift_subscriptions table + RLS), Vercel env vars (STRIPE_SECRET_KEY, STRIPE_WEBHOOK_SECRET, SUPABASE_SERVICE_ROLE_KEY, VITE_STRIPE_*), fill .env locally, deploy + test with Stripe test mode
 
 **Phase 4: The Fruit (complete)** — ~~Community marketplace~~, ~~content publishing~~, ~~analytics dashboards~~, ~~DB-backed interactions~~, ~~project views tracking~~
 
+**Phase 4.5: UX Polish (complete)** — ~~12-hour time format~~, ~~AI-generated project titles~~, ~~dashboard inline editing~~, ~~shelved projects (Focus Projects)~~, ~~3-project limit~~
+
 **DB migration required for Phase 4:** 3 new tables (`community_projects`, `community_interactions`, `project_views`) with RLS, triggers, and indexes. See migration SQL in project docs.
+
+**DB migration required for shelved projects:** `ALTER TABLE profiles ADD COLUMN IF NOT EXISTS shelved_projects jsonb DEFAULT '[]'::jsonb;`
 
 ## Deployment
 
@@ -353,7 +371,7 @@ All types defined in `src/types.ts`. Key interfaces:
     -H "Content-Type: application/json" \
     -d '{"query": "YOUR SQL HERE"}'
   ```
-- **Database columns on `profiles`:** id, name, role, goals, project_title, project_plant, project_impact_vectors, current_module, project_visibility, project_ethics_check, project_sharing_scope, tasks, schedule, harvest_history, sow_log, knowledge_log, question_map, experience_log, pattern_journal, notifications, chat_history, trial_start, subscription_status, stripe_customer_id, stripe_subscription_id, subscription_tier, subscription_current_period_end
+- **Database columns on `profiles`:** id, name, role, goals, project_title, project_plant, project_impact_vectors, current_module, project_visibility, project_ethics_check, project_sharing_scope, tasks, schedule, harvest_history, sow_log, knowledge_log, question_map, experience_log, pattern_journal, notifications, chat_history, shelved_projects, trial_start, subscription_status, stripe_customer_id, stripe_subscription_id, subscription_tier, subscription_current_period_end
 - **Additional tables:** community_projects, community_interactions, project_views, gift_subscriptions
 
 ## Technical Document
