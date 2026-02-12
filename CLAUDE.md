@@ -28,7 +28,7 @@ Trellis is a holistic life operating system (Ontology Engine) built around **per
 
 ### Production Target Stack
 - **Backend/DB:** Supabase (PostgreSQL) — relational data linking Families → Communities → Projects
-- **AI Engine:** OpenAI API (GPT-4o) or Gemini 1.5 Pro — powers "The Guide" and "Spark Architect"
+- **AI Engine:** OpenAI API (GPT-4o) or Gemini 2.5 Flash — powers "The Guide" and "Spark Architect"
 - **Deployment:** Vercel as a PWA (Progressive Web App)
 
 ## Architecture
@@ -38,6 +38,11 @@ Trellis is a holistic life operating system (Ontology Engine) built around **per
 
 ### File Structure
 ```
+api/
+├── create-checkout.ts               # Stripe Checkout Session creation
+├── create-portal.ts                 # Stripe Customer Portal session
+├── stripe-webhook.ts                # Stripe webhook handler (raw body)
+└── redeem-gift.ts                   # Gift subscription redemption
 src/
 ├── App.tsx                          # Root component, state management, layout
 ├── types.ts                         # All TypeScript interfaces and type definitions
@@ -45,19 +50,28 @@ src/
 ├── main.tsx                         # React entry point + PWA service worker registration
 ├── lib/
 │   ├── supabase.ts                  # Supabase client, profile load/save
+│   ├── community.ts                 # Community marketplace CRUD (projects, interactions, views, analytics)
+│   ├── gemini.ts                    # Gemini 2.5 Flash API client (Guide + Spark Architect)
 │   ├── notifications.ts             # Notification factories, imbalance detector, browser API
+│   ├── subscription.ts              # Subscription status helpers, Stripe checkout/portal wrappers
 │   ├── googleCalendar.ts            # Google Calendar API fetch
 │   ├── icsParser.ts                 # ICS file parser
 │   └── eventTypeMapper.ts           # Calendar event type mapping
 └── components/
     ├── PlantVisual.tsx              # Procedural SVG plant (7 stages, 3 archetypes)
-    ├── AIMentorPanel.tsx            # Sliding side panel chat with The Guide (mocked)
+    ├── AIMentorPanel.tsx            # Sliding side panel chat with The Guide (Gemini AI)
     ├── HarvestModal.tsx             # Module 7 completion: wisdom capture + seed scattering
     ├── FlowView.tsx                 # Daily schedule + prioritized task list
-    ├── CommunityGarden.tsx          # Community projects with tiered water/graft interactions
+    ├── MarketplaceView.tsx           # DB-backed community marketplace with search/filter/sort
+    ├── ProjectDetailModal.tsx       # Full project view with interaction history + water/graft actions
+    ├── PublishProjectModal.tsx      # Publish/edit project to community marketplace
+    ├── AnalyticsDashboard.tsx       # Project analytics — views, waterings, grafts, charts
     ├── LeaderHub.tsx                # Family garden overview — read-only member card grid + detail modal
     ├── MicroCycleModal.tsx          # Standalone 4-step practice (Observe → Analyze → Implement → Reflect)
     ├── ModuleRitualModal.tsx        # Unique rituals for Modules 2-6
+    ├── PaywallScreen.tsx            # Full-screen paywall with monthly/annual pricing cards
+    ├── GiftModal.tsx                # Gift subscription purchase modal
+    ├── GiftRedeemBanner.tsx         # Banner for redeeming gifted subscriptions
     ├── Toast.tsx                    # Auto-dismissing toast notifications (bottom-right, z-200)
     └── NotificationCenter.tsx       # Bell dropdown — notification history with mark-read/clear
 ```
@@ -66,12 +80,15 @@ src/
 
 - **`App`** — Root component. Manages all state via `useState`. Contains four view modes, Seed Discovery flow, notification system, and dashboard layout. ~960 lines.
 - **`PlantVisual`** — Procedural SVG plant generation with 7 stages and 3 archetypes (sunflower, oak, cactus). Uses unique SVG filter IDs via `useId()` to prevent collisions. Keyframe animation in `index.css`.
-- **`AIMentorPanel`** — Sliding side panel chat with "The Guide". **Currently mocked** with keyword matching. Target: Socratic questioning within the 7-Module framework, prioritizing "Earth Care, People Care, Fair Share."
+- **`AIMentorPanel`** — Sliding side panel chat with "The Guide". Uses **Gemini 2.5 Flash** for Socratic questioning within the 7-Module framework, prioritizing "Earth Care, People Care, Fair Share." Falls back to mock keyword matching when no API key is configured. Supports AbortController cancel, error handling, and persisted chat history.
 - **`MicroCycleModal`** — Standalone 4-step practice loop (Observe → Analyze → Implement → Reflect). Independent of module progression. Users can run anytime.
 - **`ModuleRitualModal`** — Unique ritual for each module (2-6): Roots (knowledge logging), Stem (experiential learning), Leaves (pattern journal + clearing practice), Bloom (community sharing), Fruit (abundance tracking).
 - **`HarvestModal`** — Module 7 completion: captures wisdom, sharing choices. Persists harvest to `harvestHistory` array on the member.
 - **`FlowView`** — Daily schedule timeline + task list with domain tags.
-- **`CommunityGarden`** — Browse/interact with community projects. Tiered watering (Light Rain → Steady Rain → Downpour → Flood) and grafting (Budding → Branch Graft → Full Graft).
+- **`MarketplaceView`** — DB-backed community marketplace. Search, filter by archetype, sort (newest/most watered/most grafted/most viewed). Publish projects, view analytics. Replaces the old `CommunityGarden`.
+- **`ProjectDetailModal`** — Full project view with plant visual, stats, interaction history, and water/graft tier selectors. Records views on open.
+- **`PublishProjectModal`** — Publish active project to the community. Pre-fills from current project, allows editing description/tags/visibility.
+- **`AnalyticsDashboard`** — Overview and per-project analytics. SVG bar chart for views by day (30d), interaction tier breakdowns, recent interaction list.
 - **`Toast`** — Auto-dismissing toast popups (fixed bottom-right, z-200). 6-second duration with fade-out animation. Type-specific icons (Sprout, CheckCircle2, AlertTriangle, Calendar).
 - **`NotificationCenter`** — Bell dropdown with notification history. Supports tap-to-mark-read on individual items, mark-all-read, clear-all. Shows "Enable Push Notifications" button when browser permission is `default`. Newest-first, max-h-80 scrollable list.
 
@@ -140,7 +157,7 @@ User selects archetype during Seed Discovery (Step 3). AI suggestion planned for
 6. **Calendar Synced** — `syncGoogleCalendar()` → fires when Google Calendar events are found
 7. **Imbalance Alert** — `useEffect` on score changes → fires when Land/Sea/Sky gap ≥ 25 points (1-hour cooldown, also sends browser push notification)
 
-**Notification Types:** `NotificationType` = `module_advance | harvest_complete | sow_logged | task_complete | schedule_complete | calendar_synced | imbalance_alert | system`
+**Notification Types:** `NotificationType` = `module_advance | harvest_complete | sow_logged | task_complete | schedule_complete | calendar_synced | imbalance_alert | community_interaction | project_published | system`
 
 **Toast Behavior:** Auto-dismisses after 6 seconds with fade-out. Fixed bottom-right, z-[200].
 
@@ -149,6 +166,33 @@ User selects archetype during Seed Discovery (Step 3). AI suggestion planned for
 **Browser Push:** `requestNotificationPermission()` wraps the Notification API. `sendBrowserNotification()` fires OS-level notifications (used for imbalance alerts).
 
 **Persistence:** `TrellisNotification[]` stored on `FamilyMember.notifications`, persisted to Supabase `profiles.notifications` (jsonb column). All notification access uses `?? []` null safety.
+
+### AI Integration (Gemini 2.5 Flash)
+
+**Architecture:** `src/lib/gemini.ts` is a pure API client with no state. `AIMentorPanel` owns the UI and delegates API calls. Chat history is lifted to `App.tsx` via `onChatHistoryChange` callback and persisted to Supabase `profiles.chat_history` (jsonb).
+
+**The Guide:**
+- Socratic AI mentor using Gemini 2.5 Flash (REST API via fetch, no SDK)
+- System prompt includes: project context, current module + module-specific instructions, domain scores, recent activity (sow log, knowledge log, open questions, experience log, pattern journal), current tasks, imbalance detection
+- Module-specific prompting: each of the 7 modules has a unique focus area injected into the system prompt
+- Task suggestions: Guide can include `{"task": {"title": "...", "domain": "..."}}` at end of response, parsed and displayed as actionable buttons
+- Last 20 messages sent to API; full history displayed in UI
+- AbortController cancel button for long requests
+- Error handling: `GeminiError` class with codes `RATE_LIMIT`, `AUTH`, `NETWORK`, `SAFETY`, `PARSE`
+- **Fallback:** When `VITE_GEMINI_API_KEY` is not set, uses mock keyword matching (demo mode)
+- Chat history clears on Harvest (new project = fresh conversation)
+- Config: temperature 0.8, maxOutputTokens 500
+
+**Spark Architect:**
+- AI auto-analyzes goal text during Seed Discovery Step 1
+- Button appears only when `VITE_GEMINI_API_KEY` is set and goal text is non-empty
+- Returns `SparkResult`: `suggestedDomains` (DomainKey[]), `suggestedArchetype`, `domainRationale`, `archetypeRationale`
+- Pre-populates domain chips (Step 2) and archetype selection (Step 3) from AI suggestion
+- Shows rationale text below domain chips and archetype cards
+- User can always manually override AI suggestions
+- Config: temperature 0.8, maxOutputTokens 300
+
+**Security:** `VITE_GEMINI_API_KEY` is exposed in client bundle (frontend-only architecture). Mitigate by restricting the key to Generative Language API only with HTTP referrer restrictions + per-key quotas in Google AI Studio. Future: move to serverless proxy.
 
 ### PWA Configuration
 
@@ -159,24 +203,92 @@ User selects archetype during Seed Discovery (Step 3). AI suggestion planned for
 - **Registration:** `virtual:pwa-register` in `src/main.tsx`
 - **Meta tags:** `theme-color`, `mobile-web-app-capable`, `apple-touch-icon` in `index.html`
 
-### Planned Database Schema
-- **Profiles:** id, email, family_id, role (Leader/Member), level (Cultivator/Mentor/Think Tank)
-- **Ecosystems (Families):** id, name, leaders[]
-- **Projects (The Plants):** id, user_id, archetype, current_module (1-7), status, visibility, ethics_check, sharing_scope
-- **Cycles (Growth Logs):** id, project_id, module_step, reflection_data, timestamp
-- **Communities:** id, type (Work/Church/Town), members[]
-- **Harvest History:** id, project_id, wisdom, shared_with, seeds_scattered, completed_at
-- **Micro-Cycles:** id, user_id, observation, analysis, implementation, reflection, domain, completed_at
+### Stripe Payments Integration
+
+**Architecture:** Stripe Checkout (hosted) for payment UI. Vercel serverless functions (`/api/*`) handle Stripe API calls and webhooks. Supabase `profiles` table stores subscription state.
+
+**Subscription Model:**
+- 14-day free trial (full access), then $5/month or $39/year
+- Gifting supported via `gift_subscriptions` table
+- Status tracked in `profiles.subscription_status`: `trialing`, `active`, `past_due`, `expired`, `canceled`
+- Trial countdown shown in nav when trialing
+
+**Serverless Functions (`/api/`):**
+- `create-checkout.ts` — Creates Stripe Checkout Session (supports gift purchases)
+- `create-portal.ts` — Creates Stripe Customer Portal session (manage/cancel)
+- `stripe-webhook.ts` — Handles Stripe webhook events (raw body, signature verification)
+- `redeem-gift.ts` — Validates and redeems gift subscriptions
+
+**Client-side (`src/lib/subscription.ts`):**
+- `getSubscriptionInfo(member)` — Returns `{ status, trialDaysRemaining, hasActiveAccess, tier }`
+- `stripeConfigured` — Checks if `VITE_STRIPE_*` env vars are set
+- When Stripe keys not configured (dev mode), paywall is skipped entirely
+
+**Components:**
+- `PaywallScreen` — Full-screen paywall with monthly/annual pricing cards
+- `GiftModal` — Purchase a gift subscription for someone else
+- `GiftRedeemBanner` — Banner at top of dashboard for pending gifts
+
+**Environment Variables:**
+- `VITE_STRIPE_PUBLISHABLE_KEY` — Client-visible (`.env` + Vercel)
+- `VITE_STRIPE_MONTHLY_PRICE_ID` — Client-visible (`.env` + Vercel)
+- `VITE_STRIPE_ANNUAL_PRICE_ID` — Client-visible (`.env` + Vercel)
+- `STRIPE_SECRET_KEY` — Server-only (Vercel only)
+- `STRIPE_WEBHOOK_SECRET` — Server-only (Vercel only)
+- `SUPABASE_SERVICE_ROLE_KEY` — Server-only (Vercel only)
+
+**Stripe Webhook Events:**
+- `checkout.session.completed` — Activate subscription or create gift record
+- `customer.subscription.updated` — Update status/tier/period
+- `customer.subscription.deleted` — Set expired
+- `invoice.payment_failed` — Set past_due
+- `invoice.paid` — Set active + update period
+
+**Database Migration Required:**
+```sql
+ALTER TABLE profiles
+  ADD COLUMN IF NOT EXISTS trial_start timestamptz DEFAULT now(),
+  ADD COLUMN IF NOT EXISTS subscription_status text DEFAULT 'trialing',
+  ADD COLUMN IF NOT EXISTS stripe_customer_id text,
+  ADD COLUMN IF NOT EXISTS stripe_subscription_id text,
+  ADD COLUMN IF NOT EXISTS subscription_tier text,
+  ADD COLUMN IF NOT EXISTS subscription_current_period_end timestamptz;
+
+CREATE TABLE IF NOT EXISTS gift_subscriptions (
+  id uuid PRIMARY KEY DEFAULT gen_random_uuid(),
+  purchaser_user_id uuid NOT NULL,
+  recipient_email text NOT NULL,
+  stripe_checkout_session_id text,
+  tier text NOT NULL,
+  status text NOT NULL DEFAULT 'pending',
+  created_at timestamptz DEFAULT now(),
+  redeemed_at timestamptz,
+  redeemed_by_user_id uuid
+);
+ALTER TABLE gift_subscriptions ENABLE ROW LEVEL SECURITY;
+
+UPDATE profiles SET trial_start = now(), subscription_status = 'trialing' WHERE trial_start IS NULL;
+```
+
+### Database Schema
+- **Profiles:** id, email, family_id, role (Leader/Member), level (Cultivator/Mentor/Think Tank), subscription fields
+- **community_projects:** id, user_id, author_name, title, description, plant, stage, status (draft/published/archived), visibility[], tags[], impact_vectors[], water_count, graft_count, view_count, created_at, updated_at, published_at
+- **community_interactions:** id, project_id, from_user_id, from_user_name, type (water/graft), tier, message, created_at
+- **project_views:** id, project_id, viewer_id, viewed_at (unique per project+viewer+day)
+- **gift_subscriptions:** id, purchaser_user_id, recipient_email, stripe_checkout_session_id, tier, status, created_at, redeemed_at, redeemed_by_user_id
+- **Planned:** Ecosystems (Families), Cycles (Growth Logs), Communities, Micro-Cycles
 
 ### Data Model (TypeScript)
 
 All types defined in `src/types.ts`. Key interfaces:
-- `FamilyMember` — includes `harvestHistory`, `sowLog`, `knowledgeLog`, `questionMap`, `experienceLog`, `patternJournal`, `notifications`
+- `FamilyMember` — includes `harvestHistory`, `sowLog`, `knowledgeLog`, `questionMap`, `experienceLog`, `patternJournal`, `notifications`, `chatHistory`
 - `GoalsMap` — `Record<DomainKey, Goal>`
 - `HarvestRecord` — persisted harvest wisdom + sharing choices
 - `TrellisNotification` — `{ id, type, title, message, timestamp, read, domain? }`
 - `ToastData` — `{ id, title, message, type, duration? }`
-- `NotificationType` — union of 8 event types
+- `NotificationType` — union of 10 event types
+- `DBCommunityProject`, `DBInteraction`, `MarketplaceFilters`, `ProjectAnalytics` — community marketplace types
+- `SparkResult` — `{ suggestedDomains, suggestedArchetype, domainRationale, archetypeRationale }`
 - `KnowledgeEntry`, `QuestionEntry`, `ExperienceEntry`, `PatternEntry` — module ritual data
 
 ### Design System
@@ -191,7 +303,7 @@ All types defined in `src/types.ts`. Key interfaces:
 ### Current Limitations
 - ~~All state is local (no persistence — resets on refresh)~~ — Supabase profiles table with RLS
 - ~~No backend integration despite Supabase dependency~~ — Auth + profile persistence active
-- AI mentor is mocked with keyword matching
+- AI mentor requires `VITE_GEMINI_API_KEY` — falls back to mock keyword matching when not set
 - Plant stage gating not enforced (renders based on module number only)
 - `isFamilyMenuOpen` toggles a dropdown but no member selection is implemented (only 1 hardcoded member)
 - No accessibility: Missing ARIA labels, keyboard focus indicators, low-contrast text patterns
@@ -217,9 +329,13 @@ All types defined in `src/types.ts`. Key interfaces:
 
 **Phase 2: The Roots (complete)** — ~~Supabase setup~~, ~~auth~~, ~~persist state~~, ~~Leader Mode~~, ~~prioritization logic~~, ~~calendar sync~~, ~~notifications~~
 
-**Phase 3: The Bloom (future)** — Real AI for The Guide (all 4 touchpoints), Guide personality, Spark Architect, ~~PWA~~, ~~push notifications~~, payments
+**Phase 3: The Bloom (in progress)** — ~~Real AI for The Guide~~, ~~Guide personality~~, ~~Spark Architect~~, ~~PWA~~, ~~push notifications~~, ~~payments~~
 
-**Phase 4: The Fruit** — Community marketplace, content publishing, analytics dashboards
+**Phase 3.5: Payments Go-Live (pending setup)** — Stripe Dashboard (product + prices + portal + webhook), DB migration (6 columns + gift_subscriptions table + RLS), Vercel env vars (STRIPE_SECRET_KEY, STRIPE_WEBHOOK_SECRET, SUPABASE_SERVICE_ROLE_KEY, VITE_STRIPE_*), fill .env locally, deploy + test with Stripe test mode
+
+**Phase 4: The Fruit (complete)** — ~~Community marketplace~~, ~~content publishing~~, ~~analytics dashboards~~, ~~DB-backed interactions~~, ~~project views tracking~~
+
+**DB migration required for Phase 4:** 3 new tables (`community_projects`, `community_interactions`, `project_views`) with RLS, triggers, and indexes. See migration SQL in project docs.
 
 ## Deployment
 
@@ -237,7 +353,8 @@ All types defined in `src/types.ts`. Key interfaces:
     -H "Content-Type: application/json" \
     -d '{"query": "YOUR SQL HERE"}'
   ```
-- **Database columns on `profiles`:** id, name, role, goals, project_title, project_plant, project_impact_vectors, current_module, project_visibility, project_ethics_check, project_sharing_scope, tasks, schedule, harvest_history, sow_log, knowledge_log, question_map, experience_log, pattern_journal, notifications
+- **Database columns on `profiles`:** id, name, role, goals, project_title, project_plant, project_impact_vectors, current_module, project_visibility, project_ethics_check, project_sharing_scope, tasks, schedule, harvest_history, sow_log, knowledge_log, question_map, experience_log, pattern_journal, notifications, chat_history, trial_start, subscription_status, stripe_customer_id, stripe_subscription_id, subscription_tier, subscription_current_period_end
+- **Additional tables:** community_projects, community_interactions, project_views, gift_subscriptions
 
 ## Technical Document
 

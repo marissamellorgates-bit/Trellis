@@ -1,5 +1,5 @@
 import React from 'react';
-import { Bell, CheckCircle2, Sprout, AlertTriangle, Calendar, Trash2, CheckCheck } from 'lucide-react';
+import { Bell, CheckCircle2, Sprout, AlertTriangle, Calendar, Trash2, CheckCheck, CloudRain, Share2 } from 'lucide-react';
 import type { NotificationCenterProps, NotificationType } from '../types';
 import { requestNotificationPermission } from '../lib/notifications';
 
@@ -11,6 +11,8 @@ const ICON_MAP: Record<NotificationType, React.ElementType> = {
   schedule_complete: CheckCircle2,
   calendar_synced: Calendar,
   imbalance_alert: AlertTriangle,
+  community_interaction: CloudRain,
+  project_published: Share2,
   system: AlertTriangle,
 };
 

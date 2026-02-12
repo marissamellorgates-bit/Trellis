@@ -1,44 +1,119 @@
-import { useState, useEffect, useRef } from 'react';
-import { Bot, Send, X, Plus } from 'lucide-react';
+import { useState, useEffect, useRef, useCallback } from 'react';
+import { Bot, Send, X, Plus, Square } from 'lucide-react';
 import type { AIMentorPanelProps, AIMessage } from '../types';
+import { isGeminiConfigured, sendGuideMessage, GeminiError } from '../lib/gemini';
 
-const AIMentorPanel = ({ isOpen, onClose, context, onAddTask }: AIMentorPanelProps) => {
-  const [messages, setMessages] = useState<AIMessage[]>([
-    { role: 'ai', text: `Greetings. I am your Guide. I see you are cultivating a ${context.plant} for "${context.title}". You are currently in Module ${context.module}: ${context.moduleName}. How can I assist your growth today?` }
-  ]);
+// ── Mock Fallback ───────────────────────────────────────────
+
+function getMockResponse(input: string, context: { module: number; moduleName: string }): AIMessage {
+  let text = '';
+  let task: { title: string; domain: string } | null = null;
+
+  if (input.toLowerCase().includes('stuck') || input.toLowerCase().includes('help')) {
+    text = `In the ${context.moduleName} phase, friction is normal. Remember, we are building the ${context.module === 2 ? 'Roots (Knowledge)' : 'Structure'}. What is one small ${context.module === 2 ? 'question you need answered' : 'action you can take'} today?`;
+  } else if (input.toLowerCase().includes('plan') || input.toLowerCase().includes('task')) {
+    text = `Excellent. Based on Module ${context.module}, I suggest we add a focused task to your Flow.`;
+    task = { title: `Research: fundamentals`, domain: 'instructionalCurrent' };
+  } else {
+    text = 'That is a valuable observation. How does that align with your core ethics for this project?';
+  }
+
+  return { role: 'ai', text, task };
+}
+
+// ── Component ───────────────────────────────────────────────
+
+const AIMentorPanel = ({
+  isOpen, onClose, context, onAddTask,
+  member, domainScores, chatHistory, onChatHistoryChange,
+}: AIMentorPanelProps) => {
   const [input, setInput] = useState('');
   const [isTyping, setIsTyping] = useState(false);
   const scrollRef = useRef<HTMLDivElement>(null);
+  const abortRef = useRef<AbortController | null>(null);
+  const useAI = isGeminiConfigured();
 
+  // Generate greeting when history is empty and panel opens
+  useEffect(() => {
+    if (isOpen && chatHistory.length === 0) {
+      const greeting: AIMessage = {
+        role: 'ai',
+        text: `Welcome back. You're working on "${context.title}" — currently in Module ${context.module}: ${context.moduleName}. What can I help you with?`,
+      };
+      onChatHistoryChange([greeting]);
+    }
+  }, [isOpen]);
+
+  // Auto-scroll on new messages
   useEffect(() => {
     if (scrollRef.current) scrollRef.current.scrollTop = scrollRef.current.scrollHeight;
-  }, [messages]);
+  }, [chatHistory, isTyping]);
 
-  const handleSend = () => {
-    if (!input.trim()) return;
+  const cancelRequest = useCallback(() => {
+    if (abortRef.current) {
+      abortRef.current.abort();
+      abortRef.current = null;
+    }
+    setIsTyping(false);
+  }, []);
+
+  const handleSend = useCallback(async () => {
+    if (!input.trim() || isTyping) return;
     const userMsg: AIMessage = { role: 'user', text: input };
-    setMessages(prev => [...prev, userMsg]);
+    const updated = [...chatHistory, userMsg];
+    onChatHistoryChange(updated);
     setInput('');
     setIsTyping(true);
 
-    setTimeout(() => {
-      let aiText = "";
-      let suggestedTask: { title: string; domain: string } | null = null;
+    if (!useAI) {
+      // Mock fallback
+      setTimeout(() => {
+        const aiMsg = getMockResponse(input, context);
+        onChatHistoryChange([...updated, aiMsg]);
+        setIsTyping(false);
+      }, 1500);
+      return;
+    }
 
-      if (input.toLowerCase().includes("stuck") || input.toLowerCase().includes("help")) {
-        aiText = `In the ${context.moduleName} phase, friction is normal. Remember, we are building the ${context.module === 2 ? "Roots (Knowledge)" : "Structure"}. What is one small ${context.module === 2 ? "question you need answered" : "action you can take"} today?`;
-      } else if (input.toLowerCase().includes("plan") || input.toLowerCase().includes("task")) {
-        aiText = `Excellent. Based on Module ${context.module}, I suggest we add a focused task to your Flow.`;
-        suggestedTask = { title: `Research: ${context.title} fundamentals`, domain: 'intellectual' };
-      } else {
-        aiText = "That is a valuable observation. How does that align with your core ethics for this project?";
+    // Real Gemini call
+    const controller = new AbortController();
+    abortRef.current = controller;
+
+    try {
+      const response = await sendGuideMessage(
+        updated,
+        member,
+        domainScores,
+        controller.signal,
+      );
+      const aiMsg: AIMessage = {
+        role: 'ai',
+        text: response.text,
+        task: response.suggestedTask ?? null,
+      };
+      onChatHistoryChange([...updated, aiMsg]);
+    } catch (err) {
+      if (err instanceof DOMException && err.name === 'AbortError') {
+        // User cancelled — don't add error message
+        return;
       }
-
-      const aiMsg: AIMessage = { role: 'ai', text: aiText, task: suggestedTask };
-      setMessages(prev => [...prev, aiMsg]);
+      let errorText = 'The Guide is resting. Try again in a moment.';
+      if (err instanceof GeminiError) {
+        if (err.code === 'RATE_LIMIT') {
+          errorText = `The Guide needs a moment to rest. Try again in ${err.retryAfter ?? 30} seconds.`;
+        } else if (err.code === 'AUTH') {
+          errorText = 'The Guide cannot connect — please check your API configuration.';
+        } else if (err.code === 'SAFETY') {
+          errorText = 'The Guide could not respond to that. Try rephrasing your question.';
+        }
+      }
+      const errorMsg: AIMessage = { role: 'ai', text: errorText };
+      onChatHistoryChange([...updated, errorMsg]);
+    } finally {
+      abortRef.current = null;
       setIsTyping(false);
-    }, 1500);
-  };
+    }
+  }, [input, isTyping, chatHistory, useAI, context, member, domainScores, onChatHistoryChange]);
 
   if (!isOpen) return null;
 
@@ -51,15 +126,22 @@ const AIMentorPanel = ({ isOpen, onClose, context, onAddTask }: AIMentorPanelPro
           </div>
           <div>
             <h3 className="font-serif italic text-xl">The Guide</h3>
-            <p className="text-[10px] uppercase tracking-widest opacity-50">Trellis AI Engine</p>
+            <p className="text-[10px] uppercase tracking-widest opacity-50">
+              {useAI ? 'Gemini AI Engine' : 'Demo Mode'}
+            </p>
           </div>
         </div>
         <button onClick={onClose}><X size={20} className="opacity-50 hover:opacity-100" /></button>
       </div>
+
       <div className="flex-1 overflow-y-auto p-6 space-y-6" ref={scrollRef}>
-        {messages.map((m, i) => (
+        {chatHistory.map((m, i) => (
           <div key={i} className={`flex ${m.role === 'user' ? 'justify-end' : 'justify-start'}`}>
-            <div className={`max-w-[85%] p-4 rounded-2xl text-sm leading-relaxed ${m.role === 'user' ? 'bg-[#d4af37] text-[#2c2c2a]' : 'bg-[#fdfbf7]/10 border border-[#fdfbf7]/5'}`}>
+            <div className={`max-w-[85%] p-4 rounded-2xl text-sm leading-relaxed ${
+              m.role === 'user'
+                ? 'bg-[#d4af37] text-[#2c2c2a]'
+                : 'bg-[#fdfbf7]/10 border border-[#fdfbf7]/5'
+            }`}>
               {m.text}
               {m.task && (
                 <div className="mt-3 pt-3 border-t border-current/20">
@@ -68,9 +150,10 @@ const AIMentorPanel = ({ isOpen, onClose, context, onAddTask }: AIMentorPanelPro
                     <span>{m.task.title}</span>
                     <button
                       onClick={() => onAddTask(m.task!)}
-                      className="bg-white/20 hover:bg-white/40 p-1 rounded transition-colors" title="Add to Flow"
+                      className="bg-white/20 hover:bg-white/40 p-1 rounded transition-colors"
+                      title="Add to Flow"
                     >
-                      <Plus size={14}/>
+                      <Plus size={14} />
                     </button>
                   </div>
                 </div>
@@ -78,8 +161,13 @@ const AIMentorPanel = ({ isOpen, onClose, context, onAddTask }: AIMentorPanelPro
             </div>
           </div>
         ))}
-        {isTyping && <div className="text-xs opacity-50 italic animate-pulse">The Guide is thinking...</div>}
+        {isTyping && (
+          <div className="flex items-center gap-2 text-xs opacity-50 italic">
+            <span className="animate-pulse">The Guide is thinking...</span>
+          </div>
+        )}
       </div>
+
       <div className="p-4 border-t border-[#fdfbf7]/10 bg-[#2c2c2a]">
         <div className="flex items-center gap-2 bg-[#fdfbf7]/5 rounded-xl p-2 border border-[#fdfbf7]/10 focus-within:border-[#d4af37] transition-colors">
           <input
@@ -88,10 +176,24 @@ const AIMentorPanel = ({ isOpen, onClose, context, onAddTask }: AIMentorPanelPro
             value={input}
             onChange={(e) => setInput(e.target.value)}
             onKeyDown={(e) => e.key === 'Enter' && handleSend()}
+            disabled={isTyping}
           />
-          <button onClick={handleSend} className="p-2 rounded-lg bg-[#d4af37] text-[#2c2c2a] hover:bg-white transition-colors">
-            <Send size={16} />
-          </button>
+          {isTyping ? (
+            <button
+              onClick={cancelRequest}
+              className="p-2 rounded-lg bg-red-500/80 text-white hover:bg-red-500 transition-colors"
+              title="Cancel"
+            >
+              <Square size={16} />
+            </button>
+          ) : (
+            <button
+              onClick={handleSend}
+              className="p-2 rounded-lg bg-[#d4af37] text-[#2c2c2a] hover:bg-white transition-colors"
+            >
+              <Send size={16} />
+            </button>
+          )}
         </div>
       </div>
     </div>

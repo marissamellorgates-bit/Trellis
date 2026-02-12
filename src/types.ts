@@ -171,15 +171,6 @@ export interface CommunityConfig {
   type: string;
 }
 
-export interface CommunityProject {
-  id: number;
-  author: string;
-  community: string;
-  title: string;
-  plant: PlantArchetype;
-  stage: number;
-}
-
 export type WateringTier = 'light-rain' | 'steady-rain' | 'downpour' | 'flood';
 export type GraftingTier = 'budding' | 'branch-graft' | 'full-graft';
 
@@ -210,6 +201,8 @@ export const GRAFTING_TIERS: GraftingAction[] = [
 
 // ── Family & Member ───────────────────────────────────────────
 
+export type SubscriptionStatus = 'trialing' | 'active' | 'past_due' | 'expired' | 'canceled';
+
 export interface FamilyMember {
   id: number;
   name: string;
@@ -231,6 +224,13 @@ export interface FamilyMember {
   experienceLog: ExperienceEntry[];
   patternJournal: PatternEntry[];
   notifications: TrellisNotification[];
+  chatHistory: AIMessage[];
+  trialStart?: string;
+  subscriptionStatus?: SubscriptionStatus;
+  stripeCustomerId?: string;
+  stripeSubscriptionId?: string;
+  subscriptionTier?: string;
+  subscriptionCurrentPeriodEnd?: string;
 }
 
 // ── Notifications ──────────────────────────────────────────────
@@ -243,6 +243,8 @@ export type NotificationType =
   | 'schedule_complete'
   | 'calendar_synced'
   | 'imbalance_alert'
+  | 'community_interaction'
+  | 'project_published'
   | 'system';
 
 export interface TrellisNotification {
@@ -291,6 +293,17 @@ export interface AIMentorPanelProps {
   onClose: () => void;
   context: AIMentorContext;
   onAddTask: (task: { title: string; domain: string }) => void;
+  member: FamilyMember;
+  domainScores: { land: number; sea: number; sky: number };
+  chatHistory: AIMessage[];
+  onChatHistoryChange: (messages: AIMessage[]) => void;
+}
+
+export interface SparkResult {
+  suggestedDomains: DomainKey[];
+  suggestedArchetype: PlantArchetype;
+  domainRationale: string;
+  archetypeRationale: string;
 }
 
 // ── Component Props ───────────────────────────────────────────
@@ -328,8 +341,53 @@ export interface ImportScheduleModalProps {
   existingSourceIds: Set<string>;
 }
 
-export interface CommunityGardenProps {
-  projects: CommunityProject[];
+// ── DB-backed Community ─────────────────────────────────────
+
+export interface DBCommunityProject {
+  id: string;
+  user_id: string;
+  author_name: string;
+  title: string;
+  description: string;
+  plant: PlantArchetype;
+  stage: number;
+  status: 'draft' | 'published' | 'archived';
+  visibility: string[];
+  tags: string[];
+  impact_vectors: string[];
+  water_count: number;
+  graft_count: number;
+  view_count: number;
+  created_at: string;
+  updated_at: string;
+  published_at: string | null;
+}
+
+export interface DBInteraction {
+  id: string;
+  project_id: string;
+  from_user_id: string;
+  from_user_name: string;
+  type: 'water' | 'graft';
+  tier: string;
+  message: string;
+  created_at: string;
+}
+
+export interface MarketplaceFilters {
+  search: string;
+  archetype: PlantArchetype | null;
+  sort: 'newest' | 'most_watered' | 'most_grafted' | 'most_viewed';
+}
+
+export interface ProjectAnalytics {
+  totalViews: number;
+  totalWaterings: number;
+  totalGraftings: number;
+  viewsByDay: { date: string; count: number }[];
+  wateringsByTier: Record<string, number>;
+  graftingsByTier: Record<string, number>;
+  recentInteractions: DBInteraction[];
 }
 
 export interface SowModalProps {

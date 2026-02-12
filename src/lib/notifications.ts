@@ -39,6 +39,12 @@ export const scheduleCompleteNotification = (itemTitle: string) =>
 export const calendarSyncNotification = (count: number) =>
   createNotification('calendar_synced', 'Calendar Synced', `${count} event${count === 1 ? '' : 's'} synced from Google Calendar.`);
 
+export const interactionReceivedNotification = (fromName: string, type: string, tier: string, projectTitle: string) =>
+  createNotification('community_interaction', 'Garden Activity', `${fromName} sent a ${tier} ${type} to "${projectTitle}".`);
+
+export const projectPublishedNotification = (projectTitle: string) =>
+  createNotification('project_published', 'Project Published', `"${projectTitle}" is now live in the Community Garden.`);
+
 // ── Imbalance Detection ──────────────────────────────────────
 
 export function detectImbalance(

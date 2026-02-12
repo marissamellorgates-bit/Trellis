@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Sprout, CheckCircle2, AlertTriangle, Calendar, X } from 'lucide-react';
+import { Sprout, CheckCircle2, AlertTriangle, Calendar, CloudRain, Share2, X } from 'lucide-react';
 import type { ToastData, NotificationType } from '../types';
 
 const ICON_MAP: Record<NotificationType, React.ElementType> = {
@@ -10,6 +10,8 @@ const ICON_MAP: Record<NotificationType, React.ElementType> = {
   schedule_complete: CheckCircle2,
   calendar_synced: Calendar,
   imbalance_alert: AlertTriangle,
+  community_interaction: CloudRain,
+  project_published: Share2,
   system: AlertTriangle,
 };
 

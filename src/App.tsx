@@ -5,7 +5,7 @@ import {
   Sprout,
   Lock, ChevronDown,
   Building, Home, Tent, Bell,
-  LogOut,
+  LogOut, Gift, CreditCard, Clock,
   Droplets, Eye, FolderOpen,
   Wrench, FlaskConical, BookOpen,
   Moon, Gamepad2, User,
@@ -26,22 +26,27 @@ import type { Session } from '@supabase/supabase-js';
 
 import type {
   GoalsMap, DomainKey, MetaDomain, DomainConfig, DomainSubGroup, Task, ScheduleItem,
-  FamilyMember, CommunityProject, CommunityConfig, PlantArchetype,
+  FamilyMember, CommunityConfig, PlantArchetype,
   EthicsCheck, HarvestRecord, SowEntry, SowTier, ModuleInfo,
-  TrellisNotification, ToastData,
+  TrellisNotification, ToastData, AIMessage, SparkResult,
 } from './types';
 import { ARCHETYPE_INFO, SOW_TIERS } from './types';
+import { isGeminiConfigured, sparkArchitectAnalyze, GeminiError } from './lib/gemini';
+import { stripeConfigured, getSubscriptionInfo, createPortalSession } from './lib/subscription';
 
 import PlantVisual from './components/PlantVisual';
 import AIMentorPanel from './components/AIMentorPanel';
 import HarvestModal from './components/HarvestModal';
 import FlowView from './components/FlowView';
-import CommunityGarden from './components/CommunityGarden';
+import MarketplaceView from './components/MarketplaceView';
 import SowModal from './components/SowModal';
 import ModuleWorkshopModal from './components/ModuleWorkshopModal';
 import ImportScheduleModal from './components/ImportScheduleModal';
 import LeaderHub from './components/LeaderHub';
 import AuthScreen from './components/AuthScreen';
+import PaywallScreen from './components/PaywallScreen';
+import GiftModal from './components/GiftModal';
+import GiftRedeemBanner from './components/GiftRedeemBanner';
 import ToastContainer from './components/Toast';
 import NotificationCenter from './components/NotificationCenter';
 import { fetchGoogleCalendarEvents } from './lib/googleCalendar';
@@ -52,6 +57,7 @@ import {
   scheduleCompleteNotification, calendarSyncNotification,
   detectImbalance, sendBrowserNotification,
 } from './lib/notifications';
+import { syncActiveProject } from './lib/community';
 
 // ── Constants ─────────────────────────────────────────────────
 
@@ -102,12 +108,6 @@ const AVAILABLE_COMMUNITIES: CommunityConfig[] = [
   { id: 'church', name: 'Faith Community', icon: Tent, type: 'org' }
 ];
 
-const COMMUNITY_PROJECTS: CommunityProject[] = [
-  { id: 101, author: "Sarah (Coworker)", community: 'work', title: "Daughter's Cookie Fundraiser", plant: 'sunflower', stage: 5 },
-  { id: 102, author: "Mike (Neighbor)", community: 'town', title: "Community Garden Build", plant: 'oak', stage: 3 },
-  { id: 103, author: "Noah (Son)", community: 'family', title: "Learn Python", plant: 'cactus', stage: 2 }
-];
-
 const INITIAL_TASKS: Task[] = [
   { id: 1, title: "Buy organic potting soil", domain: 'environmentalOrder', isProjectRelated: true, done: false, due: 'Today', estimatedMinutes: 45 },
   { id: 2, title: "Quarterly Review Presentation", domain: 'professionalExchange', isProjectRelated: false, done: false, due: 'Tomorrow', estimatedMinutes: 120 },
@@ -143,6 +143,8 @@ const INITIAL_FAMILY: FamilyMember[] = [
     experienceLog: [],
     patternJournal: [],
     notifications: [],
+    chatHistory: [],
+    subscriptionStatus: 'trialing',
   }
 ];
 
@@ -192,6 +194,11 @@ const App = () => {
   const syncIntervalRef = useRef<ReturnType<typeof setInterval> | null>(null);
   const [toasts, setToasts] = useState<ToastData[]>([]);
   const [showNotifications, setShowNotifications] = useState(false);
+  const [showGiftModal, setShowGiftModal] = useState(false);
+  const [pendingGiftId] = useState<string | null>(() => {
+    const params = new URLSearchParams(window.location.search);
+    return params.get('gift');
+  });
   const imbalanceCooldownRef = useRef(0);
 
   const activeMember = familyMembers.find(m => m.id === activeMemberId) || familyMembers[0];
@@ -212,6 +219,8 @@ const App = () => {
   const [ethicsCheck, setEthicsCheck] = useState<EthicsCheck>({ earth: false, people: false, fair: false });
   const [sharingScope, setSharingScope] = useState<string[]>(['private']);
   const [selectedArchetype, setSelectedArchetype] = useState<PlantArchetype | null>(null);
+  const [sparkAnalyzing, setSparkAnalyzing] = useState(false);
+  const [sparkSuggestion, setSparkSuggestion] = useState<SparkResult | null>(null);
 
   // ── Auth Bootstrap ─────────────────────────────────────────
 
@@ -257,6 +266,9 @@ const App = () => {
         defaultMember.experienceLog = [];
         defaultMember.patternJournal = [];
         defaultMember.notifications = [];
+        defaultMember.chatHistory = [];
+        defaultMember.subscriptionStatus = 'trialing';
+        defaultMember.trialStart = new Date().toISOString();
         setFamilyMembers([defaultMember]);
 
         // Insert profile row so future saves work
@@ -276,6 +288,10 @@ const App = () => {
       saveProfile(session.user.id, updates);
     }
   }, [activeMemberId, session]);
+
+  const handleChatHistoryChange = useCallback((messages: AIMessage[]) => {
+    updateActiveMember({ chatHistory: messages });
+  }, [updateActiveMember]);
 
   // ── Notification Helpers ────────────────────────────────────
 
@@ -446,6 +462,8 @@ const App = () => {
     setEthicsCheck({ earth: false, people: false, fair: false });
     setSharingScope(['private']);
     setSelectedArchetype(null);
+    setSparkSuggestion(null);
+    setSparkAnalyzing(false);
   };
 
   // ── Harvest ───────────────────────────────────────────────
@@ -468,6 +486,7 @@ const App = () => {
       questionMap: [],
       experienceLog: [],
       patternJournal: [],
+      chatHistory: [],
     });
     notify(harvestCompleteNotification(activeMember.projectTitle));
     setIsSynthesizing(false);
@@ -483,6 +502,10 @@ const App = () => {
       updateActiveMember({ currentModule: next });
       const mod = PERMACOGNITION_MODULES[next - 1];
       if (mod) notify(moduleAdvanceNotification(next, mod.title));
+      // Fire-and-forget: sync stage to community_projects if published
+      if (session?.user) {
+        syncActiveProject(session.user.id, activeMember.projectTitle, next);
+      }
     } else {
       setIsSynthesizing(true);
     }
@@ -602,6 +625,17 @@ const App = () => {
     }
   }, [landScore, seaScore, skyScore]);
 
+  // ── Checkout Success Handler ──────────────────────────────
+  useEffect(() => {
+    const params = new URLSearchParams(window.location.search);
+    if (params.get('checkout') === 'success' && session?.user) {
+      // Clean up the URL
+      window.history.replaceState({}, '', window.location.pathname);
+      // Reload profile to get updated subscription status
+      setProfileLoaded(false);
+    }
+  }, [session]);
+
   const autoSow = (note: string, domain: DomainKey | string, tier: SowTier) => {
     const entry: SowEntry = {
       id: Date.now(),
@@ -682,9 +716,40 @@ const App = () => {
     );
   }
 
+  // ── Subscription Gate ──────────────────────────────────────
+  const subscriptionInfo = stripeConfigured ? getSubscriptionInfo(activeMember) : null;
+  const isTrialing = subscriptionInfo?.status === 'trialing' && (subscriptionInfo?.trialDaysRemaining ?? 0) > 0;
+
+  if (stripeConfigured && subscriptionInfo && !subscriptionInfo.hasActiveAccess) {
+    return (
+      <>
+        <PaywallScreen
+          userId={session!.user.id}
+          email={session!.user.email!}
+          onLogout={handleLogout}
+          onOpenGift={() => setShowGiftModal(true)}
+        />
+        <GiftModal
+          isOpen={showGiftModal}
+          onClose={() => setShowGiftModal(false)}
+          userId={session!.user.id}
+          email={session!.user.email!}
+        />
+      </>
+    );
+  }
+
   return (
     <div className="min-h-screen bg-[#fdfbf7] text-[#2c2c2a] font-sans selection:bg-[#2c2c2a] selection:text-[#fdfbf7]">
       <ToastContainer toasts={toasts} onDismiss={dismissToast} />
+      {session && (
+        <GiftModal
+          isOpen={showGiftModal}
+          onClose={() => setShowGiftModal(false)}
+          userId={session.user.id}
+          email={session.user.email!}
+        />
+      )}
       <AIMentorPanel
         isOpen={showAIMentor}
         onClose={() => setShowAIMentor(false)}
@@ -695,6 +760,10 @@ const App = () => {
           moduleName: PERMACOGNITION_MODULES[activeMember.currentModule - 1]?.title
         }}
         onAddTask={addTask}
+        member={activeMember}
+        domainScores={{ land: landScore, sea: seaScore, sky: skyScore }}
+        chatHistory={activeMember.chatHistory ?? []}
+        onChatHistoryChange={handleChatHistoryChange}
       />
 
       <HarvestModal
@@ -773,6 +842,12 @@ const App = () => {
               />
             )}
           </div>
+          {stripeConfigured && isTrialing && (
+            <div className="hidden md:flex items-center gap-1.5 text-[#d4af37] bg-[#d4af37]/10 px-3 py-1.5 rounded-full">
+              <Clock size={12} />
+              <span className="text-[10px] font-bold uppercase tracking-widest">{subscriptionInfo!.trialDaysRemaining}d left</span>
+            </div>
+          )}
           <div className="relative">
             <button className="flex items-center gap-3 bg-[#2c2c2a] text-[#fdfbf7] px-4 py-2 rounded-full hover:bg-[#d4af37] hover:text-[#2c2c2a] transition-all" onClick={() => setIsFamilyMenuOpen(!isFamilyMenuOpen)}>
               <span className="text-xs font-bold uppercase tracking-widest">{activeMember.name}</span>
@@ -780,6 +855,31 @@ const App = () => {
             </button>
             {isFamilyMenuOpen && (
               <div className="absolute right-0 mt-2 w-48 bg-white rounded-xl border border-[#2c2c2a]/10 shadow-lg py-2 z-50">
+                {stripeConfigured && activeMember.stripeCustomerId && (
+                  <button
+                    onClick={async () => {
+                      try {
+                        const url = await createPortalSession(activeMember.stripeCustomerId!);
+                        window.location.href = url;
+                      } catch (err) {
+                        console.error('Portal error:', err);
+                      }
+                    }}
+                    className="w-full flex items-center gap-3 px-4 py-2 text-sm text-[#2c2c2a]/60 hover:text-[#2c2c2a] hover:bg-[#2c2c2a]/5 transition-all"
+                  >
+                    <CreditCard size={14} />
+                    <span className="font-bold uppercase tracking-widest text-[10px]">Manage Plan</span>
+                  </button>
+                )}
+                {stripeConfigured && (
+                  <button
+                    onClick={() => { setShowGiftModal(true); setIsFamilyMenuOpen(false); }}
+                    className="w-full flex items-center gap-3 px-4 py-2 text-sm text-[#2c2c2a]/60 hover:text-[#2c2c2a] hover:bg-[#2c2c2a]/5 transition-all"
+                  >
+                    <Gift size={14} />
+                    <span className="font-bold uppercase tracking-widest text-[10px]">Gift Trellis</span>
+                  </button>
+                )}
                 <button
                   onClick={handleLogout}
                   className="w-full flex items-center gap-3 px-4 py-2 text-sm text-[#2c2c2a]/60 hover:text-[#2c2c2a] hover:bg-[#2c2c2a]/5 transition-all"
@@ -794,8 +894,26 @@ const App = () => {
       </nav>
 
       <main className="max-w-6xl mx-auto px-6 py-12 space-y-12">
+        {pendingGiftId && session && (
+          <GiftRedeemBanner
+            giftId={pendingGiftId}
+            userId={session.user.id}
+            email={session.user.email!}
+            onRedeemed={() => {
+              window.history.replaceState({}, '', window.location.pathname);
+              setProfileLoaded(false);
+            }}
+          />
+        )}
         {viewMode === 'flow' && <FlowView schedule={schedule} tasks={tasks} goals={goals} onToggleTask={toggleTask} onCompleteScheduleItem={completeScheduleItem} completedScheduleItems={completedScheduleItems} onOpenImport={() => setShowImportSchedule(true)} />}
-        {viewMode === 'community' && <CommunityGarden projects={COMMUNITY_PROJECTS} />}
+        {viewMode === 'community' && session && (
+          <MarketplaceView
+            userId={session.user.id}
+            userName={activeMember.name}
+            activeMember={activeMember}
+            onNotify={notify}
+          />
+        )}
         {viewMode === 'leader' && <LeaderHub currentMember={activeMember} />}
         {viewMode === 'dashboard' && (
           <div className="space-y-12">
@@ -822,6 +940,14 @@ const App = () => {
                       className="mt-2 px-4 py-2 rounded-full text-xs font-bold uppercase tracking-widest bg-[#d4af37]/10 text-[#d4af37] hover:bg-[#d4af37] hover:text-[#2c2c2a] transition-all"
                     >
                       Begin Harvest
+                    </button>
+                  )}
+                  {session && (
+                    <button
+                      onClick={() => setViewMode('community')}
+                      className="mt-2 ml-2 px-4 py-2 rounded-full text-xs font-bold uppercase tracking-widest border border-[#2c2c2a]/10 text-[#2c2c2a]/50 hover:bg-[#2c2c2a] hover:text-white transition-all"
+                    >
+                      Share to Community
                     </button>
                   )}
                 </div>
@@ -944,6 +1070,31 @@ const App = () => {
                 <div className="space-y-6">
                   <label className="text-[10px] font-bold uppercase tracking-widest opacity-50">Step 1: The Spark</label>
                   <textarea value={sparkInput} onChange={(e) => setSparkInput(e.target.value)} className="w-full bg-[#fdfbf7]/5 border border-[#fdfbf7]/10 rounded-xl p-4 h-32 text-lg focus:border-[#d4af37] outline-none" placeholder="What dream are you planting?" />
+                  {isGeminiConfigured() && sparkInput.trim() && (
+                    <button
+                      onClick={async () => {
+                        setSparkAnalyzing(true);
+                        setSparkSuggestion(null);
+                        try {
+                          const result = await sparkArchitectAnalyze(sparkInput);
+                          setSparkSuggestion(result);
+                          setSelectedDiscoveryVectors(result.suggestedDomains);
+                          setSelectedArchetype(result.suggestedArchetype);
+                        } catch (err) {
+                          console.error('Spark Architect error:', err);
+                          const msg = err instanceof GeminiError ? err.message : 'Could not analyze. Try again.';
+                          setSparkSuggestion({ suggestedDomains: [], suggestedArchetype: 'sunflower', domainRationale: msg, archetypeRationale: '' });
+                        } finally {
+                          setSparkAnalyzing(false);
+                        }
+                      }}
+                      disabled={sparkAnalyzing}
+                      className="flex items-center gap-2 px-4 py-2 rounded-full text-xs font-bold uppercase tracking-widest bg-[#d4af37]/20 text-[#d4af37] hover:bg-[#d4af37] hover:text-[#2c2c2a] transition-all disabled:opacity-40"
+                    >
+                      <Sparkles size={14} />
+                      {sparkAnalyzing ? 'Analyzing...' : 'Analyze with Spark Architect'}
+                    </button>
+                  )}
 
                   <label className="text-[10px] font-bold uppercase tracking-widest opacity-50">Step 2: Domain Mapping</label>
                   <div className="flex flex-wrap gap-2">
@@ -952,6 +1103,9 @@ const App = () => {
                         className={`px-3 py-1 rounded-full text-[10px] font-bold uppercase border transition-all ${selectedDiscoveryVectors.includes(k) ? 'bg-[#d4af37] border-[#d4af37] text-[#2c2c2a]' : 'border-white/10 opacity-40'}`}>{DEFAULT_GOALS[k].label}</button>
                     ))}
                   </div>
+                  {sparkSuggestion?.domainRationale && (
+                    <p className="text-xs text-[#d4af37]/80 italic">Spark Architect: {sparkSuggestion.domainRationale}</p>
+                  )}
 
                   <label className="text-[10px] font-bold uppercase tracking-widest opacity-50">Step 3: Choose Your Archetype</label>
                   <div className="grid grid-cols-3 gap-3">
@@ -971,6 +1125,9 @@ const App = () => {
                       </button>
                     ))}
                   </div>
+                  {sparkSuggestion?.archetypeRationale && (
+                    <p className="text-xs text-[#d4af37]/80 italic">Spark Architect: {sparkSuggestion.archetypeRationale}</p>
+                  )}
                 </div>
                 <div className="space-y-8 border-l border-white/10 pl-0 md:pl-12">
                   <div className="space-y-4">
@@ -998,7 +1155,7 @@ const App = () => {
                 </div>
               </div>
               <div className="flex gap-4 pt-6">
-                <button onClick={() => setIsArchitecting(false)} className="px-8 py-4 opacity-50 font-bold uppercase tracking-widest text-xs">Cancel</button>
+                <button onClick={() => { setIsArchitecting(false); setSparkSuggestion(null); setSparkAnalyzing(false); }} className="px-8 py-4 opacity-50 font-bold uppercase tracking-widest text-xs">Cancel</button>
                 <button onClick={finalizeDiscovery} disabled={!sparkInput || selectedDiscoveryVectors.length === 0 || !ethicsCheck.earth || !selectedArchetype} className="flex-1 bg-[#d4af37] text-[#2c2c2a] py-4 rounded-xl font-bold uppercase tracking-widest disabled:opacity-20 hover:bg-white transition-all">Initialize Growth</button>
               </div>
             </div>

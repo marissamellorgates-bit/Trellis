@@ -1,5 +1,5 @@
 import { createClient } from '@supabase/supabase-js';
-import type { GoalsMap, DomainKey, FamilyMember, PlantArchetype } from '../types';
+import type { GoalsMap, DomainKey, FamilyMember, PlantArchetype, SubscriptionStatus } from '../types';
 
 // ── Supabase Client ──────────────────────────────────────────
 
@@ -44,6 +44,13 @@ interface ProfileRow {
   experience_log: FamilyMember['experienceLog'];
   pattern_journal: FamilyMember['patternJournal'];
   notifications: FamilyMember['notifications'];
+  chat_history: FamilyMember['chatHistory'];
+  trial_start: string | null;
+  subscription_status: SubscriptionStatus | null;
+  stripe_customer_id: string | null;
+  stripe_subscription_id: string | null;
+  subscription_tier: string | null;
+  subscription_current_period_end: string | null;
 }
 
 // ── Serialization Helpers ────────────────────────────────────
@@ -106,6 +113,13 @@ export async function loadProfile(
     experienceLog: row.experience_log || [],
     patternJournal: row.pattern_journal || [],
     notifications: row.notifications || [],
+    chatHistory: row.chat_history ?? [],
+    trialStart: row.trial_start ?? undefined,
+    subscriptionStatus: row.subscription_status ?? 'trialing',
+    stripeCustomerId: row.stripe_customer_id ?? undefined,
+    stripeSubscriptionId: row.stripe_subscription_id ?? undefined,
+    subscriptionTier: row.subscription_tier ?? undefined,
+    subscriptionCurrentPeriodEnd: row.subscription_current_period_end ?? undefined,
   };
 }
 
@@ -136,6 +150,13 @@ export async function saveProfile(
   if (updates.experienceLog !== undefined) row.experience_log = updates.experienceLog;
   if (updates.patternJournal !== undefined) row.pattern_journal = updates.patternJournal;
   if (updates.notifications !== undefined) row.notifications = updates.notifications;
+  if (updates.chatHistory !== undefined) row.chat_history = updates.chatHistory;
+  if (updates.trialStart !== undefined) row.trial_start = updates.trialStart;
+  if (updates.subscriptionStatus !== undefined) row.subscription_status = updates.subscriptionStatus;
+  if (updates.stripeCustomerId !== undefined) row.stripe_customer_id = updates.stripeCustomerId;
+  if (updates.stripeSubscriptionId !== undefined) row.stripe_subscription_id = updates.stripeSubscriptionId;
+  if (updates.subscriptionTier !== undefined) row.subscription_tier = updates.subscriptionTier;
+  if (updates.subscriptionCurrentPeriodEnd !== undefined) row.subscription_current_period_end = updates.subscriptionCurrentPeriodEnd;
 
   if (Object.keys(row).length === 0) return;
 
