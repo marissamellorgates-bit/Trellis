@@ -133,6 +133,13 @@ Module advancement comes from completing that module's unique process, NOT from 
 
 User selects archetype during Seed Discovery (Step 3). Spark Architect AI suggests title, domains, and archetype.
 
+### Seed Discovery Flow
+- **Step 1: The Spark** — Textarea for initial idea. When AI is configured, pressing Enter or clicking outside auto-triggers guided refinement with The Guide (SparkRefinement component). On accept, Spark Architect auto-analyzes the refined goal.
+- **Step 2: Domain Mapping** — Domain chips grouped under Land (Foundation), Sea (Social Space), Sky (Aspiration) with category labels. Spark Architect pre-selects suggested domains.
+- **Step 3: Archetype** — User picks Sunflower/Oak/Cactus. Spark Architect pre-selects suggested archetype.
+- **Step 4: Ethics Check** — Earth Care, People Care, Share the Harvest toggles.
+- **Step 5: Pollination Strategy** — Select sharing communities.
+
 ### Shelved Projects (Focus Projects)
 - Users can save ("shelve") their current project and start a new one
 - Maximum 3 total projects (1 active + 2 shelved)
