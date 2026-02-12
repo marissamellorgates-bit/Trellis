@@ -200,8 +200,9 @@ User selects archetype during Seed Discovery (Step 3). Spark Architect AI sugges
 
 **Spark Refinement (Guided Goal Refinement):**
 - Inline AI chat in Seed Discovery Step 1 — helps users turn vague ideas into clear, measurable goals
-- "Refine with The Guide" button appears alongside "Analyze with Spark Architect" when AI is configured + text entered
-- On click, replaces the textarea with a compact chat widget (`SparkRefinement` component)
+- **Auto-triggers on textarea blur**: when AI is configured and user has typed text, clicking/tabbing out of the textarea automatically opens the refinement chat (no button click needed)
+- Subtle hint text below textarea: "Click outside the box when you're ready — The Guide will help you refine your idea"
+- Replaces the textarea with a compact chat widget (`SparkRefinement` component)
 - AI asks one clarifying question at a time (warm, direct tone — no riddles)
 - After 2-3 exchanges, suggests a refined goal as JSON: `{"refinedGoal": "...", "suggestedTitle": "..."}`
 - Refined goal appears in an editable textarea with gold border; user can modify before accepting
@@ -209,7 +210,7 @@ User selects archetype during Seed Discovery (Step 3). Spark Architect AI sugges
 - "Back to editing" returns to the original textarea with text intact
 - Uses `refineSparkGoal()` in `gemini.ts` with `SPARK_REFINEMENT_SYSTEM_PROMPT`
 - Config: temperature 0.8, maxOutputTokens 500
-- Without AI key: button hidden, flow unchanged
+- Without AI key: refinement skipped entirely, flow unchanged
 
 **Spark Architect:**
 - AI auto-analyzes goal text during Seed Discovery Step 1
