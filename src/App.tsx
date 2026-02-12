@@ -1001,7 +1001,7 @@ const App = () => {
           />
         )}
         {viewMode === 'leader' && <LeaderHub currentMember={activeMember} />}
-        {viewMode === 'dashboard' && (
+        {viewMode === 'dashboard' && !isArchitecting && (
           <div className="space-y-12">
             {activeMember.projectTitle ? (
               <div className="bg-white rounded-3xl border border-[#2c2c2a]/10 p-8 flex justify-between items-center relative">
@@ -1106,7 +1106,7 @@ const App = () => {
                 </div>
                 <div className="relative w-56 h-64 shrink-0"><PlantVisual stage={activeMember.currentModule} type={editingProject ? editArchetype : activeMember.projectPlant}/></div>
               </div>
-            ) : (
+            ) : isArchitecting ? null : (
               <div className="bg-white border-2 border-dashed border-[#2c2c2a]/10 rounded-3xl p-16 text-center space-y-6">
                 <h2 className="font-serif text-3xl">No Focus Project</h2>
                 <p className="text-sm text-[#2c2c2a]/40">Start a new focus project or resume a saved one.</p>
