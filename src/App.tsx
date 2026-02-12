@@ -1283,11 +1283,17 @@ const App = () => {
                             setShowSparkRefinement(true);
                           }
                         }}
+                        onKeyDown={(e) => {
+                          if (e.key === 'Enter' && !e.shiftKey && isGeminiConfigured() && sparkInput.trim()) {
+                            e.preventDefault();
+                            setShowSparkRefinement(true);
+                          }
+                        }}
                         className="w-full bg-[#fdfbf7]/5 border border-[#fdfbf7]/10 rounded-xl p-4 h-32 text-lg focus:border-[#d4af37] outline-none"
                         placeholder="What dream are you planting?"
                       />
                       {isGeminiConfigured() && sparkInput.trim() && (
-                        <p className="text-[10px] text-[#d4af37]/50 italic">Click outside the box when you're ready — The Guide will help you refine your idea</p>
+                        <p className="text-[10px] text-[#d4af37]/50 italic">Press Enter or click outside when you're ready — The Guide will help refine your idea</p>
                       )}
                       {!isGeminiConfigured() && sparkInput.trim() && (
                         <button
