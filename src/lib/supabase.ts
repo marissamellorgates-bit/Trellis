@@ -45,6 +45,7 @@ interface ProfileRow {
   pattern_journal: FamilyMember['patternJournal'];
   notifications: FamilyMember['notifications'];
   chat_history: FamilyMember['chatHistory'];
+  shelved_projects: FamilyMember['shelvedProjects'];
   trial_start: string | null;
   subscription_status: SubscriptionStatus | null;
   stripe_customer_id: string | null;
@@ -114,6 +115,7 @@ export async function loadProfile(
     patternJournal: row.pattern_journal || [],
     notifications: row.notifications || [],
     chatHistory: row.chat_history ?? [],
+    shelvedProjects: row.shelved_projects ?? [],
     trialStart: row.trial_start ?? undefined,
     subscriptionStatus: row.subscription_status ?? 'trialing',
     stripeCustomerId: row.stripe_customer_id ?? undefined,
@@ -151,6 +153,7 @@ export async function saveProfile(
   if (updates.patternJournal !== undefined) row.pattern_journal = updates.patternJournal;
   if (updates.notifications !== undefined) row.notifications = updates.notifications;
   if (updates.chatHistory !== undefined) row.chat_history = updates.chatHistory;
+  if (updates.shelvedProjects !== undefined) row.shelved_projects = updates.shelvedProjects;
   if (updates.trialStart !== undefined) row.trial_start = updates.trialStart;
   if (updates.subscriptionStatus !== undefined) row.subscription_status = updates.subscriptionStatus;
   if (updates.stripeCustomerId !== undefined) row.stripe_customer_id = updates.stripeCustomerId;

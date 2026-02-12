@@ -28,7 +28,7 @@ import type {
   GoalsMap, DomainKey, MetaDomain, DomainConfig, DomainSubGroup, Task, ScheduleItem,
   FamilyMember, CommunityConfig, PlantArchetype,
   EthicsCheck, HarvestRecord, SowEntry, SowTier, ModuleInfo,
-  TrellisNotification, ToastData, AIMessage, SparkResult,
+  TrellisNotification, ToastData, AIMessage, SparkResult, ShelvedProject,
 } from './types';
 import { ARCHETYPE_INFO, SOW_TIERS } from './types';
 import { isGeminiConfigured, sparkArchitectAnalyze, GeminiError } from './lib/gemini';
@@ -144,6 +144,7 @@ const INITIAL_FAMILY: FamilyMember[] = [
     patternJournal: [],
     notifications: [],
     chatHistory: [],
+    shelvedProjects: [],
     subscriptionStatus: 'trialing',
   }
 ];
@@ -271,6 +272,7 @@ const App = () => {
         defaultMember.patternJournal = [];
         defaultMember.notifications = [];
         defaultMember.chatHistory = [];
+        defaultMember.shelvedProjects = [];
         defaultMember.subscriptionStatus = 'trialing';
         defaultMember.trialStart = new Date().toISOString();
         setFamilyMembers([defaultMember]);
@@ -469,6 +471,85 @@ const App = () => {
     setSelectedArchetype(null);
     setSparkSuggestion(null);
     setSparkAnalyzing(false);
+  };
+
+  // ── Shelve / Resume Project ──────────────────────────────
+
+  const shelveCurrentProject = () => {
+    if (!activeMember.projectTitle) return;
+    const shelved: ShelvedProject = {
+      id: Date.now(),
+      title: activeMember.projectTitle,
+      plant: activeMember.projectPlant,
+      module: activeMember.currentModule,
+      impactVectors: activeMember.projectImpactVectors,
+      ethicsCheck: activeMember.projectEthicsCheck,
+      sharingScope: activeMember.projectSharingScope,
+      visibility: activeMember.projectVisibility,
+      knowledgeLog: activeMember.knowledgeLog,
+      questionMap: activeMember.questionMap,
+      experienceLog: activeMember.experienceLog,
+      patternJournal: activeMember.patternJournal,
+      chatHistory: activeMember.chatHistory,
+      shelvedAt: new Date().toISOString(),
+    };
+    updateActiveMember({
+      shelvedProjects: [...(activeMember.shelvedProjects ?? []), shelved],
+      projectTitle: '',
+      currentModule: 1,
+      projectImpactVectors: [],
+      projectEthicsCheck: undefined,
+      projectSharingScope: ['private'],
+      projectVisibility: [],
+      knowledgeLog: [],
+      questionMap: [],
+      experienceLog: [],
+      patternJournal: [],
+      chatHistory: [],
+    });
+  };
+
+  const resumeProject = (shelvedId: number) => {
+    const shelved = (activeMember.shelvedProjects ?? []).find(p => p.id === shelvedId);
+    if (!shelved) return;
+
+    // If there's a current project, shelve it first
+    let updatedShelved = (activeMember.shelvedProjects ?? []).filter(p => p.id !== shelvedId);
+    if (activeMember.projectTitle) {
+      const currentAsShelved: ShelvedProject = {
+        id: Date.now(),
+        title: activeMember.projectTitle,
+        plant: activeMember.projectPlant,
+        module: activeMember.currentModule,
+        impactVectors: activeMember.projectImpactVectors,
+        ethicsCheck: activeMember.projectEthicsCheck,
+        sharingScope: activeMember.projectSharingScope,
+        visibility: activeMember.projectVisibility,
+        knowledgeLog: activeMember.knowledgeLog,
+        questionMap: activeMember.questionMap,
+        experienceLog: activeMember.experienceLog,
+        patternJournal: activeMember.patternJournal,
+        chatHistory: activeMember.chatHistory,
+        shelvedAt: new Date().toISOString(),
+      };
+      updatedShelved = [...updatedShelved, currentAsShelved];
+    }
+
+    updateActiveMember({
+      shelvedProjects: updatedShelved,
+      projectTitle: shelved.title,
+      projectPlant: shelved.plant,
+      currentModule: shelved.module,
+      projectImpactVectors: shelved.impactVectors,
+      projectEthicsCheck: shelved.ethicsCheck,
+      projectSharingScope: shelved.sharingScope,
+      projectVisibility: shelved.visibility,
+      knowledgeLog: shelved.knowledgeLog,
+      questionMap: shelved.questionMap,
+      experienceLog: shelved.experienceLog,
+      patternJournal: shelved.patternJournal,
+      chatHistory: shelved.chatHistory,
+    });
   };
 
   // ── Harvest ───────────────────────────────────────────────
@@ -1011,6 +1092,14 @@ const App = () => {
                             Share to Community
                           </button>
                         )}
+                        <button
+                          onClick={() => { shelveCurrentProject(); setIsArchitecting(true); }}
+                          disabled={(activeMember.shelvedProjects ?? []).length >= 2}
+                          className="px-4 py-2 rounded-full text-xs font-bold uppercase tracking-widest border border-[#2c2c2a]/10 text-[#2c2c2a]/50 hover:bg-[#2c2c2a] hover:text-white transition-all disabled:opacity-30 disabled:cursor-not-allowed disabled:hover:bg-transparent disabled:hover:text-[#2c2c2a]/50"
+                          title={(activeMember.shelvedProjects ?? []).length >= 2 ? 'Max 3 projects — finish or harvest one first' : undefined}
+                        >
+                          New Focus Project
+                        </button>
                       </div>
                     </>
                   )}
@@ -1019,8 +1108,25 @@ const App = () => {
               </div>
             ) : (
               <div className="bg-white border-2 border-dashed border-[#2c2c2a]/10 rounded-3xl p-16 text-center space-y-6">
-                <h2 className="font-serif text-3xl">No Active Spiral</h2>
-                <p className="text-sm text-[#2c2c2a]/40">Begin a new growth project to start your journey.</p>
+                <h2 className="font-serif text-3xl">No Focus Project</h2>
+                <p className="text-sm text-[#2c2c2a]/40">Start a new focus project or resume a saved one.</p>
+                {(activeMember.shelvedProjects ?? []).length > 0 && (
+                  <div className="mt-4">
+                    <p className="text-[10px] font-bold uppercase tracking-widest text-[#2c2c2a]/40 mb-3">Saved Projects</p>
+                    <div className="flex gap-3 justify-center flex-wrap">
+                      {(activeMember.shelvedProjects ?? []).map(sp => (
+                        <button
+                          key={sp.id}
+                          onClick={() => resumeProject(sp.id)}
+                          className="px-4 py-3 bg-white border border-[#2c2c2a]/10 rounded-xl text-left hover:border-[#d4af37] hover:shadow-md transition-all group"
+                        >
+                          <span className="block text-sm font-bold text-[#2c2c2a] group-hover:text-[#d4af37]">{sp.title}</span>
+                          <span className="text-[10px] text-[#2c2c2a]/40 capitalize">{sp.plant} — Module {sp.module}</span>
+                        </button>
+                      ))}
+                    </div>
+                  </div>
+                )}
                 {activeMember.harvestHistory.length > 0 && (
                   <div className="mt-4">
                     <p className="text-[10px] font-bold uppercase tracking-widest text-[#2c2c2a]/40 mb-2">Past Harvests</p>
@@ -1034,7 +1140,13 @@ const App = () => {
                     </div>
                   </div>
                 )}
-                <button onClick={() => setIsArchitecting(true)} className="bg-[#2c2c2a] text-[#fdfbf7] px-8 py-4 rounded-full font-bold uppercase">Start Discovery</button>
+                <button
+                  onClick={() => setIsArchitecting(true)}
+                  disabled={(activeMember.shelvedProjects ?? []).length >= 3}
+                  className="bg-[#2c2c2a] text-[#fdfbf7] px-8 py-4 rounded-full font-bold uppercase disabled:opacity-30 disabled:cursor-not-allowed"
+                >
+                  {(activeMember.shelvedProjects ?? []).length >= 3 ? 'Max 3 Projects Reached' : 'Start Focus Project'}
+                </button>
               </div>
             )}
 

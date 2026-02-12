@@ -53,7 +53,7 @@ const HarvestModal = ({ isOpen, wisdom, sharing, communities, onWisdomChange, on
 
           <div className="space-y-2">
             <label className="text-[10px] font-bold uppercase tracking-widest text-[#2c2c2a]/40">Seeds to Scatter (New Projects Born)</label>
-            <p className="text-xs text-[#2c2c2a]/40">After harvest, you'll be prompted to begin new Seed Discovery for projects inspired by this one.</p>
+            <p className="text-xs text-[#2c2c2a]/40">After harvest, you can start a new focus project inspired by this one.</p>
           </div>
 
           <button onClick={onFinalize} className="w-full bg-[#2c2c2a] text-[#fdfbf7] py-4 rounded-xl font-bold uppercase tracking-widest hover:bg-[#d4af37] hover:text-[#2c2c2a] transition-all">

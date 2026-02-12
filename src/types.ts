@@ -199,6 +199,25 @@ export const GRAFTING_TIERS: GraftingAction[] = [
   { tier: 'full-graft', label: 'Full Graft', description: 'Deep co-growth partnership' },
 ];
 
+// ── Shelved Projects ─────────────────────────────────────
+
+export interface ShelvedProject {
+  id: number;
+  title: string;
+  plant: PlantArchetype;
+  module: number;
+  impactVectors: DomainKey[];
+  ethicsCheck?: EthicsCheck;
+  sharingScope?: string[];
+  visibility: string[];
+  knowledgeLog: KnowledgeEntry[];
+  questionMap: QuestionEntry[];
+  experienceLog: ExperienceEntry[];
+  patternJournal: PatternEntry[];
+  chatHistory: AIMessage[];
+  shelvedAt: string;
+}
+
 // ── Family & Member ───────────────────────────────────────────
 
 export type SubscriptionStatus = 'trialing' | 'active' | 'past_due' | 'expired' | 'canceled';
@@ -225,6 +244,7 @@ export interface FamilyMember {
   patternJournal: PatternEntry[];
   notifications: TrellisNotification[];
   chatHistory: AIMessage[];
+  shelvedProjects: ShelvedProject[];
   trialStart?: string;
   subscriptionStatus?: SubscriptionStatus;
   stripeCustomerId?: string;

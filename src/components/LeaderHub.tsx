@@ -102,6 +102,7 @@ const MOCK_MEMBERS: Omit<FamilyMember, 'goals'>[] = [
     patternJournal: [],
     notifications: [],
     chatHistory: [],
+    shelvedProjects: [],
     subscriptionStatus: 'active',
   },
   {
@@ -123,6 +124,7 @@ const MOCK_MEMBERS: Omit<FamilyMember, 'goals'>[] = [
     patternJournal: [],
     notifications: [],
     chatHistory: [],
+    shelvedProjects: [],
     subscriptionStatus: 'active',
   },
   {
@@ -144,6 +146,7 @@ const MOCK_MEMBERS: Omit<FamilyMember, 'goals'>[] = [
     patternJournal: [],
     notifications: [],
     chatHistory: [],
+    shelvedProjects: [],
     subscriptionStatus: 'active',
   },
 ];
