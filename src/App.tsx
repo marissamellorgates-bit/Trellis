@@ -1275,41 +1275,45 @@ const App = () => {
                     />
                   ) : (
                     <>
-                      <textarea value={sparkInput} onChange={(e) => setSparkInput(e.target.value)} className="w-full bg-[#fdfbf7]/5 border border-[#fdfbf7]/10 rounded-xl p-4 h-32 text-lg focus:border-[#d4af37] outline-none" placeholder="What dream are you planting?" />
+                      <textarea
+                        value={sparkInput}
+                        onChange={(e) => setSparkInput(e.target.value)}
+                        onBlur={() => {
+                          if (isGeminiConfigured() && sparkInput.trim()) {
+                            setShowSparkRefinement(true);
+                          }
+                        }}
+                        className="w-full bg-[#fdfbf7]/5 border border-[#fdfbf7]/10 rounded-xl p-4 h-32 text-lg focus:border-[#d4af37] outline-none"
+                        placeholder="What dream are you planting?"
+                      />
                       {isGeminiConfigured() && sparkInput.trim() && (
-                        <div className="flex gap-3 flex-wrap">
-                          <button
-                            onClick={() => setShowSparkRefinement(true)}
-                            className="flex items-center gap-2 px-4 py-2 rounded-full text-xs font-bold uppercase tracking-widest border border-[#d4af37]/30 text-[#d4af37] hover:bg-[#d4af37]/10 transition-all"
-                          >
-                            <Sparkles size={14} />
-                            Refine with The Guide
-                          </button>
-                          <button
-                            onClick={async () => {
-                              setSparkAnalyzing(true);
-                              setSparkSuggestion(null);
-                              try {
-                                const result = await sparkArchitectAnalyze(sparkInput);
-                                setSparkSuggestion(result);
-                                setSelectedDiscoveryVectors(result.suggestedDomains);
-                                setSelectedArchetype(result.suggestedArchetype);
-                                if (result.suggestedTitle) setSparkTitle(result.suggestedTitle);
-                              } catch (err) {
-                                console.error('Spark Architect error:', err);
-                                const msg = err instanceof GeminiError ? err.message : 'Could not analyze. Try again.';
-                                setSparkSuggestion({ suggestedTitle: '', suggestedDomains: [], suggestedArchetype: 'sunflower', domainRationale: msg, archetypeRationale: '' });
-                              } finally {
-                                setSparkAnalyzing(false);
-                              }
-                            }}
-                            disabled={sparkAnalyzing}
-                            className="flex items-center gap-2 px-4 py-2 rounded-full text-xs font-bold uppercase tracking-widest bg-[#d4af37]/20 text-[#d4af37] hover:bg-[#d4af37] hover:text-[#2c2c2a] transition-all disabled:opacity-40"
-                          >
-                            <Sparkles size={14} />
-                            {sparkAnalyzing ? 'Analyzing...' : 'Analyze with Spark Architect'}
-                          </button>
-                        </div>
+                        <p className="text-[10px] text-[#d4af37]/50 italic">Click outside the box when you're ready — The Guide will help you refine your idea</p>
+                      )}
+                      {!isGeminiConfigured() && sparkInput.trim() && (
+                        <button
+                          onClick={async () => {
+                            setSparkAnalyzing(true);
+                            setSparkSuggestion(null);
+                            try {
+                              const result = await sparkArchitectAnalyze(sparkInput);
+                              setSparkSuggestion(result);
+                              setSelectedDiscoveryVectors(result.suggestedDomains);
+                              setSelectedArchetype(result.suggestedArchetype);
+                              if (result.suggestedTitle) setSparkTitle(result.suggestedTitle);
+                            } catch (err) {
+                              console.error('Spark Architect error:', err);
+                              const msg = err instanceof GeminiError ? err.message : 'Could not analyze. Try again.';
+                              setSparkSuggestion({ suggestedTitle: '', suggestedDomains: [], suggestedArchetype: 'sunflower', domainRationale: msg, archetypeRationale: '' });
+                            } finally {
+                              setSparkAnalyzing(false);
+                            }
+                          }}
+                          disabled={sparkAnalyzing}
+                          className="flex items-center gap-2 px-4 py-2 rounded-full text-xs font-bold uppercase tracking-widest bg-[#d4af37]/20 text-[#d4af37] hover:bg-[#d4af37] hover:text-[#2c2c2a] transition-all disabled:opacity-40"
+                        >
+                          <Sparkles size={14} />
+                          {sparkAnalyzing ? 'Analyzing...' : 'Analyze with Spark Architect'}
+                        </button>
                       )}
                     </>
                   )}
