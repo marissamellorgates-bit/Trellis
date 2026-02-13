@@ -70,19 +70,19 @@ import { syncActiveProject, archiveProject } from './lib/community';
 
 const DEFAULT_GOALS: GoalsMap = {
   // Land — Soil
-  biological: { completed: 1.0, total: 4, label: 'Physical Health', icon: Droplets, goal: "8h sleep, 2L water" },
-  mentalClarity: { completed: 1.0, total: 4, label: 'Mental Clarity', icon: Eye, goal: "Morning meditation" },
+  biological: { completed: 0.0, total: 4, label: 'Physical Health', icon: Droplets, goal: "8h sleep, 2L water" },
+  mentalClarity: { completed: 0.0, total: 4, label: 'Mental Clarity', icon: Eye, goal: "Morning meditation" },
   environmentalOrder: { completed: 0.0, total: 4, label: 'Environmental Order', icon: FolderOpen, goal: "Clean workspace" },
   // Land — Vine
-  coreCompetencies: { completed: 1.0, total: 5, label: 'Crafts', icon: Wrench, goal: "Deepen primary skill" },
+  coreCompetencies: { completed: 0.0, total: 5, label: 'Crafts', icon: Wrench, goal: "Deepen primary skill" },
   experimentalTendrils: { completed: 0.0, total: 4, label: 'Tendrils', icon: FlaskConical, goal: "Try something new" },
   reflectiveSynthesis: { completed: 0.0, total: 3, label: 'Reflection', icon: BookOpen, goal: "Weekly review" },
   // Land — Canopy
-  passiveRestoration: { completed: 1.0, total: 4, label: 'Rest', icon: Moon, goal: "Guilt-free downtime" },
+  passiveRestoration: { completed: 0.0, total: 4, label: 'Rest', icon: Moon, goal: "Guilt-free downtime" },
   activePlay: { completed: 0.0, total: 5, label: 'Play', icon: Gamepad2, goal: "Guitar practice" },
   solitude: { completed: 0.0, total: 3, label: 'Solitude', icon: User, goal: "Solo nature walk" },
   // Sea — Harbor
-  innerCircle: { completed: 1.0, total: 5, label: 'Family', icon: Heart, goal: "Quality time with loved ones" },
+  innerCircle: { completed: 0.0, total: 5, label: 'Family', icon: Heart, goal: "Quality time with loved ones" },
   socialCommunion: { completed: 0.0, total: 4, label: 'Friends', icon: Users, goal: "Connect with a friend" },
   safePort: { completed: 0.0, total: 4, label: 'Village', icon: Home, goal: "Show up for the community" },
   // Sea — Trade Winds
@@ -100,9 +100,9 @@ const DEFAULT_GOALS: GoalsMap = {
   // Sky — Atmosphere
   radicalImagination: { completed: 0.0, total: 4, label: 'Imagination', icon: Lightbulb, goal: "Unbounded brainstorm" },
   beautyExploration: { completed: 0.0, total: 3, label: 'Beauty', icon: Palette, goal: "Appreciate art for its own sake" },
-  emotionalRelease: { completed: 1.0, total: 4, label: 'Expression', icon: Music, goal: "Music, laughter, or art" },
+  emotionalRelease: { completed: 0.0, total: 4, label: 'Expression', icon: Music, goal: "Music, laughter, or art" },
   // Sky — Navigation
-  spiritualPurpose: { completed: 1.0, total: 5, label: 'Spirit', icon: Compass, goal: "Connect with higher meaning" },
+  spiritualPurpose: { completed: 0.0, total: 5, label: 'Spirit', icon: Compass, goal: "Connect with higher meaning" },
   lifeVision: { completed: 0.0, total: 4, label: 'Vision', icon: Telescope, goal: "Dream about the long term" },
   purePlay: { completed: 0.0, total: 3, label: 'Freedom', icon: Dice1, goal: "No-goal, no-outcome play" },
 };
@@ -147,6 +147,7 @@ const INITIAL_FAMILY: FamilyMember[] = [
     subscriptionStatus: 'trialing',
     familyId: undefined,
     familyRole: undefined,
+    isManagedChild: false,
   }
 ];
 
@@ -1102,6 +1103,8 @@ const App = () => {
               <ChevronDown size={14}/>
             </button>
             {isFamilyMenuOpen && (
+              <>
+              <div className="fixed inset-0 z-40" onClick={() => setIsFamilyMenuOpen(false)} />
               <div className="absolute right-0 mt-2 w-48 bg-white rounded-xl border border-[#2c2c2a]/10 shadow-lg py-2 z-50">
                 {!isManagedChild && stripeConfigured && ownMember.stripeCustomerId && (
                   <button
@@ -1137,6 +1140,7 @@ const App = () => {
                     <span className="font-bold uppercase tracking-widest text-[10px]">My Family</span>
                   </button>
                 )}
+                {!isManagedChild && (
                 <button
                   onClick={() => { setShowCommunitySettings(true); setIsFamilyMenuOpen(false); }}
                   className="w-full flex items-center gap-3 px-4 py-2 text-sm text-[#2c2c2a]/60 hover:text-[#2c2c2a] hover:bg-[#2c2c2a]/5 transition-all"
@@ -1144,14 +1148,16 @@ const App = () => {
                   <Settings size={14} />
                   <span className="font-bold uppercase tracking-widest text-[10px]">My Communities</span>
                 </button>
+                )}
                 <button
-                  onClick={handleLogout}
+                  onClick={() => { setIsFamilyMenuOpen(false); handleLogout(); }}
                   className="w-full flex items-center gap-3 px-4 py-2 text-sm text-[#2c2c2a]/60 hover:text-[#2c2c2a] hover:bg-[#2c2c2a]/5 transition-all"
                 >
                   <LogOut size={14} />
                   <span className="font-bold uppercase tracking-widest text-[10px]">Sign Out</span>
                 </button>
               </div>
+              </>
             )}
           </div>
         </div>

@@ -49,6 +49,15 @@ export default defineConfig({
       },
     }),
   ],
+  server: {
+    proxy: {
+      '/api': {
+        target: 'https://trellis-tau.vercel.app',
+        changeOrigin: true,
+        secure: true,
+      },
+    },
+  },
   optimizeDeps: {
     exclude: ['lucide-react'],
   },

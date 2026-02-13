@@ -96,7 +96,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
 
   const childUserId = newUser.user.id;
 
-  // Create profile row
+  // Create profile row (only include columns that exist in DB)
   const { error: profileError } = await supabase
     .from('profiles')
     .upsert({
@@ -108,7 +108,6 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
       is_managed_child: true,
       managed_by_user_id: user.id,
       child_slug: slug,
-      subscription_status: 'active',
       goals: {},
       tasks: [],
       schedule: [],
@@ -120,13 +119,6 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
       pattern_journal: [],
       notifications: [],
       chat_history: [],
-      shelved_projects: [],
-      project_title: '',
-      project_plant: 'sunflower',
-      project_impact_vectors: [],
-      current_module: 1,
-      project_visibility: [],
-      project_sharing_scope: ['private'],
     });
 
   if (profileError) {

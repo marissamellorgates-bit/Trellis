@@ -14,13 +14,32 @@ const AuthScreen: React.FC = () => {
   const [loading, setLoading] = useState(false);
   const [checkEmail, setCheckEmail] = useState(false);
 
-  // Kid login state
+  // Kid login state — skip code step if saved
+  const savedCode = localStorage.getItem('trellis_kid_family_code') || '';
   const [kidStep, setKidStep] = useState<1 | 2 | 3>(1);
-  const [kidCode, setKidCode] = useState('');
+  const [kidCode, setKidCode] = useState(savedCode);
   const [kidChildren, setKidChildren] = useState<ManagedChildSummary[]>([]);
   const [selectedKid, setSelectedKid] = useState<ManagedChildSummary | null>(null);
   const [kidPin, setKidPin] = useState('');
   const pinInputRefs = useRef<(HTMLInputElement | null)[]>([]);
+  const [autoLoaded, setAutoLoaded] = useState(false);
+
+  // Auto-load children if saved code exists
+  React.useEffect(() => {
+    if (mode === 'kidlogin' && savedCode && !autoLoaded && kidChildren.length === 0) {
+      setAutoLoaded(true);
+      setLoading(true);
+      listFamilyChildren(savedCode).then(children => {
+        if (children.length > 0) {
+          setKidChildren(children);
+          setKidStep(2);
+        }
+      }).catch(() => {
+        // Saved code no longer valid — clear it
+        localStorage.removeItem('trellis_kid_family_code');
+      }).finally(() => setLoading(false));
+    }
+  }, [mode, savedCode, autoLoaded, kidChildren.length]);
 
   const handleKidCodeSubmit = async () => {
     if (!kidCode.trim()) return;
@@ -31,6 +50,7 @@ const AuthScreen: React.FC = () => {
       if (children.length === 0) {
         setError('No kids found for this family code');
       } else {
+        localStorage.setItem('trellis_kid_family_code', kidCode.trim());
         setKidChildren(children);
         setKidStep(2);
       }
@@ -157,11 +177,11 @@ const AuthScreen: React.FC = () => {
               {kidStep === 2 && (
                 <div className="space-y-4">
                   <button
-                    onClick={() => { setKidStep(1); setError(''); }}
+                    onClick={() => { setKidStep(1); setError(''); localStorage.removeItem('trellis_kid_family_code'); }}
                     className="flex items-center gap-1 text-[10px] font-bold uppercase tracking-widest text-[#fdfbf7]/40 hover:text-[#fdfbf7] transition-all"
                   >
                     <ChevronLeft size={12} />
-                    Back
+                    Change Family
                   </button>
                   <p className="text-[#fdfbf7]/60 text-sm text-center">Who are you?</p>
                   <div className="space-y-2">
