@@ -442,10 +442,11 @@ UPDATE profiles SET trial_start = now(), subscription_status = 'trialing' WHERE 
 **Architecture:** Parents can add children (who don't have email accounts) to their family. The server creates real Supabase auth users with synthetic emails (`{slug}.kid@trellis.app`) and PIN-derived passwords (`trellis-{pin}`). Children get their own profile rows — existing load/save code works unchanged. Parents can switch to managing a child's full dashboard.
 
 **Kid Login Flow:**
-1. Kid enters family join code on AuthScreen (Kid Login tab)
-2. `/api/family-children` returns list of managed children (unauthenticated, name + slug only)
-3. Kid selects their name from the list
-4. Kid enters 4-digit PIN → `supabase.auth.signInWithPassword({ email: '{slug}.kid@trellis.app', password: 'trellis-{pin}' })`
+1. First time: Kid enters family join code on AuthScreen (Kid Login tab) — code saved to localStorage
+2. Return visits: Skips code step, auto-loads children from saved code ("Change Family" link to reset)
+3. `/api/family-children` returns list of managed children (unauthenticated, name + slug only)
+4. Kid selects their name from the list
+5. Kid enters 4-digit PIN → `supabase.auth.signInWithPassword({ email: '{slug}.kid@trellis.app', password: 'trellis-{pin}' })`
 
 **Parent Manage Flow:**
 1. LeaderHub → tap child card → detail modal → "Manage Dashboard" button
@@ -466,15 +467,18 @@ UPDATE profiles SET trial_start = now(), subscription_status = 'trialing' WHERE 
 
 **DB Columns on `profiles`:** `is_managed_child boolean`, `managed_by_user_id uuid`, `child_slug text UNIQUE`
 
-**RLS Policies:** "Parents can read managed children" (SELECT), "Parents can update managed children" (UPDATE) — both use `managed_by_user_id = auth.uid()`
+**RLS Policies:** "Parents can read managed children" (SELECT), "Parents can update managed children" (UPDATE) — both use `managed_by_user_id = auth.uid()`. "Users can read family members" uses `get_my_family_id()` security definer function to avoid infinite recursion.
+
+**RLS Recursion Fix:** The "Users can read family members" policy originally had a self-referencing subquery (`family_id IN (SELECT family_id FROM profiles WHERE id = auth.uid())`) which caused infinite recursion. Fixed by creating `get_my_family_id()` as a `SECURITY DEFINER` function that bypasses RLS on the inner query.
 
 **Child Slug Format:** `{sanitized-name}-{4random}` (e.g. `emma-7x2k`)
 
 **UI Changes:**
-- AuthScreen: 3-tab toggle (Sign In / Sign Up / Kid Login) with 3-step flow
+- AuthScreen: 3-tab toggle (Sign In / Sign Up / Kid Login) with 3-step flow, localStorage remembers family code
 - FamilySettingsModal: "Kids" section in leader view — add child form (name + PIN), managed children list with manage/remove buttons
 - LeaderHub: Green "Kid" badge on child cards, "Manage Dashboard" button in detail modal
-- App.tsx: Management banner, conditional activeMember, child-aware dropdown menu
+- App.tsx: Management banner, conditional activeMember, child-aware dropdown menu (hides My Family + My Communities for kids)
+- User dropdown: Click-outside backdrop (fixed inset-0 z-40) closes menu
 
 ### Database Schema
 - **Profiles:** id, email, family_id, family_role, role (Leader/Member), level (Cultivator/Mentor/Think Tank), subscription fields, is_managed_child, managed_by_user_id, child_slug
@@ -562,9 +566,13 @@ All types defined in `src/types.ts`. Key interfaces:
 
 **DB migration required for Phase 4:** 3 new tables (`community_projects`, `community_interactions`, `project_views`) with RLS, triggers, and indexes. See migration SQL in project docs.
 
-**DB migration required for shelved projects:** `ALTER TABLE profiles ADD COLUMN IF NOT EXISTS shelved_projects jsonb DEFAULT '[]'::jsonb;`
+**DB migration required for shelved projects (done):** `ALTER TABLE profiles ADD COLUMN IF NOT EXISTS shelved_projects jsonb DEFAULT '[]'::jsonb;`
+
+**DB migration required for subscription fields (done):** `trial_start timestamptz`, `subscription_status text`, `stripe_customer_id text`, `stripe_subscription_id text`, `subscription_tier text`, `subscription_current_period_end timestamptz`
 
 **DB migration required for custom communities (done):** `ALTER TABLE profiles ADD COLUMN IF NOT EXISTS custom_communities jsonb DEFAULT NULL;`
+
+**DB migration required for RLS recursion fix (done):** `CREATE FUNCTION get_my_family_id() ... SECURITY DEFINER` + recreated "Users can read family members" policy to use the function instead of a subquery
 
 ## Deployment
 
