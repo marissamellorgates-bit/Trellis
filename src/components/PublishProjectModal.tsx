@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { X, CheckCircle2 } from 'lucide-react';
 import type { FamilyMember, DBCommunityProject } from '../types';
 import { upsertProject, publishProject } from '../lib/community';
+import { useModal } from '../hooks/useModal';
 
 interface PublishProjectModalProps {
   isOpen: boolean;
@@ -24,6 +25,7 @@ const PublishProjectModal = ({ isOpen, onClose, member, userId, existingProject,
   const [tagsInput, setTagsInput] = useState(existingProject?.tags.join(', ') ?? '');
   const [visibility, setVisibility] = useState<string[]>(existingProject?.visibility ?? ['family']);
   const [saving, setSaving] = useState(false);
+  const { modalRef } = useModal(isOpen, onClose);
 
   if (!isOpen) return null;
 
@@ -68,17 +70,17 @@ const PublishProjectModal = ({ isOpen, onClose, member, userId, existingProject,
   };
 
   return (
-    <div className="fixed inset-0 bg-black/40 backdrop-blur-sm z-[100] flex items-center justify-center p-4" onClick={onClose}>
-      <div className="bg-[#fdfbf7] rounded-3xl max-w-lg w-full shadow-2xl" onClick={e => e.stopPropagation()}>
+    <div className="fixed inset-0 bg-black/40 backdrop-blur-sm z-[100] flex items-center justify-center p-4" onClick={onClose} role="dialog" aria-modal="true" aria-labelledby="publish-title">
+      <div ref={modalRef} className="bg-[#fdfbf7] rounded-3xl max-w-lg w-full shadow-2xl" onClick={e => e.stopPropagation()}>
         <div className="p-8 space-y-6">
           <div className="flex justify-between items-start">
             <div>
-              <h2 className="font-serif text-2xl italic text-[#2c2c2a]">
+              <h2 id="publish-title" className="font-serif text-2xl italic text-[#2c2c2a]">
                 {existingProject ? 'Edit Project' : 'Share to Community'}
               </h2>
               <p className="text-xs text-[#2c2c2a]/40 mt-1">{member.projectTitle}</p>
             </div>
-            <button onClick={onClose} className="text-[#2c2c2a]/30 hover:text-[#2c2c2a]"><X size={20} /></button>
+            <button onClick={onClose} aria-label="Close" className="text-[#2c2c2a]/30 hover:text-[#2c2c2a]"><X size={20} /></button>
           </div>
 
           {/* Pre-filled info */}

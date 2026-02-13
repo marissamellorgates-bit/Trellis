@@ -4,6 +4,7 @@ import PlantVisual from './PlantVisual';
 import { WATERING_TIERS, GRAFTING_TIERS } from '../types';
 import type { DBCommunityProject, DBInteraction } from '../types';
 import { fetchProjectInteractions, recordInteraction, recordView } from '../lib/community';
+import { useModal } from '../hooks/useModal';
 
 interface ProjectDetailModalProps {
   project: DBCommunityProject;
@@ -20,6 +21,7 @@ const ProjectDetailModal = ({ project, userId, userName, isOwn, onClose, onInter
   const [interactions, setInteractions] = useState<DBInteraction[]>([]);
   const [mode, setMode] = useState<InteractionMode>(null);
   const [sending, setSending] = useState(false);
+  const { modalRef } = useModal(true, onClose);
 
   useEffect(() => {
     recordView(project.id, userId);
@@ -57,8 +59,8 @@ const ProjectDetailModal = ({ project, userId, userName, isOwn, onClose, onInter
   };
 
   return (
-    <div className="fixed inset-0 bg-black/40 backdrop-blur-sm z-[100] flex items-center justify-center p-4" onClick={onClose}>
-      <div className="bg-[#fdfbf7] rounded-3xl max-w-2xl w-full max-h-[90vh] overflow-y-auto shadow-2xl" onClick={e => e.stopPropagation()}>
+    <div className="fixed inset-0 bg-black/40 backdrop-blur-sm z-[100] flex items-center justify-center p-4" onClick={onClose} role="dialog" aria-modal="true" aria-labelledby="project-detail-title">
+      <div ref={modalRef} className="bg-[#fdfbf7] rounded-3xl max-w-2xl w-full max-h-[90vh] overflow-y-auto shadow-2xl" onClick={e => e.stopPropagation()}>
         <div className="p-8 space-y-6">
           {/* Header */}
           <div className="flex justify-between items-start">
@@ -72,9 +74,9 @@ const ProjectDetailModal = ({ project, userId, userName, isOwn, onClose, onInter
                   <span className="text-[10px] uppercase font-bold text-[#2c2c2a]/40">Module {project.stage}</span>
                 </div>
               </div>
-              <h2 className="font-serif text-3xl italic text-[#2c2c2a]">{project.title}</h2>
+              <h2 id="project-detail-title" className="font-serif text-3xl italic text-[#2c2c2a]">{project.title}</h2>
             </div>
-            <button onClick={onClose} className="text-[#2c2c2a]/30 hover:text-[#2c2c2a] transition-colors">
+            <button onClick={onClose} aria-label="Close" className="text-[#2c2c2a]/30 hover:text-[#2c2c2a] transition-colors">
               <X size={20} />
             </button>
           </div>

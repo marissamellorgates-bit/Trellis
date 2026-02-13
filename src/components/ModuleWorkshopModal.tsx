@@ -4,6 +4,7 @@ import {
   BookOpen, HelpCircle, FlaskConical, TreePine, Eye, Users2
 } from 'lucide-react';
 import type { ModuleWorkshopModalProps, KnowledgeEntry, QuestionEntry, ExperienceEntry, PatternEntry } from '../types';
+import { useModal } from '../hooks/useModal';
 
 // ── Module 2: The Roots — Knowledge Accumulation ──────────────
 
@@ -308,6 +309,7 @@ const MODULE_CONFIG = [
 ];
 
 const ModuleWorkshopModal = ({ isOpen, module, onClose, onAdvance, member, onUpdateMember }: ModuleWorkshopModalProps) => {
+  const { modalRef } = useModal(isOpen, onClose);
   if (!isOpen) return null;
 
   const config = MODULE_CONFIG.find(m => m.id === module);
@@ -325,20 +327,20 @@ const ModuleWorkshopModal = ({ isOpen, module, onClose, onAdvance, member, onUpd
   };
 
   return (
-    <div className="fixed inset-0 z-[100] flex items-center justify-center p-6 bg-[#2c2c2a]/90 backdrop-blur-md">
-      <div className="bg-[#fdfbf7] w-full max-w-xl rounded-3xl overflow-hidden shadow-2xl animate-in zoom-in duration-300">
+    <div className="fixed inset-0 z-[100] flex items-center justify-center p-6 bg-[#2c2c2a]/90 backdrop-blur-md" role="dialog" aria-modal="true" aria-labelledby="module-workshop-title">
+      <div ref={modalRef} className="bg-[#fdfbf7] w-full max-w-xl rounded-3xl overflow-hidden shadow-2xl animate-in zoom-in duration-300">
         <div className="p-8 space-y-6">
           <div className="flex justify-between items-start">
             <div className="flex items-center gap-4">
               <div className="w-12 h-12 bg-[#d4af37]/10 rounded-full flex items-center justify-center text-[#d4af37]">
-                {<config.icon size={24} />}
+                {<config.icon size={24} aria-hidden="true" />}
               </div>
               <div>
-                <h3 className="font-serif text-2xl italic text-[#2c2c2a]">{config.title}</h3>
+                <h3 id="module-workshop-title" className="font-serif text-2xl italic text-[#2c2c2a]">{config.title}</h3>
                 <p className="text-[10px] font-bold uppercase tracking-widest text-[#2c2c2a]/40">{config.subtitle}</p>
               </div>
             </div>
-            <button onClick={onClose} className="text-[#2c2c2a] hover:text-[#d4af37]"><X size={20}/></button>
+            <button onClick={onClose} aria-label="Close" className="text-[#2c2c2a] hover:text-[#d4af37]"><X size={20}/></button>
           </div>
 
           {renderWorkshop()}

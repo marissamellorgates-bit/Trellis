@@ -77,7 +77,7 @@ const NotificationCenter: React.FC<NotificationCenterProps> = ({
               <button
                 onClick={onMarkAllRead}
                 className="p-1.5 text-[#2c2c2a]/30 hover:text-[#2c2c2a] transition-colors rounded-lg hover:bg-[#2c2c2a]/5"
-                title="Mark all read"
+                aria-label="Mark all as read"
               >
                 <CheckCheck size={14} />
               </button>
@@ -86,7 +86,7 @@ const NotificationCenter: React.FC<NotificationCenterProps> = ({
               <button
                 onClick={onClear}
                 className="p-1.5 text-[#2c2c2a]/30 hover:text-[#2c2c2a] transition-colors rounded-lg hover:bg-[#2c2c2a]/5"
-                title="Clear all"
+                aria-label="Clear all notifications"
               >
                 <Trash2 size={14} />
               </button>

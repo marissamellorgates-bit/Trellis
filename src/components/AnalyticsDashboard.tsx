@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import { X, Eye, CloudRain, Users2, BarChart3, ArrowLeft } from 'lucide-react';
 import type { DBCommunityProject, ProjectAnalytics } from '../types';
 import { fetchMyProjects, fetchProjectAnalytics } from '../lib/community';
+import { useModal } from '../hooks/useModal';
 
 interface AnalyticsDashboardProps {
   isOpen: boolean;
@@ -14,6 +15,7 @@ const AnalyticsDashboard = ({ isOpen, onClose, userId }: AnalyticsDashboardProps
   const [selectedProject, setSelectedProject] = useState<DBCommunityProject | null>(null);
   const [analytics, setAnalytics] = useState<ProjectAnalytics | null>(null);
   const [loading, setLoading] = useState(true);
+  const { modalRef } = useModal(isOpen, onClose);
 
   useEffect(() => {
     if (!isOpen) return;
@@ -111,19 +113,19 @@ const AnalyticsDashboard = ({ isOpen, onClose, userId }: AnalyticsDashboardProps
   };
 
   return (
-    <div className="fixed inset-0 bg-black/40 backdrop-blur-sm z-[100] flex items-center justify-center p-4" onClick={onClose}>
-      <div className="bg-[#fdfbf7] rounded-3xl max-w-2xl w-full max-h-[90vh] overflow-y-auto shadow-2xl" onClick={e => e.stopPropagation()}>
+    <div className="fixed inset-0 bg-black/40 backdrop-blur-sm z-[100] flex items-center justify-center p-4" onClick={onClose} role="dialog" aria-modal="true" aria-labelledby="analytics-title">
+      <div ref={modalRef} className="bg-[#fdfbf7] rounded-3xl max-w-2xl w-full max-h-[90vh] overflow-y-auto shadow-2xl" onClick={e => e.stopPropagation()}>
         <div className="p-8 space-y-6">
           {/* Header */}
           <div className="flex justify-between items-start">
             <div className="flex items-center gap-3">
               {selectedProject && (
-                <button onClick={() => setSelectedProject(null)} className="text-[#2c2c2a]/40 hover:text-[#2c2c2a]">
+                <button onClick={() => setSelectedProject(null)} aria-label="Back to overview" className="text-[#2c2c2a]/40 hover:text-[#2c2c2a]">
                   <ArrowLeft size={20} />
                 </button>
               )}
               <div>
-                <h2 className="font-serif text-2xl italic text-[#2c2c2a]">
+                <h2 id="analytics-title" className="font-serif text-2xl italic text-[#2c2c2a]">
                   {selectedProject ? selectedProject.title : 'My Analytics'}
                 </h2>
                 <p className="text-xs text-[#2c2c2a]/40 mt-1">
@@ -131,7 +133,7 @@ const AnalyticsDashboard = ({ isOpen, onClose, userId }: AnalyticsDashboardProps
                 </p>
               </div>
             </div>
-            <button onClick={onClose} className="text-[#2c2c2a]/30 hover:text-[#2c2c2a]"><X size={20} /></button>
+            <button onClick={onClose} aria-label="Close" className="text-[#2c2c2a]/30 hover:text-[#2c2c2a]"><X size={20} /></button>
           </div>
 
           {loading ? (

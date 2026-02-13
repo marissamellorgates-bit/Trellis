@@ -5,6 +5,7 @@ import { isTodoistConfigured, getTodoistAuthUrl, exchangeTodoistToken, fetchTodo
 import type { TodoistTask } from '../lib/todoist';
 import { isAIConfigured, extractTasksFromImage } from '../lib/ai';
 import type { ExtractedTask } from '../lib/ai';
+import { useModal } from '../hooks/useModal';
 
 interface ImportTasksModalProps {
   isOpen: boolean;
@@ -338,6 +339,7 @@ const PhotoTab = ({ onImportTasks, goals }: { onImportTasks: (tasks: Task[]) => 
             <img src={imageData.preview} alt="Task list" className="w-full max-h-48 object-contain bg-[#2c2c2a]/5" />
             <button
               onClick={() => setImageData(null)}
+              aria-label="Remove image"
               className="absolute top-2 right-2 w-7 h-7 rounded-full bg-white/90 flex items-center justify-center text-[#2c2c2a]/60 hover:text-[#2c2c2a] shadow-sm transition-all"
             >
               <X size={14} />
@@ -407,6 +409,7 @@ const ImportTasksModal = ({ isOpen, onClose, onImportTasks, goals }: ImportTasks
 
   const defaultTab: Tab = todoistAvailable ? 'todoist' : 'photo';
   const [activeTab, setActiveTab] = useState<Tab>(defaultTab);
+  const { modalRef } = useModal(isOpen, onClose);
 
   // Reset tab when opening
   useEffect(() => {
@@ -416,12 +419,12 @@ const ImportTasksModal = ({ isOpen, onClose, onImportTasks, goals }: ImportTasks
   if (!isOpen) return null;
 
   return (
-    <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-[100] p-4" onClick={onClose}>
-      <div className="bg-white rounded-3xl w-full max-w-lg max-h-[90vh] overflow-hidden shadow-2xl" onClick={e => e.stopPropagation()}>
+    <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-[100] p-4" onClick={onClose} role="dialog" aria-modal="true" aria-labelledby="import-tasks-title">
+      <div ref={modalRef} className="bg-white rounded-3xl w-full max-w-lg max-h-[90vh] overflow-hidden shadow-2xl" onClick={e => e.stopPropagation()}>
         {/* Header */}
         <div className="flex items-center justify-between p-6 pb-0">
-          <h2 className="font-serif text-2xl">Import Tasks</h2>
-          <button onClick={onClose} className="w-8 h-8 rounded-full hover:bg-[#2c2c2a]/5 flex items-center justify-center text-[#2c2c2a]/40 hover:text-[#2c2c2a] transition-all">
+          <h2 id="import-tasks-title" className="font-serif text-2xl">Import Tasks</h2>
+          <button onClick={onClose} aria-label="Close" className="w-8 h-8 rounded-full hover:bg-[#2c2c2a]/5 flex items-center justify-center text-[#2c2c2a]/40 hover:text-[#2c2c2a] transition-all">
             <X size={18} />
           </button>
         </div>

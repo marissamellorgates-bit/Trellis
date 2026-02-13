@@ -2,6 +2,7 @@ import { useState, useEffect, useRef, useCallback } from 'react';
 import { Bot, Send, X, Plus, Square } from 'lucide-react';
 import type { AIMentorPanelProps, AIMessage } from '../types';
 import { isAIConfigured, sendGuideMessage, AIError } from '../lib/ai';
+import { useModal } from '../hooks/useModal';
 
 // ── Mock Fallback ───────────────────────────────────────────
 
@@ -32,6 +33,7 @@ const AIMentorPanel = ({
   const scrollRef = useRef<HTMLDivElement>(null);
   const abortRef = useRef<AbortController | null>(null);
   const useAI = isAIConfigured();
+  const { modalRef } = useModal(isOpen, onClose);
 
   // Generate greeting when history is empty and panel opens
   useEffect(() => {
@@ -118,20 +120,20 @@ const AIMentorPanel = ({
   if (!isOpen) return null;
 
   return (
-    <div className="fixed right-0 top-0 bottom-0 w-full md:w-96 bg-[#2c2c2a] text-[#fdfbf7] shadow-2xl z-[100] flex flex-col animate-in slide-in-from-right duration-300">
+    <div ref={modalRef} className="fixed right-0 top-0 bottom-0 w-full md:w-96 bg-[#2c2c2a] text-[#fdfbf7] shadow-2xl z-[100] flex flex-col animate-in slide-in-from-right duration-300" role="dialog" aria-modal="true" aria-labelledby="guide-title">
       <div className="p-6 border-b border-[#fdfbf7]/10 flex justify-between items-center bg-[#2c2c2a]">
         <div className="flex items-center gap-3">
           <div className="w-10 h-10 rounded-full bg-[#d4af37] flex items-center justify-center text-[#2c2c2a]">
-            <Bot size={20} />
+            <Bot size={20} aria-hidden="true" />
           </div>
           <div>
-            <h3 className="font-serif italic text-xl">The Guide</h3>
+            <h3 id="guide-title" className="font-serif italic text-xl">The Guide</h3>
             <p className="text-[10px] uppercase tracking-widest opacity-50">
               {useAI ? 'AI Engine' : 'Demo Mode'}
             </p>
           </div>
         </div>
-        <button onClick={onClose}><X size={20} className="opacity-50 hover:opacity-100" /></button>
+        <button onClick={onClose} aria-label="Close The Guide"><X size={20} className="opacity-50 hover:opacity-100" /></button>
       </div>
 
       <div className="flex-1 overflow-y-auto p-6 space-y-6" ref={scrollRef}>
@@ -151,7 +153,7 @@ const AIMentorPanel = ({
                     <button
                       onClick={() => onAddTask(m.task!)}
                       className="bg-white/20 hover:bg-white/40 p-1 rounded transition-colors"
-                      title="Add to Flow"
+                      aria-label="Add to tasks"
                     >
                       <Plus size={14} />
                     </button>
@@ -182,7 +184,7 @@ const AIMentorPanel = ({
             <button
               onClick={cancelRequest}
               className="p-2 rounded-lg bg-red-500/80 text-white hover:bg-red-500 transition-colors"
-              title="Cancel"
+              aria-label="Cancel"
             >
               <Square size={16} />
             </button>
@@ -190,6 +192,7 @@ const AIMentorPanel = ({
             <button
               onClick={handleSend}
               className="p-2 rounded-lg bg-[#d4af37] text-[#2c2c2a] hover:bg-white transition-colors"
+              aria-label="Send message"
             >
               <Send size={16} />
             </button>

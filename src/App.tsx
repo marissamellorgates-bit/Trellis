@@ -1075,7 +1075,7 @@ const App = () => {
             <span className="text-xs font-bold uppercase tracking-widest hidden md:inline">Consult Guide</span>
           </button>
           <div className="relative">
-            <button onClick={() => setShowNotifications(!showNotifications)} className="relative text-[#2c2c2a]/60 hover:text-[#2c2c2a]">
+            <button onClick={() => setShowNotifications(!showNotifications)} aria-label="Notifications" className="relative text-[#2c2c2a]/60 hover:text-[#2c2c2a]">
               <Bell size={20}/>
               {(activeMember.notifications ?? []).filter(n => !n.read).length > 0 && (
                 <span className="absolute top-0 right-0 w-2 h-2 bg-[#d4af37] rounded-full"></span>
@@ -1100,7 +1100,7 @@ const App = () => {
           <div className="relative">
             <button className="flex items-center gap-3 bg-[#2c2c2a] text-[#fdfbf7] px-4 py-2 rounded-full hover:bg-[#d4af37] hover:text-[#2c2c2a] transition-all" onClick={() => setIsFamilyMenuOpen(!isFamilyMenuOpen)}>
               <span className="text-xs font-bold uppercase tracking-widest">{activeMember.name}</span>
-              <ChevronDown size={14}/>
+              <ChevronDown size={14} aria-hidden="true"/>
             </button>
             {isFamilyMenuOpen && (
               <>
@@ -1210,7 +1210,7 @@ const App = () => {
                       <button
                         onClick={() => { setEditTitle(activeMember.projectTitle); setEditArchetype(activeMember.projectPlant); setEditingProject(true); }}
                         className="text-[#2c2c2a]/20 hover:text-[#2c2c2a]/60 transition-colors"
-                        title="Edit project"
+                        aria-label="Edit project"
                       >
                         <Pencil size={12} />
                       </button>
@@ -1384,7 +1384,7 @@ const App = () => {
                             <button
                               onClick={(e) => { e.stopPropagation(); setConfirmDelete({ type: 'shelved', shelvedId: sp.id }); }}
                               className="absolute top-1 right-1 p-1 rounded-full text-[#2c2c2a]/20 hover:text-red-400 hover:bg-red-50 transition-all"
-                              title="Delete project"
+                              aria-label="Delete project"
                             >
                               <X size={12} />
                             </button>

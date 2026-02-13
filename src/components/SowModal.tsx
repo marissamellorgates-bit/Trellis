@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { X, Droplets, Hand, Layers, Recycle } from 'lucide-react';
 import type { SowModalProps, SowTier, DomainKey } from '../types';
 import { SOW_TIERS } from '../types';
+import { useModal } from '../hooks/useModal';
 
 const TIER_ICONS = {
   drop: Droplets,
@@ -19,6 +20,7 @@ const SowModal = ({ isOpen, onClose, onComplete, domains, goals }: SowModalProps
   const [reflection, setReflection] = useState('');
   const [nextSteps, setNextSteps] = useState('');
   const [selectedDomain, setSelectedDomain] = useState<DomainKey>(domains[0] || 'intellectual');
+  const { modalRef } = useModal(isOpen, onClose);
 
   if (!isOpen) return null;
 
@@ -44,12 +46,12 @@ const SowModal = ({ isOpen, onClose, onComplete, domains, goals }: SowModalProps
   const tierInfo = SOW_TIERS.find(t => t.tier === tier);
 
   return (
-    <div className="fixed inset-0 z-[100] flex items-center justify-center p-6 bg-[#2c2c2a]/90 backdrop-blur-md">
-      <div className="bg-[#fdfbf7] w-full max-w-md rounded-3xl overflow-hidden shadow-2xl animate-in zoom-in duration-300 max-h-[90vh] overflow-y-auto">
+    <div className="fixed inset-0 z-[100] flex items-center justify-center p-6 bg-[#2c2c2a]/90 backdrop-blur-md" role="dialog" aria-modal="true" aria-labelledby="sow-title">
+      <div ref={modalRef} className="bg-[#fdfbf7] w-full max-w-md rounded-3xl overflow-hidden shadow-2xl animate-in zoom-in duration-300 max-h-[90vh] overflow-y-auto">
         <div className="p-6 space-y-5">
           <div className="flex justify-between items-center">
-            <span className="text-[10px] font-bold tracking-widest uppercase text-[#d4af37]">Sow</span>
-            <button onClick={onClose} className="text-[#2c2c2a]/40 hover:text-[#2c2c2a]"><X size={18}/></button>
+            <span id="sow-title" className="text-[10px] font-bold tracking-widest uppercase text-[#d4af37]">Sow</span>
+            <button onClick={onClose} aria-label="Close" className="text-[#2c2c2a]/40 hover:text-[#2c2c2a]"><X size={18}/></button>
           </div>
 
           {/* Tier selector */}

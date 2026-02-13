@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { X, Gift } from 'lucide-react';
 import { PRICE_IDS, createCheckoutSession } from '../lib/subscription';
+import { useModal } from '../hooks/useModal';
 
 interface GiftModalProps {
   isOpen: boolean;
@@ -14,6 +15,7 @@ const GiftModal = ({ isOpen, onClose, userId, email }: GiftModalProps) => {
   const [tier, setTier] = useState<'monthly' | 'annual'>('annual');
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
+  const { modalRef } = useModal(isOpen, onClose);
 
   if (!isOpen) return null;
 
@@ -32,15 +34,15 @@ const GiftModal = ({ isOpen, onClose, userId, email }: GiftModalProps) => {
   };
 
   return (
-    <div className="fixed inset-0 bg-black/40 backdrop-blur-sm z-50 flex items-center justify-center p-4" onClick={onClose}>
-      <div className="bg-[#fdfbf7] rounded-3xl max-w-md w-full p-8 relative space-y-6" onClick={e => e.stopPropagation()}>
-        <button onClick={onClose} className="absolute top-4 right-4 text-[#2c2c2a]/30 hover:text-[#2c2c2a] transition-colors">
+    <div className="fixed inset-0 bg-black/40 backdrop-blur-sm z-50 flex items-center justify-center p-4" onClick={onClose} role="dialog" aria-modal="true" aria-labelledby="gift-title">
+      <div ref={modalRef} className="bg-[#fdfbf7] rounded-3xl max-w-md w-full p-8 relative space-y-6" onClick={e => e.stopPropagation()}>
+        <button onClick={onClose} aria-label="Close" className="absolute top-4 right-4 text-[#2c2c2a]/30 hover:text-[#2c2c2a] transition-colors">
           <X size={20} />
         </button>
 
         <div className="text-center space-y-2">
-          <Gift className="text-[#d4af37] mx-auto" size={28} />
-          <h2 className="font-serif text-2xl italic">Gift Trellis</h2>
+          <Gift className="text-[#d4af37] mx-auto" size={28} aria-hidden="true" />
+          <h2 id="gift-title" className="font-serif text-2xl italic">Gift Trellis</h2>
           <p className="text-sm text-[#2c2c2a]/40">Give the gift of growth to someone you care about</p>
         </div>
 

@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import { X, Copy, Check, UserPlus, LogOut as LogOutIcon, Crown, Mail, Clock, Sprout, Eye, Trash2 } from 'lucide-react';
 import type { FamilyInfo, FamilyInvite, ManagedChildSummary } from '../types';
 import { createFamily, inviteFamilyMember, joinFamily, loadFamilyInfo, loadFamilyInvites, leaveFamily, addManagedChild, removeManagedChild } from '../lib/family';
+import { useModal } from '../hooks/useModal';
 
 interface FamilySettingsModalProps {
   isOpen: boolean;
@@ -18,6 +19,7 @@ interface FamilySettingsModalProps {
 }
 
 const FamilySettingsModal = ({ isOpen, onClose, userId, familyId, familyRole, onFamilyChanged, onFamilyLeft, managedChildren, onChildAdded, onChildRemoved, onManageChild }: FamilySettingsModalProps) => {
+  const { modalRef } = useModal(isOpen, onClose);
   const [familyInfo, setFamilyInfo] = useState<FamilyInfo | null>(null);
   const [invites, setInvites] = useState<FamilyInvite[]>([]);
   const [loading, setLoading] = useState(false);
@@ -181,12 +183,12 @@ const FamilySettingsModal = ({ isOpen, onClose, userId, familyId, familyRole, on
   // No family — show create/join options
   if (!familyId) {
     return (
-      <div className="fixed inset-0 bg-black/40 backdrop-blur-sm z-50 flex items-center justify-center p-4" onClick={onClose}>
-        <div className="bg-[#fdfbf7] rounded-3xl max-w-md w-full p-8 relative space-y-6" onClick={e => e.stopPropagation()}>
-          <button onClick={onClose} className="absolute top-4 right-4 text-[#2c2c2a]/30 hover:text-[#2c2c2a]"><X size={20} /></button>
+      <div className="fixed inset-0 bg-black/40 backdrop-blur-sm z-50 flex items-center justify-center p-4" onClick={onClose} role="dialog" aria-modal="true" aria-labelledby="family-title">
+        <div ref={modalRef} className="bg-[#fdfbf7] rounded-3xl max-w-md w-full p-8 relative space-y-6" onClick={e => e.stopPropagation()}>
+          <button onClick={onClose} aria-label="Close" className="absolute top-4 right-4 text-[#2c2c2a]/30 hover:text-[#2c2c2a]"><X size={20} /></button>
 
           <div className="text-center space-y-2">
-            <h2 className="font-serif text-2xl italic">My Family</h2>
+            <h2 id="family-title" className="font-serif text-2xl italic">My Family</h2>
             <p className="text-sm text-[#2c2c2a]/40">Create a family or join an existing one</p>
           </div>
 
@@ -239,12 +241,12 @@ const FamilySettingsModal = ({ isOpen, onClose, userId, familyId, familyRole, on
 
   // Has family — show management view
   return (
-    <div className="fixed inset-0 bg-black/40 backdrop-blur-sm z-50 flex items-center justify-center p-4" onClick={onClose}>
-      <div className="bg-[#fdfbf7] rounded-3xl max-w-md w-full p-8 relative space-y-6 max-h-[90vh] overflow-y-auto" onClick={e => e.stopPropagation()}>
-        <button onClick={onClose} className="absolute top-4 right-4 text-[#2c2c2a]/30 hover:text-[#2c2c2a]"><X size={20} /></button>
+    <div className="fixed inset-0 bg-black/40 backdrop-blur-sm z-50 flex items-center justify-center p-4" onClick={onClose} role="dialog" aria-modal="true" aria-labelledby="family-title2">
+      <div ref={modalRef} className="bg-[#fdfbf7] rounded-3xl max-w-md w-full p-8 relative space-y-6 max-h-[90vh] overflow-y-auto" onClick={e => e.stopPropagation()}>
+        <button onClick={onClose} aria-label="Close" className="absolute top-4 right-4 text-[#2c2c2a]/30 hover:text-[#2c2c2a]"><X size={20} /></button>
 
         <div className="text-center space-y-2">
-          <h2 className="font-serif text-2xl italic">{familyInfo?.name || 'My Family'}</h2>
+          <h2 id="family-title2" className="font-serif text-2xl italic">{familyInfo?.name || 'My Family'}</h2>
           <div className="flex items-center justify-center gap-2">
             <Crown size={12} className="text-[#d4af37]" />
             <span className="text-[10px] font-bold uppercase tracking-widest text-[#2c2c2a]/40">
@@ -285,6 +287,7 @@ const FamilySettingsModal = ({ isOpen, onClose, userId, familyId, familyRole, on
                 <button
                   type="submit"
                   disabled={loading || !inviteEmail.trim()}
+                  aria-label="Send invite"
                   className="px-4 py-2.5 rounded-xl text-xs font-bold uppercase tracking-widest bg-[#d4af37] text-[#2c2c2a] hover:bg-[#c4a030] transition-all disabled:opacity-30"
                 >
                   <UserPlus size={14} />
@@ -328,7 +331,7 @@ const FamilySettingsModal = ({ isOpen, onClose, userId, familyId, familyRole, on
                       <button
                         onClick={() => { onManageChild?.(child.userId); onClose(); }}
                         className="p-1.5 rounded-lg text-[#2c2c2a]/30 hover:text-[#d4af37] hover:bg-[#d4af37]/10 transition-all"
-                        title="Manage dashboard"
+                        aria-label="Manage dashboard"
                       >
                         <Eye size={14} />
                       </button>
@@ -352,7 +355,7 @@ const FamilySettingsModal = ({ isOpen, onClose, userId, familyId, familyRole, on
                         <button
                           onClick={() => setConfirmRemoveChild(child.userId)}
                           className="p-1.5 rounded-lg text-[#2c2c2a]/20 hover:text-red-400 hover:bg-red-50 transition-all"
-                          title="Remove child"
+                          aria-label="Remove child"
                         >
                           <Trash2 size={14} />
                         </button>

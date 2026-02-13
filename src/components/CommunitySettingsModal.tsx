@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { X, Plus, Trash2 } from 'lucide-react';
 import type { UserCommunity } from '../types';
 import { ICON_PICKER_OPTIONS, COMMUNITY_ICON_MAP } from '../lib/communityIcons';
+import { useModal } from '../hooks/useModal';
 
 interface CommunitySettingsModalProps {
   isOpen: boolean;
@@ -19,6 +20,7 @@ const CommunitySettingsModal = ({ isOpen, communities, onSave, onClose }: Commun
   const [editingId, setEditingId] = useState<string | null>(null);
   const [editName, setEditName] = useState('');
   const [showIconPicker, setShowIconPicker] = useState<string | null>(null);
+  const { modalRef } = useModal(isOpen, onClose);
 
   if (!isOpen) return null;
 
@@ -58,11 +60,11 @@ const CommunitySettingsModal = ({ isOpen, communities, onSave, onClose }: Commun
   };
 
   return (
-    <div className="fixed inset-0 z-[100] flex items-center justify-center p-6 bg-[#2c2c2a]/80 backdrop-blur-sm">
-      <div className="bg-[#fdfbf7] w-full max-w-lg rounded-3xl shadow-2xl overflow-hidden">
+    <div className="fixed inset-0 z-[100] flex items-center justify-center p-6 bg-[#2c2c2a]/80 backdrop-blur-sm" role="dialog" aria-modal="true" aria-labelledby="community-settings-title">
+      <div ref={modalRef} className="bg-[#fdfbf7] w-full max-w-lg rounded-3xl shadow-2xl overflow-hidden">
         <div className="flex items-center justify-between px-6 py-4 border-b border-[#2c2c2a]/10">
-          <h2 className="font-serif text-xl italic">My Communities</h2>
-          <button onClick={onClose} className="text-[#2c2c2a]/30 hover:text-[#2c2c2a] transition-colors">
+          <h2 id="community-settings-title" className="font-serif text-xl italic">My Communities</h2>
+          <button onClick={onClose} aria-label="Close" className="text-[#2c2c2a]/30 hover:text-[#2c2c2a] transition-colors">
             <X size={20} />
           </button>
         </div>
@@ -82,7 +84,7 @@ const CommunitySettingsModal = ({ isOpen, communities, onSave, onClose }: Commun
                       if (!isPrivate) setShowIconPicker(showIconPicker === c.id ? null : c.id);
                     }}
                     className={`w-8 h-8 flex items-center justify-center rounded-lg transition-all ${isPrivate ? 'bg-[#2c2c2a]/5 cursor-default' : 'bg-[#2c2c2a]/5 hover:bg-[#d4af37]/20'}`}
-                    title={isPrivate ? 'Private Greenhouse' : 'Change icon'}
+                    aria-label={isPrivate ? 'Private Greenhouse' : 'Change icon'}
                   >
                     <Icon size={16} className="text-[#2c2c2a]/60" />
                   </button>
@@ -137,7 +139,7 @@ const CommunitySettingsModal = ({ isOpen, communities, onSave, onClose }: Commun
                   <button
                     onClick={() => handleDelete(c.id)}
                     className="text-[#2c2c2a]/15 hover:text-red-400 transition-colors opacity-0 group-hover:opacity-100"
-                    title="Remove community"
+                    aria-label="Remove community"
                   >
                     <Trash2 size={14} />
                   </button>

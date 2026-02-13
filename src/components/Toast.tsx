@@ -50,6 +50,7 @@ const ToastItem: React.FC<ToastItemProps> = ({ toast, onDismiss }) => {
       </div>
       <button
         onClick={() => onDismiss(toast.id)}
+        aria-label="Dismiss"
         className="text-[#2c2c2a]/20 hover:text-[#2c2c2a]/60 transition-colors shrink-0"
       >
         <X size={14} />
@@ -67,7 +68,7 @@ const ToastContainer: React.FC<ToastContainerProps> = ({ toasts, onDismiss }) =>
   if (toasts.length === 0) return null;
 
   return (
-    <div className="fixed bottom-6 right-6 z-[200] flex flex-col-reverse gap-3">
+    <div className="fixed bottom-6 right-6 z-[200] flex flex-col-reverse gap-3" role="status" aria-live="polite">
       {toasts.map(toast => (
         <ToastItem key={toast.id} toast={toast} onDismiss={onDismiss} />
       ))}

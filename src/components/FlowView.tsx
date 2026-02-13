@@ -30,14 +30,14 @@ const FlowView = ({ schedule, tasks, goals, onToggleTask, onCompleteScheduleItem
         <div className="flex gap-2">
           <button
             onClick={onOpenImport}
-            title="Import Schedule"
+            aria-label="Import schedule"
             className="w-8 h-8 rounded-full border border-[#2c2c2a]/10 flex items-center justify-center text-[#2c2c2a]/40 hover:bg-[#4285F4] hover:text-white hover:border-transparent transition-all"
           >
             <Calendar size={14}/>
           </button>
           <button
             onClick={onOpenImportTasks}
-            title="Import Tasks"
+            aria-label="Import tasks"
             className="w-8 h-8 rounded-full border border-[#2c2c2a]/10 flex items-center justify-center text-[#2c2c2a]/40 hover:bg-[#E44332] hover:text-white hover:border-transparent transition-all"
           >
             <CheckSquare size={14}/>

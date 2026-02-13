@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { X, Mountain, Anchor, Wind, Crown, Users, Sprout, Eye } from 'lucide-react';
 import type { LeaderHubProps, FamilyMember, GoalsMap, DomainKey } from '../types';
 import PlantVisual from './PlantVisual';
+import { useModal } from '../hooks/useModal';
 
 // ── Domain key groups ────────────────────────────────────────
 
@@ -44,6 +45,7 @@ const MODULE_NAMES = [
 
 const LeaderHub = ({ currentMember, familyMembers, onManageChild }: LeaderHubProps) => {
   const [selectedMember, setSelectedMember] = useState<FamilyMember | null>(null);
+  const { modalRef } = useModal(!!selectedMember, () => setSelectedMember(null));
 
   // Build the full member list: current user first, then other family members
   const otherMembers = familyMembers.filter(m => m.name !== currentMember.name);
@@ -164,13 +166,18 @@ const LeaderHub = ({ currentMember, familyMembers, onManageChild }: LeaderHubPro
         <div
           className="fixed inset-0 bg-black/40 backdrop-blur-sm z-50 flex items-center justify-center p-4"
           onClick={() => setSelectedMember(null)}
+          role="dialog"
+          aria-modal="true"
+          aria-labelledby="leader-detail-title"
         >
           <div
+            ref={modalRef}
             className="bg-[#fdfbf7] rounded-3xl max-w-lg w-full p-8 relative space-y-6 max-h-[90vh] overflow-y-auto"
             onClick={e => e.stopPropagation()}
           >
             <button
               onClick={() => setSelectedMember(null)}
+              aria-label="Close"
               className="absolute top-4 right-4 text-[#2c2c2a]/30 hover:text-[#2c2c2a] transition-colors"
             >
               <X size={20} />
@@ -189,7 +196,7 @@ const LeaderHub = ({ currentMember, familyMembers, onManageChild }: LeaderHubPro
 
             {/* Info */}
             <div className="text-center space-y-2">
-              <h2 className="font-serif text-3xl italic">{selectedMember.name}</h2>
+              <h2 id="leader-detail-title" className="font-serif text-3xl italic">{selectedMember.name}</h2>
               <p className="text-[10px] font-bold uppercase tracking-widest text-[#2c2c2a]/40">{selectedMember.role}</p>
             </div>
 

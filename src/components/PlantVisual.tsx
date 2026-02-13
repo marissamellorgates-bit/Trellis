@@ -16,6 +16,7 @@ const PlantVisual = ({ stage, type, instanceId }: PlantVisualProps) => {
         viewBox="0 0 200 300"
         preserveAspectRatio="xMidYMax meet"
         className="w-full h-full transition-all duration-1000"
+        aria-hidden="true"
       >
         <defs>
           {/* ── Shared filters ── */}

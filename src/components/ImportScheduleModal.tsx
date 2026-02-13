@@ -7,6 +7,7 @@ import {
   initGoogleAuth,
   requestGoogleAuth,
 } from '../lib/googleCalendar';
+import { useModal } from '../hooks/useModal';
 
 type Tab = 'ics' | 'google';
 
@@ -23,6 +24,7 @@ const ImportScheduleModal = ({ isOpen, onClose, onImport, existingSourceIds }: I
   const [googleAccessToken, setGoogleAccessToken] = useState<string | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [showHelp, setShowHelp] = useState(false);
+  const { modalRef } = useModal(isOpen, onClose);
 
   if (!isOpen) return null;
 
@@ -162,12 +164,12 @@ const ImportScheduleModal = ({ isOpen, onClose, onImport, existingSourceIds }: I
 
   if (imported) {
     return (
-      <div className="fixed inset-0 z-[100] flex items-center justify-center p-6 bg-[#2c2c2a]/90 backdrop-blur-md">
-        <div className="bg-[#fdfbf7] w-full max-w-md rounded-3xl overflow-hidden shadow-2xl animate-in zoom-in duration-300 p-8 text-center space-y-4">
+      <div className="fixed inset-0 z-[100] flex items-center justify-center p-6 bg-[#2c2c2a]/90 backdrop-blur-md" role="dialog" aria-modal="true" aria-labelledby="import-schedule-title">
+        <div ref={modalRef} className="bg-[#fdfbf7] w-full max-w-md rounded-3xl overflow-hidden shadow-2xl animate-in zoom-in duration-300 p-8 text-center space-y-4">
           <div className="w-12 h-12 rounded-full bg-green-100 flex items-center justify-center mx-auto">
             <Check size={24} className="text-green-600" />
           </div>
-          <h3 className="font-serif text-2xl">Imported {importCount} event{importCount !== 1 ? 's' : ''}</h3>
+          <h3 id="import-schedule-title" className="font-serif text-2xl">Imported {importCount} event{importCount !== 1 ? 's' : ''}</h3>
           <p className="text-sm text-[#2c2c2a]/50">Your schedule has been updated.</p>
           <button
             onClick={handleClose}
@@ -183,13 +185,13 @@ const ImportScheduleModal = ({ isOpen, onClose, onImport, existingSourceIds }: I
   // ── Main modal ────────────────────────────────────────────
 
   return (
-    <div className="fixed inset-0 z-[100] flex items-center justify-center p-6 bg-[#2c2c2a]/90 backdrop-blur-md">
-      <div className="bg-[#fdfbf7] w-full max-w-lg rounded-3xl overflow-hidden shadow-2xl animate-in zoom-in duration-300 max-h-[90vh] flex flex-col">
+    <div className="fixed inset-0 z-[100] flex items-center justify-center p-6 bg-[#2c2c2a]/90 backdrop-blur-md" role="dialog" aria-modal="true" aria-labelledby="import-schedule-title2">
+      <div ref={modalRef} className="bg-[#fdfbf7] w-full max-w-lg rounded-3xl overflow-hidden shadow-2xl animate-in zoom-in duration-300 max-h-[90vh] flex flex-col">
         <div className="p-6 space-y-5 overflow-y-auto">
           {/* Header */}
           <div className="flex justify-between items-center">
-            <span className="text-[10px] font-bold tracking-widest uppercase text-[#d4af37]">Import Schedule</span>
-            <button onClick={handleClose} className="text-[#2c2c2a]/40 hover:text-[#2c2c2a]"><X size={18}/></button>
+            <span id="import-schedule-title2" className="text-[10px] font-bold tracking-widest uppercase text-[#d4af37]">Import Schedule</span>
+            <button onClick={handleClose} aria-label="Close" className="text-[#2c2c2a]/40 hover:text-[#2c2c2a]"><X size={18}/></button>
           </div>
 
           {/* Tabs */}
