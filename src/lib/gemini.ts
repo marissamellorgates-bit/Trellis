@@ -190,11 +190,13 @@ ARCHETYPES (choose exactly one):
 Respond ONLY with valid JSON in this exact format:
 {
   "suggestedTitle": "A concise, inspiring 2-5 word project title",
-  "suggestedDomains": ["domain1", "domain2", "domain3"],
+  "suggestedDomains": ["biological", "coreCompetencies"],
   "suggestedArchetype": "sunflower",
-  "domainRationale": "Brief explanation of why these domains were chosen.",
+  "domainRationale": "Use ONLY the friendly names here, e.g. 'Physical Health' not 'biological'. Never show raw keys to the user.",
   "archetypeRationale": "Brief explanation of why this archetype fits."
 }
+
+CRITICAL: In domainRationale and archetypeRationale, ALWAYS use the friendly display names (the text in parentheses from the domain list above, e.g. "Physical Health", "Mental Clarity", "Adventure", "Crafts"). NEVER use raw camelCase keys like "biological" or "mentalClarity" in rationale text.
 
 For suggestedTitle: Create a short, evocative project name (2-5 words) that captures the essence of the goal. Examples: "Trail Runner's Journey", "Garden to Table", "Code & Create". Do NOT just repeat the goal text.`;
 
