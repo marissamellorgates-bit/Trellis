@@ -102,7 +102,7 @@ src/
 - **`NotificationCenter`** — Bell dropdown with notification history. Supports tap-to-mark-read on individual items, mark-all-read, clear-all. Shows "Enable Push Notifications" button when browser permission is `default`. Newest-first, max-h-80 scrollable list.
 
 ### Four View Modes
-1. **Dashboard** — Active project with plant visual, Sovereignty Score, Land/Sea/Sky domain cards
+1. **Dashboard** — Active project with plant visual, Sovereignty Score, Land/Sea/Sky domain cards. Empty state shows decorative plant silhouettes (cactus, oak, sunflower) with gold "Start a Permacognition Project" CTA button
 2. **Daily Flow** — Schedule timeline + task list with domain tags
 3. **Community** — Grid of community projects with tiered interaction buttons
 4. **Leader Hub** — Read-only family garden overview with member cards + detail modal
@@ -206,6 +206,13 @@ User selects archetype during Seed Discovery (Step 3). Spark Architect AI sugges
 - `src/components/ImportTasksModal.tsx` — Modal with TodoistTab + PhotoTab sub-components
 
 **Trigger:** CheckSquare button in FlowView header → `onOpenImportTasks` prop → `showImportTasks` state in App.tsx
+
+### Dashboard Empty State
+- Gold "Start a Permacognition Project" button (matches Guide button color `#d4af37`)
+- 3 decorative `PlantVisual` silhouettes: cactus (left), oak (center), sunflower (right)
+- Plants at `opacity-[0.04–0.06]`, `pointer-events-none`, positioned with `-bottom-3` so bases clip at card edge
+- Card uses `overflow-hidden` with `relative` positioning; plants use `absolute` + `h-[160%]` to scale tall
+- Only visible when no active project (`!activeMember.projectTitle`)
 
 ### Dashboard Inline Editing
 - Pencil icon on active project card opens inline edit mode
