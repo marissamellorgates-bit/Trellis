@@ -1199,15 +1199,24 @@ const App = () => {
                 <div className="relative w-56 h-64 shrink-0"><PlantVisual stage={activeMember.currentModule} type={editingProject ? editArchetype : activeMember.projectPlant}/></div>
               </div>
             ) : isArchitecting ? null : (
-              <div className="bg-white border-2 border-dashed border-[#2c2c2a]/10 rounded-3xl p-16 text-center space-y-6">
+              <div className="relative bg-white border-2 border-dashed border-[#2c2c2a]/10 rounded-3xl py-16 px-16 text-center space-y-6 overflow-hidden">
+                {/* Decorative plant silhouettes — pushed down so bases hide below card edge */}
+                <div className="absolute -bottom-3 left-2 w-[18%] h-[160%] opacity-[0.06] pointer-events-none">
+                  <PlantVisual type="cactus" stage={6} />
+                </div>
+                <div className="absolute -bottom-3 left-1/2 -translate-x-1/2 w-[18%] h-[160%] opacity-[0.04] pointer-events-none">
+                  <PlantVisual type="oak" stage={6} />
+                </div>
+                <div className="absolute -bottom-3 right-2 w-[18%] h-[160%] opacity-[0.06] pointer-events-none">
+                  <PlantVisual type="sunflower" stage={6} />
+                </div>
                 <button
                   onClick={() => setIsArchitecting(true)}
                   disabled={(activeMember.shelvedProjects ?? []).length >= 3}
-                  className="bg-[#2c2c2a] text-[#fdfbf7] px-8 py-4 rounded-full font-bold uppercase disabled:opacity-30 disabled:cursor-not-allowed"
+                  className="relative z-10 bg-[#d4af37] text-[#2c2c2a] px-8 py-4 rounded-full font-bold uppercase disabled:opacity-30 disabled:cursor-not-allowed hover:bg-[#c4a030] transition-colors"
                 >
-                  {(activeMember.shelvedProjects ?? []).length >= 3 ? 'Max 3 Projects Reached' : 'Start Project'}
+                  {(activeMember.shelvedProjects ?? []).length >= 3 ? 'Max 3 Projects Reached' : 'Start a Permacognition Project'}
                 </button>
-                <p className="text-sm text-[#2c2c2a]/40">Start a new focus project or resume a saved one.</p>
                 {(activeMember.shelvedProjects ?? []).length > 0 && (
                   <div className="mt-4">
                     <p className="text-[10px] font-bold uppercase tracking-widest text-[#2c2c2a]/40 mb-3">Saved Projects</p>
