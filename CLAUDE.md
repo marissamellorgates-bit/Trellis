@@ -42,7 +42,8 @@ api/
 ├── create-checkout.ts               # Stripe Checkout Session creation
 ├── create-portal.ts                 # Stripe Customer Portal session
 ├── stripe-webhook.ts                # Stripe webhook handler (raw body)
-└── redeem-gift.ts                   # Gift subscription redemption
+├── redeem-gift.ts                   # Gift subscription redemption
+└── todoist-auth.ts                  # Todoist OAuth token exchange
 src/
 ├── App.tsx                          # Root component, state management, layout
 ├── types.ts                         # All TypeScript interfaces and type definitions
@@ -51,7 +52,8 @@ src/
 ├── lib/
 │   ├── supabase.ts                  # Supabase client, profile load/save
 │   ├── community.ts                 # Community marketplace CRUD (projects, interactions, views, analytics)
-│   ├── gemini.ts                    # Gemini 2.5 Flash API client (Guide + Spark Architect + Spark Refinement)
+│   ├── gemini.ts                    # Gemini 2.5 Flash API client (Guide + Spark Architect + Spark Refinement + Image Task Extraction)
+│   ├── todoist.ts                   # Todoist OAuth + REST API client (auth URL, token exchange, fetch tasks)
 │   ├── notifications.ts             # Notification factories, imbalance detector, browser API
 │   ├── subscription.ts              # Subscription status helpers, Stripe checkout/portal wrappers
 │   ├── googleCalendar.ts            # Google Calendar API fetch
@@ -74,6 +76,7 @@ src/
     ├── GiftModal.tsx                # Gift subscription purchase modal
     ├── GiftRedeemBanner.tsx         # Banner for redeeming gifted subscriptions
     ├── CommunitySettingsModal.tsx   # Manage custom communities — add/rename/delete with icon picker
+    ├── ImportTasksModal.tsx          # Two-tab modal: Todoist OAuth import + Photo AI task extraction
     ├── SparkRefinement.tsx           # Inline AI chat for refining goals in Seed Discovery Step 1
     ├── Toast.tsx                    # Auto-dismissing toast notifications (bottom-right, z-200)
     └── NotificationCenter.tsx       # Bell dropdown — notification history with mark-read/clear
@@ -81,7 +84,7 @@ src/
 
 ### Key Components
 
-- **`App`** — Root component. Manages all state via `useState`. Contains four view modes, Seed Discovery flow, delete/abandon projects, notification system, shelved projects, dashboard inline editing, customizable communities, and layout. ~1150 lines.
+- **`App`** — Root component. Manages all state via `useState`. Contains four view modes, Seed Discovery flow, delete/abandon projects, notification system, shelved projects, dashboard inline editing, customizable communities, task import, and layout. ~1200 lines.
 - **`CommunitySettingsModal`** — Full community management modal opened from user dropdown menu. Inline rename, icon picker (16 Lucide icons), delete button (Private Greenhouse undeletable), add community row. Cap at 10 communities. Works on local copy, commits on Save.
 - **`PlantVisual`** — Procedural SVG plant generation with 7 stages and 3 archetypes (sunflower, oak, cactus). Uses unique SVG filter IDs via `useId()` to prevent collisions. Keyframe animation in `index.css`.
 - **`AIMentorPanel`** — Sliding side panel chat with "The Guide". Uses **Gemini 2.5 Flash** for Socratic questioning within the 7-Module framework, prioritizing "Earth Care, People Care, Fair Share." Falls back to mock keyword matching when no API key is configured. Supports AbortController cancel, error handling, and persisted chat history.
@@ -93,6 +96,7 @@ src/
 - **`ProjectDetailModal`** — Full project view with plant visual, stats, interaction history, and water/graft tier selectors. Records views on open.
 - **`PublishProjectModal`** — Publish active project to the community. Pre-fills from current project, allows editing description/tags/visibility.
 - **`AnalyticsDashboard`** — Overview and per-project analytics. SVG bar chart for views by day (30d), interaction tier breakdowns, recent interaction list.
+- **`ImportTasksModal`** — Two-tab modal for importing tasks into Prioritized Actions. **Todoist tab:** OAuth popup flow → fetch tasks → checklist with select-all → domain picker → import. **Photo tab:** Camera capture or file upload → Gemini multimodal AI extraction → editable checklist → domain picker → import. Graceful degradation: tabs hidden when respective env vars are missing. Triggered by CheckSquare button in FlowView.
 - **`SparkRefinement`** — Inline AI chat widget in Seed Discovery Step 1. User's initial spark is auto-sent to The Guide, who asks 2-3 clarifying questions, then suggests a refined goal. Editable refined goal textarea with gold border. On accept, auto-triggers Spark Architect analysis. Only appears when AI is configured.
 - **`Toast`** — Auto-dismissing toast popups (fixed bottom-right, z-200). 6-second duration with fade-out animation. Type-specific icons (Sprout, CheckCircle2, AlertTriangle, Calendar).
 - **`NotificationCenter`** — Bell dropdown with notification history. Supports tap-to-mark-read on individual items, mark-all-read, clear-all. Shows "Enable Push Notifications" button when browser permission is `default`. Newest-first, max-h-80 scrollable list.
@@ -168,6 +172,40 @@ User selects archetype during Seed Discovery (Step 3). Spark Architect AI sugges
 - **Persistence:** `customCommunities?: UserCommunity[]` on `FamilyMember`, stored in `profiles.custom_communities` (jsonb column, default NULL)
 - Communities derived from member data: `ensureDefaults(activeMember.customCommunities)` → `resolveCommunitiesForUI()`
 - HarvestModal receives `resolvedCommunities` (same list)
+
+### Task Import (Todoist + Photo)
+
+**Architecture:** `ImportTasksModal` component with two tabs. Todoist uses full OAuth flow via popup window + serverless token exchange. Photo uses Gemini 2.5 Flash multimodal API for image-to-text extraction.
+
+**Todoist Import Flow:**
+1. User clicks "Connect Todoist" → opens OAuth popup to `todoist.com/oauth/authorize`
+2. Todoist redirects to `/todoist-callback.html` which posts auth code via `postMessage`
+3. Parent receives code, calls `/api/todoist-auth` serverless function for token exchange
+4. Token stored in component state (not persisted — user re-connects each session)
+5. Fetches active tasks from Todoist REST API v2, displays as selectable checklist
+6. User picks domain, imports selected tasks into Prioritized Actions
+
+**Photo Import Flow:**
+1. User takes photo (`capture="environment"`) or uploads image from gallery
+2. Image loaded as base64 via FileReader, preview shown
+3. "Extract Tasks" sends image to `extractTasksFromImage()` (Gemini multimodal with `inlineData`)
+4. AI returns array of `{ title, estimatedMinutes? }`, displayed as editable checklist
+5. User can fix AI mistakes, select/deselect, pick domain, then import
+
+**Graceful Degradation:**
+- Todoist tab hidden when `VITE_TODOIST_CLIENT_ID` not set
+- Photo tab hidden when `VITE_GEMINI_API_KEY` not set
+- If both missing, modal shows setup instructions
+- If only one configured, opens directly to that tab (no tab bar)
+
+**Files:**
+- `api/todoist-auth.ts` — Vercel serverless function (uses `TODOIST_CLIENT_ID` + `TODOIST_CLIENT_SECRET`)
+- `public/todoist-callback.html` — OAuth redirect page (extracts code, posts to parent, auto-closes)
+- `src/lib/todoist.ts` — `isTodoistConfigured()`, `getTodoistAuthUrl()`, `exchangeTodoistToken()`, `fetchTodoistTasks()`, `mapTodoistToTrellisTask()`
+- `src/lib/gemini.ts` — `extractTasksFromImage()`, `ExtractedTask` interface
+- `src/components/ImportTasksModal.tsx` — Modal with TodoistTab + PhotoTab sub-components
+
+**Trigger:** CheckSquare button in FlowView header → `onOpenImportTasks` prop → `showImportTasks` state in App.tsx
 
 ### Dashboard Inline Editing
 - Pencil icon on active project card opens inline edit mode
@@ -249,6 +287,12 @@ User selects archetype during Seed Discovery (Step 3). Spark Architect AI sugges
 - User can always manually override AI suggestions
 - Config: temperature 0.8, maxOutputTokens 300
 
+**Image Task Extraction:**
+- `extractTasksFromImage(base64Image, mimeType)` — Sends image to Gemini 2.5 Flash multimodal with `inlineData`
+- System prompt instructs AI to extract tasks/to-dos from handwritten or printed lists
+- Returns `ExtractedTask[]`: `{ title: string, estimatedMinutes?: number }`
+- Config: temperature 0.8, maxOutputTokens 1024
+
 **Security:** `VITE_GEMINI_API_KEY` is exposed in client bundle (frontend-only architecture). Mitigate by restricting the key to Generative Language API only with HTTP referrer restrictions + per-key quotas in Google AI Studio. Future: move to serverless proxy.
 
 ### PWA Configuration
@@ -275,6 +319,7 @@ User selects archetype during Seed Discovery (Step 3). Spark Architect AI sugges
 - `create-portal.ts` — Creates Stripe Customer Portal session (manage/cancel)
 - `stripe-webhook.ts` — Handles Stripe webhook events (raw body, signature verification)
 - `redeem-gift.ts` — Validates and redeems gift subscriptions
+- `todoist-auth.ts` — Todoist OAuth token exchange (receives auth code, returns access token)
 
 **Client-side (`src/lib/subscription.ts`):**
 - `getSubscriptionInfo(member)` — Returns `{ status, trialDaysRemaining, hasActiveAccess, tier }`
@@ -293,6 +338,8 @@ User selects archetype during Seed Discovery (Step 3). Spark Architect AI sugges
 - `STRIPE_SECRET_KEY` — Server-only (Vercel only)
 - `STRIPE_WEBHOOK_SECRET` — Server-only (Vercel only)
 - `SUPABASE_SERVICE_ROLE_KEY` — Server-only (Vercel only)
+- `VITE_TODOIST_CLIENT_ID` — Client-visible (`.env` + Vercel) — Todoist OAuth app client ID
+- `TODOIST_CLIENT_SECRET` — Server-only (Vercel only) — Todoist OAuth app secret
 
 **Stripe Webhook Events:**
 - `checkout.session.completed` — Activate subscription or create gift record
@@ -400,6 +447,8 @@ All types defined in `src/types.ts`. Key interfaces:
 **Phase 5: Guided Discovery (complete)** — ~~Guided goal refinement with The Guide in Seed Discovery~~, ~~SparkRefinement inline chat component~~, ~~Auto-trigger Spark Architect after refinement~~
 
 **Phase 5.5: Customizable Communities (complete)** — ~~User-managed community list~~, ~~CommunitySettingsModal with icon picker~~, ~~Quick-add in Seed Discovery Step 5~~, ~~Private Greenhouse always present~~, ~~DB persistence~~
+
+**Phase 6: Task Import (complete)** — ~~Todoist OAuth import~~, ~~Photo-to-tasks via Gemini multimodal~~, ~~ImportTasksModal with two tabs~~, ~~Serverless token exchange~~, ~~Graceful degradation when APIs not configured~~
 
 **DB migration required for Phase 4:** 3 new tables (`community_projects`, `community_interactions`, `project_views`) with RLS, triggers, and indexes. See migration SQL in project docs.
 

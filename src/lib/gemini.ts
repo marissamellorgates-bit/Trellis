@@ -200,9 +200,19 @@ For suggestedTitle: Create a short, evocative project name (2-5 words) that capt
 
 // ── API Call Helper ─────────────────────────────────────────
 
+interface GeminiTextPart {
+  text: string;
+}
+
+interface GeminiInlineDataPart {
+  inlineData: { mimeType: string; data: string };
+}
+
+type GeminiPart = GeminiTextPart | GeminiInlineDataPart;
+
 interface GeminiContent {
   role: 'user' | 'model';
-  parts: { text: string }[];
+  parts: GeminiPart[];
 }
 
 async function callGemini(
@@ -369,6 +379,68 @@ export async function sendGuideMessage(
   }
 
   return { text: displayText, suggestedTask };
+}
+
+// ── Image Task Extraction ─────────────────────────────────
+
+const IMAGE_TASK_SYSTEM_PROMPT = `You extract tasks from images of handwritten or printed lists.
+
+Look at the image and identify every task, to-do item, or action item written in it.
+
+Respond ONLY with valid JSON — an array of objects:
+[
+  {"title": "Task description here", "estimatedMinutes": 30},
+  {"title": "Another task", "estimatedMinutes": 15}
+]
+
+Rules:
+- Extract each item as a separate task
+- Clean up handwriting — fix obvious spelling/grammar
+- estimatedMinutes is optional — include it only if you can reasonably guess
+- If the image has no tasks or is unreadable, return an empty array: []
+- Do NOT wrap the JSON in markdown code fences`;
+
+export interface ExtractedTask {
+  title: string;
+  estimatedMinutes?: number;
+}
+
+export async function extractTasksFromImage(
+  base64Image: string,
+  mimeType: string,
+): Promise<ExtractedTask[]> {
+  const apiKey = import.meta.env.VITE_GEMINI_API_KEY;
+  if (!apiKey) throw new GeminiError('AUTH', 'Gemini API key is not configured.');
+
+  const contents: GeminiContent[] = [
+    {
+      role: 'user',
+      parts: [
+        { inlineData: { mimeType, data: base64Image } },
+        { text: 'Extract all tasks and to-do items from this image.' },
+      ],
+    },
+  ];
+
+  const rawText = await callGemini(contents, IMAGE_TASK_SYSTEM_PROMPT, 1024);
+
+  const jsonMatch = rawText.match(/\[[\s\S]*\]/);
+  if (!jsonMatch) {
+    throw new GeminiError('PARSE', 'Could not parse tasks from image.');
+  }
+
+  try {
+    const parsed = JSON.parse(jsonMatch[0]);
+    if (!Array.isArray(parsed)) throw new Error('Not an array');
+    return parsed
+      .filter((t: unknown): t is Record<string, unknown> => typeof t === 'object' && t !== null && 'title' in t)
+      .map((t) => ({
+        title: String(t.title),
+        estimatedMinutes: typeof t.estimatedMinutes === 'number' ? t.estimatedMinutes : undefined,
+      }));
+  } catch {
+    throw new GeminiError('PARSE', 'Could not parse tasks from image.');
+  }
 }
 
 export async function sparkArchitectAnalyze(

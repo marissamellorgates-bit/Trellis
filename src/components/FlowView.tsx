@@ -22,7 +22,7 @@ const SourceBadge = ({ source }: { source?: ScheduleItem['source'] }) => {
   );
 };
 
-const FlowView = ({ schedule, tasks, goals, onToggleTask, onCompleteScheduleItem, completedScheduleItems, onOpenImport }: FlowViewProps) => (
+const FlowView = ({ schedule, tasks, goals, onToggleTask, onCompleteScheduleItem, completedScheduleItems, onOpenImport, onOpenImportTasks }: FlowViewProps) => (
   <div className="grid lg:grid-cols-3 gap-8 animate-in fade-in slide-in-from-right-8 duration-500">
     <div className="lg:col-span-1 space-y-6">
       <div className="flex items-center justify-between">
@@ -35,7 +35,11 @@ const FlowView = ({ schedule, tasks, goals, onToggleTask, onCompleteScheduleItem
           >
             <Calendar size={14}/>
           </button>
-          <button title="Import from Todoist" className="w-8 h-8 rounded-full border border-[#2c2c2a]/10 flex items-center justify-center text-[#2c2c2a]/40 hover:bg-[#E44332] hover:text-white hover:border-transparent transition-all">
+          <button
+            onClick={onOpenImportTasks}
+            title="Import Tasks"
+            className="w-8 h-8 rounded-full border border-[#2c2c2a]/10 flex items-center justify-center text-[#2c2c2a]/40 hover:bg-[#E44332] hover:text-white hover:border-transparent transition-all"
+          >
             <CheckSquare size={14}/>
           </button>
         </div>

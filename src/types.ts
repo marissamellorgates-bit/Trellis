@@ -362,6 +362,7 @@ export interface FlowViewProps {
   onCompleteScheduleItem: (index: number) => void;
   completedScheduleItems: Set<string>;
   onOpenImport: () => void;
+  onOpenImportTasks: () => void;
 }
 
 export interface ImportScheduleModalProps {

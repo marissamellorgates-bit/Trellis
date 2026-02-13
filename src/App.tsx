@@ -46,6 +46,7 @@ import MarketplaceView from './components/MarketplaceView';
 import SowModal from './components/SowModal';
 import ModuleWorkshopModal from './components/ModuleWorkshopModal';
 import ImportScheduleModal from './components/ImportScheduleModal';
+import ImportTasksModal from './components/ImportTasksModal';
 import LeaderHub from './components/LeaderHub';
 import AuthScreen from './components/AuthScreen';
 import PaywallScreen from './components/PaywallScreen';
@@ -186,6 +187,7 @@ const App = () => {
   const [showSow, setShowSow] = useState(false);
   const [showModuleWorkshop, setShowModuleWorkshop] = useState(false);
   const [showImportSchedule, setShowImportSchedule] = useState(false);
+  const [showImportTasks, setShowImportTasks] = useState(false);
   const [completedScheduleItems, setCompletedScheduleItems] = useState<Set<string>>(new Set());
   const [googleToken, setGoogleToken] = useState<string | null>(null);
   const syncIntervalRef = useRef<ReturnType<typeof setInterval> | null>(null);
@@ -936,6 +938,15 @@ const App = () => {
         onClose={() => setShowCommunitySettings(false)}
       />
 
+      <ImportTasksModal
+        isOpen={showImportTasks}
+        onClose={() => setShowImportTasks(false)}
+        onImportTasks={(imported) => {
+          updateActiveMember({ tasks: [...tasks, ...imported] });
+        }}
+        goals={goals}
+      />
+
       {/* Nav */}
       <nav className="border-b border-[#2c2c2a]/10 bg-white/50 backdrop-blur-md px-6 h-16 flex justify-between items-center sticky top-0 md:relative z-50">
         <div className="flex items-center gap-8">
@@ -1048,7 +1059,7 @@ const App = () => {
             }}
           />
         )}
-        {viewMode === 'flow' && <FlowView schedule={schedule} tasks={tasks} goals={goals} onToggleTask={toggleTask} onCompleteScheduleItem={completeScheduleItem} completedScheduleItems={completedScheduleItems} onOpenImport={() => setShowImportSchedule(true)} />}
+        {viewMode === 'flow' && <FlowView schedule={schedule} tasks={tasks} goals={goals} onToggleTask={toggleTask} onCompleteScheduleItem={completeScheduleItem} completedScheduleItems={completedScheduleItems} onOpenImport={() => setShowImportSchedule(true)} onOpenImportTasks={() => setShowImportTasks(true)} />}
         {viewMode === 'community' && session && (
           <MarketplaceView
             userId={session.user.id}
