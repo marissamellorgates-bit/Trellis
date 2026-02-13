@@ -1,7 +1,7 @@
 import { useState, useEffect, useRef, useCallback } from 'react';
 import { Bot, Send, X, Plus, Square } from 'lucide-react';
 import type { AIMentorPanelProps, AIMessage } from '../types';
-import { isGeminiConfigured, sendGuideMessage, GeminiError } from '../lib/gemini';
+import { isAIConfigured, sendGuideMessage, AIError } from '../lib/ai';
 
 // ── Mock Fallback ───────────────────────────────────────────
 
@@ -31,7 +31,7 @@ const AIMentorPanel = ({
   const [isTyping, setIsTyping] = useState(false);
   const scrollRef = useRef<HTMLDivElement>(null);
   const abortRef = useRef<AbortController | null>(null);
-  const useAI = isGeminiConfigured();
+  const useAI = isAIConfigured();
 
   // Generate greeting when history is empty and panel opens
   useEffect(() => {
@@ -75,7 +75,7 @@ const AIMentorPanel = ({
       return;
     }
 
-    // Real Gemini call
+    // Real AI call via proxy
     const controller = new AbortController();
     abortRef.current = controller;
 
@@ -98,7 +98,7 @@ const AIMentorPanel = ({
         return;
       }
       let errorText = 'The Guide is resting. Try again in a moment.';
-      if (err instanceof GeminiError) {
+      if (err instanceof AIError) {
         if (err.code === 'RATE_LIMIT') {
           errorText = `The Guide needs a moment to rest. Try again in ${err.retryAfter ?? 30} seconds.`;
         } else if (err.code === 'AUTH') {
@@ -127,7 +127,7 @@ const AIMentorPanel = ({
           <div>
             <h3 className="font-serif italic text-xl">The Guide</h3>
             <p className="text-[10px] uppercase tracking-widest opacity-50">
-              {useAI ? 'Gemini AI Engine' : 'Demo Mode'}
+              {useAI ? 'AI Engine' : 'Demo Mode'}
             </p>
           </div>
         </div>

@@ -28,7 +28,7 @@ Trellis is a holistic life operating system (Ontology Engine) built around **per
 
 ### Production Target Stack
 - **Backend/DB:** Supabase (PostgreSQL) — relational data linking Families → Communities → Projects
-- **AI Engine:** OpenAI API (GPT-4o) or Gemini 2.5 Flash — powers "The Guide" and "Spark Architect"
+- **AI Engine:** Provider-agnostic proxy (Gemini/OpenAI/Claude) — powers "The Guide" and "Spark Architect"
 - **Deployment:** Vercel as a PWA (Progressive Web App)
 
 ## Architecture
@@ -39,11 +39,18 @@ Trellis is a holistic life operating system (Ontology Engine) built around **per
 ### File Structure
 ```
 api/
+├── ai.ts                            # Provider-agnostic AI proxy (Gemini/OpenAI/Claude)
 ├── create-checkout.ts               # Stripe Checkout Session creation
 ├── create-portal.ts                 # Stripe Customer Portal session
 ├── stripe-webhook.ts                # Stripe webhook handler (raw body)
 ├── redeem-gift.ts                   # Gift subscription redemption
-└── todoist-auth.ts                  # Todoist OAuth token exchange
+├── todoist-auth.ts                  # Todoist OAuth token exchange
+├── family-create.ts                 # Create family + generate join code
+├── family-invite.ts                 # Send email invite to family
+├── family-join.ts                   # Join family by code or accept invite
+├── family-add-child.ts              # Create managed child account (auth + profile)
+├── family-children.ts               # List kids for kid login screen (unauthenticated)
+└── family-remove-child.ts           # Delete managed child account
 src/
 ├── App.tsx                          # Root component, state management, layout
 ├── types.ts                         # All TypeScript interfaces and type definitions
@@ -52,14 +59,15 @@ src/
 ├── lib/
 │   ├── supabase.ts                  # Supabase client, profile load/save
 │   ├── community.ts                 # Community marketplace CRUD (projects, interactions, views, analytics)
-│   ├── gemini.ts                    # Gemini 2.5 Flash API client (Guide + Spark Architect + Spark Refinement + Image Task Extraction)
+│   ├── ai.ts                        # AI client — system prompts, response parsing, proxy calls to /api/ai
 │   ├── todoist.ts                   # Todoist OAuth + REST API client (auth URL, token exchange, fetch tasks)
 │   ├── notifications.ts             # Notification factories, imbalance detector, browser API
 │   ├── subscription.ts              # Subscription status helpers, Stripe checkout/portal wrappers
 │   ├── googleCalendar.ts            # Google Calendar API fetch
 │   ├── icsParser.ts                 # ICS file parser
 │   ├── eventTypeMapper.ts           # Calendar event type mapping
-│   └── communityIcons.ts            # Community icon registry, defaults, resolve/ensure helpers
+│   ├── communityIcons.ts            # Community icon registry, defaults, resolve/ensure helpers
+│   └── family.ts                    # Family CRUD: create, invite, join, load members/info
 └── components/
     ├── PlantVisual.tsx              # Procedural SVG plant (7 stages, 3 archetypes)
     ├── AIMentorPanel.tsx            # Sliding side panel chat with The Guide (Gemini AI)
@@ -69,13 +77,14 @@ src/
     ├── ProjectDetailModal.tsx       # Full project view with interaction history + water/graft actions
     ├── PublishProjectModal.tsx      # Publish/edit project to community marketplace
     ├── AnalyticsDashboard.tsx       # Project analytics — views, waterings, grafts, charts
-    ├── LeaderHub.tsx                # Family garden overview — read-only member card grid + detail modal
+    ├── LeaderHub.tsx                # Family garden overview — real family member cards + detail modal
     ├── MicroCycleModal.tsx          # Standalone 4-step practice (Observe → Analyze → Implement → Reflect)
     ├── ModuleRitualModal.tsx        # Unique rituals for Modules 2-6
     ├── PaywallScreen.tsx            # Full-screen paywall with monthly/annual pricing cards
     ├── GiftModal.tsx                # Gift subscription purchase modal
     ├── GiftRedeemBanner.tsx         # Banner for redeeming gifted subscriptions
     ├── CommunitySettingsModal.tsx   # Manage custom communities — add/rename/delete with icon picker
+    ├── FamilySettingsModal.tsx       # Manage family — create, join, invite, leave
     ├── ImportTasksModal.tsx          # Two-tab modal: Todoist OAuth import + Photo AI task extraction
     ├── SparkRefinement.tsx           # Inline AI chat for refining goals in Seed Discovery Step 1
     ├── Toast.tsx                    # Auto-dismissing toast notifications (bottom-right, z-200)
@@ -84,8 +93,9 @@ src/
 
 ### Key Components
 
-- **`App`** — Root component. Manages all state via `useState`. Contains four view modes, Seed Discovery flow, delete/abandon projects, notification system, shelved projects, dashboard inline editing, customizable communities, task import, and layout. ~1200 lines.
+- **`App`** — Root component. Manages all state via `useState`. Contains four view modes, Seed Discovery flow, delete/abandon projects, notification system, shelved projects, dashboard inline editing, customizable communities, task import, family linking, and layout. ~1250 lines.
 - **`CommunitySettingsModal`** — Full community management modal opened from user dropdown menu. Inline rename, icon picker (16 Lucide icons), delete button (Private Greenhouse undeletable), add community row. Cap at 10 communities. Works on local copy, commits on Save.
+- **`FamilySettingsModal`** — Family management modal opened from user dropdown menu ("My Family"). Three views: (1) No-family: "Create Family" + "Join with Code" inputs. (2) Leader view: copyable join code, invite-by-email form, pending invites list. (3) Member view: family name, "Leave Family" with inline confirmation.
 - **`PlantVisual`** — Procedural SVG plant generation with 7 stages and 3 archetypes (sunflower, oak, cactus). Uses unique SVG filter IDs via `useId()` to prevent collisions. Keyframe animation in `index.css`.
 - **`AIMentorPanel`** — Sliding side panel chat with "The Guide". Uses **Gemini 2.5 Flash** for Socratic questioning within the 7-Module framework, prioritizing "Earth Care, People Care, Fair Share." Falls back to mock keyword matching when no API key is configured. Supports AbortController cancel, error handling, and persisted chat history.
 - **`MicroCycleModal`** — Standalone 4-step practice loop (Observe → Analyze → Implement → Reflect). Independent of module progression. Users can run anytime.
@@ -194,7 +204,7 @@ User selects archetype during Seed Discovery (Step 3). Spark Architect AI sugges
 
 **Graceful Degradation:**
 - Todoist tab hidden when `VITE_TODOIST_CLIENT_ID` not set
-- Photo tab hidden when `VITE_GEMINI_API_KEY` not set
+- Photo tab hidden when `VITE_AI_ENABLED` is not `true`
 - If both missing, modal shows setup instructions
 - If only one configured, opens directly to that tab (no tab bar)
 
@@ -202,7 +212,7 @@ User selects archetype during Seed Discovery (Step 3). Spark Architect AI sugges
 - `api/todoist-auth.ts` — Vercel serverless function (uses `TODOIST_CLIENT_ID` + `TODOIST_CLIENT_SECRET`)
 - `public/todoist-callback.html` — OAuth redirect page (extracts code, posts to parent, auto-closes)
 - `src/lib/todoist.ts` — `isTodoistConfigured()`, `getTodoistAuthUrl()`, `exchangeTodoistToken()`, `fetchTodoistTasks()`, `mapTodoistToTrellisTask()`
-- `src/lib/gemini.ts` — `extractTasksFromImage()`, `ExtractedTask` interface
+- `src/lib/ai.ts` — `extractTasksFromImage()`, `ExtractedTask` interface
 - `src/components/ImportTasksModal.tsx` — Modal with TodoistTab + PhotoTab sub-components
 
 **Trigger:** CheckSquare button in FlowView header → `onOpenImportTasks` prop → `showImportTasks` state in App.tsx
@@ -255,52 +265,58 @@ User selects archetype during Seed Discovery (Step 3). Spark Architect AI sugges
 
 **Persistence:** `TrellisNotification[]` stored on `FamilyMember.notifications`, persisted to Supabase `profiles.notifications` (jsonb column). All notification access uses `?? []` null safety.
 
-### AI Integration (Gemini 2.5 Flash)
+### AI Integration (Provider-Agnostic Proxy)
 
-**Architecture:** `src/lib/gemini.ts` is a pure API client with no state. `AIMentorPanel` owns the UI and delegates API calls. Chat history is lifted to `App.tsx` via `onChatHistoryChange` callback and persisted to Supabase `profiles.chat_history` (jsonb).
+**Architecture:** `api/ai.ts` is a Vercel serverless proxy that routes AI requests to the configured provider (Gemini, OpenAI, or Claude). `src/lib/ai.ts` is the client-side module — owns system prompts, response parsing, and calls `/api/ai`. `AIMentorPanel` owns the UI and delegates API calls. Chat history is lifted to `App.tsx` via `onChatHistoryChange` callback and persisted to Supabase `profiles.chat_history` (jsonb).
+
+**Provider-Agnostic Proxy (`api/ai.ts`):**
+- Single serverless endpoint handling all AI operations (guide, spark_architect, spark_refine, extract_tasks)
+- Provider interface: `generateContent({ messages, systemPrompt, maxOutputTokens, apiKey }) → string`
+- 3 providers: `geminiProvider` (full), `openaiProvider` (functional), `claudeProvider` (functional)
+- Provider selected by `AI_PROVIDER` env var (default: `gemini`)
+- API key stored server-side in `AI_API_KEY` env var (never exposed to client)
+- Optional model override via `AI_MODEL` env var
+- Request body: `{ messages, systemPrompt, maxOutputTokens?, temperature?, imageData? }`
+- Response: `{ text }` on success, `{ error, errorCode, retryAfter? }` on failure
+- Swapping providers is a config change (env vars), not a code change
+
+**Client Module (`src/lib/ai.ts`):**
+- `isAIConfigured()` — checks `VITE_AI_ENABLED` env flag (non-secret boolean)
+- `callAIProxy()` — fetches `/api/ai` instead of calling provider APIs directly
+- All system prompts (`MODULE_PROMPTS`, `SPARK_SYSTEM_PROMPT`, `SPARK_REFINEMENT_SYSTEM_PROMPT`, `IMAGE_TASK_SYSTEM_PROMPT`)
+- `buildGuideSystemPrompt()` — builds context-aware prompt from member data
+- All response parsing (task JSON, refined goal, SparkResult)
+- `AIError` class with codes `RATE_LIMIT`, `AUTH`, `NETWORK`, `SAFETY`, `PARSE`
+- Backward-compat aliases: `GeminiError`, `isGeminiConfigured` (deprecated)
 
 **The Guide:**
-- Socratic AI mentor using Gemini 2.5 Flash (REST API via fetch, no SDK)
-- System prompt includes: project context, current module + module-specific instructions, domain scores, recent activity (sow log, knowledge log, open questions, experience log, pattern journal), current tasks, imbalance detection
-- Module-specific prompting: each of the 7 modules has a unique focus area injected into the system prompt
-- Task suggestions: Guide can include `{"task": {"title": "...", "domain": "..."}}` at end of response, parsed and displayed as actionable buttons
+- Socratic AI mentor (default: Gemini 2.5 Flash via proxy)
+- System prompt includes: project context, current module + module-specific instructions, domain scores, recent activity, current tasks, imbalance detection
+- Task suggestions: Guide can include `{"task": {"title": "...", "domain": "..."}}` at end of response
 - Last 20 messages sent to API; full history displayed in UI
 - AbortController cancel button for long requests
-- Error handling: `GeminiError` class with codes `RATE_LIMIT`, `AUTH`, `NETWORK`, `SAFETY`, `PARSE`
-- **Fallback:** When `VITE_GEMINI_API_KEY` is not set, uses mock keyword matching (demo mode)
+- **Fallback:** When `VITE_AI_ENABLED` is not `true`, uses mock keyword matching (demo mode)
 - Chat history clears on Harvest (new project = fresh conversation)
-- Config: temperature 0.8, maxOutputTokens 500
 
 **Spark Refinement (Guided Goal Refinement):**
 - Inline AI chat in Seed Discovery Step 1 — helps users turn vague ideas into clear, measurable goals
-- **Auto-triggers on textarea blur**: when AI is configured and user has typed text, clicking/tabbing out of the textarea automatically opens the refinement chat (no button click needed)
-- Subtle hint text below textarea: "Click outside the box when you're ready — The Guide will help you refine your idea"
-- Replaces the textarea with a compact chat widget (`SparkRefinement` component)
-- AI asks one clarifying question at a time (warm, direct tone — no riddles)
-- After 2-3 exchanges, suggests a refined goal as JSON: `{"refinedGoal": "...", "suggestedTitle": "..."}`
-- Refined goal appears in an editable textarea with gold border; user can modify before accepting
+- **Auto-triggers on textarea blur**: when AI is configured and user has typed text
+- AI asks one clarifying question at a time, then suggests refined goal as JSON
 - On accept: sets `sparkInput` to refined goal, auto-triggers Spark Architect analysis
-- "Back to editing" returns to the original textarea with text intact
-- Uses `refineSparkGoal()` in `gemini.ts` with `SPARK_REFINEMENT_SYSTEM_PROMPT`
-- Config: temperature 0.8, maxOutputTokens 500
-- Without AI key: refinement skipped entirely, flow unchanged
+- Uses `refineSparkGoal()` in `ai.ts`
+- Without AI enabled: refinement skipped entirely, flow unchanged
 
 **Spark Architect:**
 - AI auto-analyzes goal text during Seed Discovery Step 1
-- Button appears only when `VITE_GEMINI_API_KEY` is set and goal text is non-empty
-- Returns `SparkResult`: `suggestedDomains` (DomainKey[]), `suggestedArchetype`, `domainRationale`, `archetypeRationale`
-- Pre-populates domain chips (Step 2) and archetype selection (Step 3) from AI suggestion
-- Shows rationale text below domain chips and archetype cards
+- Button appears only when `VITE_AI_ENABLED=true` and goal text is non-empty
+- Returns `SparkResult`: `suggestedDomains`, `suggestedArchetype`, `domainRationale`, `archetypeRationale`
 - User can always manually override AI suggestions
-- Config: temperature 0.8, maxOutputTokens 300
 
 **Image Task Extraction:**
-- `extractTasksFromImage(base64Image, mimeType)` — Sends image to Gemini 2.5 Flash multimodal with `inlineData`
-- System prompt instructs AI to extract tasks/to-dos from handwritten or printed lists
+- `extractTasksFromImage(base64Image, mimeType)` — sends image through proxy with `imageData` payload
 - Returns `ExtractedTask[]`: `{ title: string, estimatedMinutes?: number }`
-- Config: temperature 0.8, maxOutputTokens 1024
 
-**Security:** `VITE_GEMINI_API_KEY` is exposed in client bundle (frontend-only architecture). Mitigate by restricting the key to Generative Language API only with HTTP referrer restrictions + per-key quotas in Google AI Studio. Future: move to serverless proxy.
+**Security:** API keys are server-side only (`AI_API_KEY` in Vercel env vars). Client never sees the key — only a boolean `VITE_AI_ENABLED` flag controls UI gating.
 
 ### PWA Configuration
 
@@ -322,6 +338,7 @@ User selects archetype during Seed Discovery (Step 3). Spark Architect AI sugges
 - Trial countdown shown in nav when trialing
 
 **Serverless Functions (`/api/`):**
+- `ai.ts` — Provider-agnostic AI proxy (routes to Gemini/OpenAI/Claude based on `AI_PROVIDER` env var)
 - `create-checkout.ts` — Creates Stripe Checkout Session (supports gift purchases)
 - `create-portal.ts` — Creates Stripe Customer Portal session (manage/cancel)
 - `stripe-webhook.ts` — Handles Stripe webhook events (raw body, signature verification)
@@ -347,6 +364,10 @@ User selects archetype during Seed Discovery (Step 3). Spark Architect AI sugges
 - `SUPABASE_SERVICE_ROLE_KEY` — Server-only (Vercel only)
 - `VITE_TODOIST_CLIENT_ID` — Client-visible (`.env` + Vercel) — Todoist OAuth app client ID
 - `TODOIST_CLIENT_SECRET` — Server-only (Vercel only) — Todoist OAuth app secret
+- `VITE_AI_ENABLED` — Client-visible (`.env` + Vercel) — `true` to enable AI features in UI
+- `AI_PROVIDER` — Server-only (`.env` + Vercel) — `gemini`, `openai`, or `claude` (default: `gemini`)
+- `AI_API_KEY` — Server-only (`.env` + Vercel) — API key for the selected provider
+- `AI_MODEL` — Server-only (Vercel only, optional) — Model override (e.g. `gemini-2.5-flash`, `gpt-4o`, `claude-sonnet-4-5-20250929`)
 
 **Stripe Webhook Events:**
 - `checkout.session.completed` — Activate subscription or create gift record
@@ -381,8 +402,84 @@ ALTER TABLE gift_subscriptions ENABLE ROW LEVEL SECURITY;
 UPDATE profiles SET trial_start = now(), subscription_status = 'trialing' WHERE trial_start IS NULL;
 ```
 
+### Family Linking System
+
+**Architecture:** Leaders create families (generating join codes), invite members by email, and members join via code or pending invite auto-match. LeaderHub shows real family data from DB.
+
+**Join Flow:**
+1. Leader creates family from FamilySettingsModal → generates `WORD-4CHARS` code (e.g. `GROVE-7X2K`)
+2. Leader shares code or sends email invite
+3. New user enters code during signup (AuthScreen) → auto-joins on first login
+4. Existing user enters code in FamilySettingsModal → joins immediately
+5. If user signs up with an email matching a pending invite → auto-joins on login
+
+**Serverless Endpoints (`/api/`):**
+- `family-create.ts` — Creates `families` row, updates leader's profile, returns join code
+- `family-invite.ts` — Inserts into `family_invites`, validates leader role
+- `family-join.ts` — Joins by code or auto-matches pending email invite
+
+**Client Library (`src/lib/family.ts`):**
+- `createFamily(name?)` — POST to `/api/family-create`
+- `inviteFamilyMember(email)` — POST to `/api/family-invite`
+- `joinFamily(joinCode)` — POST to `/api/family-join`
+- `checkPendingInvite()` — POST to `/api/family-join` with no code (email auto-match)
+- `loadFamilyMembers(defaultGoals)` — Queries profiles via RLS (family_id match)
+- `loadFamilyInfo()` — Queries families table for join code + name
+- `loadFamilyInvites(familyId)` — Queries family_invites for pending list
+- `leaveFamily(userId)` — Clears family_id on profile
+
+**DB Tables:**
+- `families` — id, leader_id, name, join_code (unique), created_at
+- `family_invites` — id, family_id, email, invited_by, status, created_at (unique: family_id+email)
+- `profiles` additions: `family_id uuid`, `family_role text` ('leader' or 'member')
+
+**RLS:** Users can read own profile + profiles sharing their family_id. Leaders can manage families/invites. Invitees can read their own invites by email match.
+
+**Join Code Format:** `WORD-4CHARS` (e.g. `BLOOM-3K7P`). Words: GROVE, BLOOM, ROOTS, SEEDS, VINES, OASIS, FIELD, HAVEN. Chars: uppercase letters + digits (no ambiguous 0/O/1/I).
+
+### Managed Child Profiles (Phase 8)
+
+**Architecture:** Parents can add children (who don't have email accounts) to their family. The server creates real Supabase auth users with synthetic emails (`{slug}.kid@trellis.app`) and PIN-derived passwords (`trellis-{pin}`). Children get their own profile rows — existing load/save code works unchanged. Parents can switch to managing a child's full dashboard.
+
+**Kid Login Flow:**
+1. Kid enters family join code on AuthScreen (Kid Login tab)
+2. `/api/family-children` returns list of managed children (unauthenticated, name + slug only)
+3. Kid selects their name from the list
+4. Kid enters 4-digit PIN → `supabase.auth.signInWithPassword({ email: '{slug}.kid@trellis.app', password: 'trellis-{pin}' })`
+
+**Parent Manage Flow:**
+1. LeaderHub → tap child card → detail modal → "Manage Dashboard" button
+2. App loads child profile via `loadChildProfile(childUserId)` → switches activeMember
+3. Gold banner: "Managing [name]'s garden" with "Back to My Profile" button
+4. All saves go to child's profile row (RLS: `managed_by_user_id = auth.uid()`)
+
+**Serverless Endpoints:**
+- `family-add-child.ts` — Creates auth user (synthetic email, PIN password, `email_confirm: true`), profile row with `is_managed_child=true`, max 5 per parent
+- `family-children.ts` — GET `?code=GROVE-7X2K`, returns children names + slugs (unauthenticated)
+- `family-remove-child.ts` — Verifies parent ownership, archives community projects, deletes profile + auth user
+
+**Client Library (`src/lib/family.ts`):**
+- `addManagedChild(name, pin)` — POST to `/api/family-add-child`
+- `removeManagedChild(childUserId)` — POST to `/api/family-remove-child`
+- `listFamilyChildren(joinCode)` — GET from `/api/family-children`
+- `loadManagedChildren()` — Queries profiles where `is_managed_child=true` (RLS scopes to parent)
+
+**DB Columns on `profiles`:** `is_managed_child boolean`, `managed_by_user_id uuid`, `child_slug text UNIQUE`
+
+**RLS Policies:** "Parents can read managed children" (SELECT), "Parents can update managed children" (UPDATE) — both use `managed_by_user_id = auth.uid()`
+
+**Child Slug Format:** `{sanitized-name}-{4random}` (e.g. `emma-7x2k`)
+
+**UI Changes:**
+- AuthScreen: 3-tab toggle (Sign In / Sign Up / Kid Login) with 3-step flow
+- FamilySettingsModal: "Kids" section in leader view — add child form (name + PIN), managed children list with manage/remove buttons
+- LeaderHub: Green "Kid" badge on child cards, "Manage Dashboard" button in detail modal
+- App.tsx: Management banner, conditional activeMember, child-aware dropdown menu
+
 ### Database Schema
-- **Profiles:** id, email, family_id, role (Leader/Member), level (Cultivator/Mentor/Think Tank), subscription fields
+- **Profiles:** id, email, family_id, family_role, role (Leader/Member), level (Cultivator/Mentor/Think Tank), subscription fields, is_managed_child, managed_by_user_id, child_slug
+- **families:** id, leader_id, name, join_code (unique), created_at
+- **family_invites:** id, family_id, email, invited_by, status, created_at
 - **community_projects:** id, user_id, author_name, title, description, plant, stage, status (draft/published/archived), visibility[], tags[], impact_vectors[], water_count, graft_count, view_count, created_at, updated_at, published_at
 - **community_interactions:** id, project_id, from_user_id, from_user_name, type (water/graft), tier, message, created_at
 - **project_views:** id, project_id, viewer_id, viewed_at (unique per project+viewer+day)
@@ -404,6 +501,8 @@ All types defined in `src/types.ts`. Key interfaces:
 - `SparkResult` — `{ suggestedTitle, suggestedDomains, suggestedArchetype, domainRationale, archetypeRationale }`
 - `RefinementResponse` — `{ text, refinedGoal?, suggestedTitle? }` — returned by `refineSparkGoal()`
 - `KnowledgeEntry`, `QuestionEntry`, `ExperienceEntry`, `PatternEntry` — module ritual data
+- `FamilyInfo` — `{ id, name, joinCode, leaderId }` — family metadata
+- `FamilyInvite` — `{ id, email, status, createdAt }` — pending invite record
 
 ### Design System
 - Primary gold: `#d4af37`
@@ -417,7 +516,7 @@ All types defined in `src/types.ts`. Key interfaces:
 ### Current Limitations
 - ~~All state is local (no persistence — resets on refresh)~~ — Supabase profiles table with RLS
 - ~~No backend integration despite Supabase dependency~~ — Auth + profile persistence active
-- AI mentor requires `VITE_GEMINI_API_KEY` — falls back to mock keyword matching when not set
+- AI mentor requires `VITE_AI_ENABLED=true` + server-side `AI_API_KEY` — falls back to mock keyword matching when not enabled
 - Plant stage gating not enforced (renders based on module number only)
 - `isFamilyMenuOpen` toggles a dropdown but no member selection is implemented (only 1 hardcoded member)
 - No accessibility: Missing ARIA labels, keyboard focus indicators, low-contrast text patterns
@@ -457,6 +556,10 @@ All types defined in `src/types.ts`. Key interfaces:
 
 **Phase 6: Task Import (complete)** — ~~Todoist OAuth import~~, ~~Photo-to-tasks via Gemini multimodal~~, ~~ImportTasksModal with two tabs~~, ~~Serverless token exchange~~, ~~Graceful degradation when APIs not configured~~
 
+**Phase 7: Family Linking (complete)** — ~~Family creation with join codes~~, ~~Email invites~~, ~~Join by code or pending invite~~, ~~FamilySettingsModal (create/invite/join/leave)~~, ~~LeaderHub shows real family data~~, ~~AuthScreen join code field~~, ~~DB tables + RLS policies~~
+
+**Phase 8: Managed Child Profiles (complete)** — ~~Add kids without email~~, ~~Kid Login (join code + name + PIN)~~, ~~Parent manage child dashboard~~, ~~Management banner + back button~~, ~~FamilySettingsModal kids section~~, ~~LeaderHub child badges + manage button~~, ~~DB columns + RLS policies~~
+
 **DB migration required for Phase 4:** 3 new tables (`community_projects`, `community_interactions`, `project_views`) with RLS, triggers, and indexes. See migration SQL in project docs.
 
 **DB migration required for shelved projects:** `ALTER TABLE profiles ADD COLUMN IF NOT EXISTS shelved_projects jsonb DEFAULT '[]'::jsonb;`
@@ -479,8 +582,8 @@ All types defined in `src/types.ts`. Key interfaces:
     -H "Content-Type: application/json" \
     -d '{"query": "YOUR SQL HERE"}'
   ```
-- **Database columns on `profiles`:** id, name, role, goals, project_title, project_plant, project_impact_vectors, current_module, project_visibility, project_ethics_check, project_sharing_scope, tasks, schedule, harvest_history, sow_log, knowledge_log, question_map, experience_log, pattern_journal, notifications, chat_history, shelved_projects, custom_communities, trial_start, subscription_status, stripe_customer_id, stripe_subscription_id, subscription_tier, subscription_current_period_end
-- **Additional tables:** community_projects, community_interactions, project_views, gift_subscriptions
+- **Database columns on `profiles`:** id, name, role, goals, project_title, project_plant, project_impact_vectors, current_module, project_visibility, project_ethics_check, project_sharing_scope, tasks, schedule, harvest_history, sow_log, knowledge_log, question_map, experience_log, pattern_journal, notifications, chat_history, shelved_projects, custom_communities, trial_start, subscription_status, stripe_customer_id, stripe_subscription_id, subscription_tier, subscription_current_period_end, family_id, family_role, is_managed_child, managed_by_user_id, child_slug
+- **Additional tables:** community_projects, community_interactions, project_views, gift_subscriptions, families, family_invites
 
 ## Technical Document
 

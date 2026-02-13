@@ -29,15 +29,17 @@ import type {
   FamilyMember, PlantArchetype,
   EthicsCheck, HarvestRecord, SowEntry, SowTier, ModuleInfo,
   TrellisNotification, ToastData, AIMessage, SparkResult, ShelvedProject,
-  UserCommunity,
+  UserCommunity, ManagedChildSummary,
 } from './types';
 import { ARCHETYPE_INFO, SOW_TIERS } from './types';
-import { isGeminiConfigured, sparkArchitectAnalyze, GeminiError } from './lib/gemini';
+import { isAIConfigured, sparkArchitectAnalyze, AIError } from './lib/ai';
 import SparkRefinement from './components/SparkRefinement';
 import { stripeConfigured, getSubscriptionInfo, createPortalSession } from './lib/subscription';
 
 import CommunitySettingsModal from './components/CommunitySettingsModal';
+import FamilySettingsModal from './components/FamilySettingsModal';
 import { ensureDefaults, resolveCommunitiesForUI } from './lib/communityIcons';
+import { loadFamilyMembers as loadFamilyMembersFromDB, checkPendingInvite, joinFamily as joinFamilyByCode, loadManagedChildren } from './lib/family';
 import PlantVisual from './components/PlantVisual';
 import AIMentorPanel from './components/AIMentorPanel';
 import HarvestModal from './components/HarvestModal';
@@ -55,7 +57,7 @@ import GiftRedeemBanner from './components/GiftRedeemBanner';
 import ToastContainer from './components/Toast';
 import NotificationCenter from './components/NotificationCenter';
 import { fetchGoogleCalendarEvents } from './lib/googleCalendar';
-import { supabase, supabaseConfigured, loadProfile, saveProfile } from './lib/supabase';
+import { supabase, supabaseConfigured, loadProfile, saveProfile, loadChildProfile } from './lib/supabase';
 import {
   moduleAdvanceNotification, harvestCompleteNotification,
   sowLoggedNotification, taskCompleteNotification,
@@ -143,6 +145,8 @@ const INITIAL_FAMILY: FamilyMember[] = [
     chatHistory: [],
     shelvedProjects: [],
     subscriptionStatus: 'trialing',
+    familyId: undefined,
+    familyRole: undefined,
   }
 ];
 
@@ -200,15 +204,6 @@ const App = () => {
   });
   const imbalanceCooldownRef = useRef(0);
 
-  const activeMember = familyMembers.find(m => m.id === activeMemberId) || familyMembers[0];
-  const goals = activeMember.goals;
-  const tasks = activeMember.tasks;
-  const schedule = activeMember.schedule;
-
-  // Derive communities from member data
-  const userCommunities = ensureDefaults(activeMember.customCommunities);
-  const resolvedCommunities = resolveCommunitiesForUI(userCommunities);
-
   const [activeDomain, setActiveDomain] = useState<MetaDomain>('land');
   const [expandedGroup, setExpandedGroup] = useState<string | null>(null);
 
@@ -231,7 +226,23 @@ const App = () => {
   const [editArchetype, setEditArchetype] = useState<PlantArchetype>('sunflower');
   const [confirmDelete, setConfirmDelete] = useState<{ type: 'active' | 'shelved'; shelvedId?: number } | null>(null);
   const [showCommunitySettings, setShowCommunitySettings] = useState(false);
+  const [showFamilySettings, setShowFamilySettings] = useState(false);
+  const [realFamilyMembers, setRealFamilyMembers] = useState<FamilyMember[]>([]);
   const [quickAddName, setQuickAddName] = useState('');
+  const [managingChildId, setManagingChildId] = useState<string | null>(null);
+  const [managedChildData, setManagedChildData] = useState<FamilyMember | null>(null);
+  const [managedChildren, setManagedChildren] = useState<ManagedChildSummary[]>([]);
+
+  const ownMember = familyMembers.find(m => m.id === activeMemberId) || familyMembers[0];
+  const activeMember = (managingChildId && managedChildData) ? managedChildData : ownMember;
+  const isManagingChild = !!(managingChildId && managedChildData);
+  const goals = activeMember.goals;
+  const tasks = activeMember.tasks;
+  const schedule = activeMember.schedule;
+
+  // Derive communities from member data
+  const userCommunities = ensureDefaults(activeMember.customCommunities);
+  const resolvedCommunities = resolveCommunitiesForUI(userCommunities);
 
   // ── Auth Bootstrap ─────────────────────────────────────────
 
@@ -290,16 +301,81 @@ const App = () => {
     });
   }, [session, profileLoaded]);
 
+  // ── Load Family Members ──────────────────────────────────
+
+  useEffect(() => {
+    if (!session?.user || !profileLoaded) return;
+    if (!activeMember.familyId) return;
+
+    loadFamilyMembersFromDB(DEFAULT_GOALS).then(members => {
+      setRealFamilyMembers(members);
+    });
+  }, [session, profileLoaded, activeMember.familyId]);
+
+  // ── Load Managed Children ────────────────────────────────
+  useEffect(() => {
+    if (!session?.user || !profileLoaded) return;
+    if (!ownMember.familyId || ownMember.familyRole !== 'leader') return;
+
+    loadManagedChildren().then(setManagedChildren);
+  }, [session, profileLoaded, ownMember.familyId, ownMember.familyRole]);
+
+  // ── Auto-join Pending Invite on Login ──────────────────────
+
+  useEffect(() => {
+    if (!session?.user || !profileLoaded || activeMember.familyId) return;
+
+    // Check if there's a pending invite for this user's email
+    checkPendingInvite().then(result => {
+      if (result) {
+        // Auto-joined — update local state
+        updateActiveMember({ familyId: result.familyId, familyRole: 'member' });
+      }
+    });
+  }, [session, profileLoaded]);
+
+  // ── Join Code from Signup ──────────────────────────────────
+
+  useEffect(() => {
+    if (!session?.user || !profileLoaded || activeMember.familyId) return;
+    const joinCode = session.user.user_metadata?.join_code;
+    if (!joinCode) return;
+
+    joinFamilyByCode(joinCode).then(result => {
+      updateActiveMember({ familyId: result.familyId, familyRole: 'member' });
+    }).catch(() => {
+      // Invalid code, silently ignore
+    });
+  }, [session, profileLoaded]);
+
   // ── Persist Helper ─────────────────────────────────────────
 
   const updateActiveMember = useCallback((updates: Partial<FamilyMember>) => {
-    setFamilyMembers(prev => prev.map(m => m.id === activeMemberId ? { ...m, ...updates } : m));
-
-    // Fire-and-forget DB save
-    if (session?.user) {
-      saveProfile(session.user.id, updates);
+    if (managingChildId && managedChildData) {
+      // Updating child's profile
+      setManagedChildData(prev => prev ? { ...prev, ...updates } : prev);
+      saveProfile(managingChildId, updates);
+    } else {
+      setFamilyMembers(prev => prev.map(m => m.id === activeMemberId ? { ...m, ...updates } : m));
+      if (session?.user) {
+        saveProfile(session.user.id, updates);
+      }
     }
-  }, [activeMemberId, session]);
+  }, [activeMemberId, session, managingChildId, managedChildData]);
+
+  const enterManageMode = useCallback(async (childUserId: string) => {
+    const childProfile = await loadChildProfile(childUserId, DEFAULT_GOALS);
+    if (childProfile) {
+      setManagingChildId(childUserId);
+      setManagedChildData(childProfile);
+      setViewMode('dashboard');
+    }
+  }, []);
+
+  const exitManageMode = useCallback(() => {
+    setManagingChildId(null);
+    setManagedChildData(null);
+  }, []);
 
   const handleChatHistoryChange = useCallback((messages: AIMessage[]) => {
     updateActiveMember({ chatHistory: messages });
@@ -848,10 +924,11 @@ const App = () => {
   }
 
   // ── Subscription Gate ──────────────────────────────────────
-  const subscriptionInfo = stripeConfigured ? getSubscriptionInfo(activeMember) : null;
+  const subscriptionInfo = stripeConfigured ? getSubscriptionInfo(ownMember) : null;
   const isTrialing = subscriptionInfo?.status === 'trialing' && (subscriptionInfo?.trialDaysRemaining ?? 0) > 0;
+  const isManagedChild = ownMember.isManagedChild ?? false;
 
-  if (stripeConfigured && subscriptionInfo && !subscriptionInfo.hasActiveAccess) {
+  if (stripeConfigured && subscriptionInfo && !subscriptionInfo.hasActiveAccess && !isManagedChild) {
     return (
       <>
         <PaywallScreen
@@ -938,6 +1015,30 @@ const App = () => {
         onClose={() => setShowCommunitySettings(false)}
       />
 
+      {session && (
+        <FamilySettingsModal
+          isOpen={showFamilySettings}
+          onClose={() => setShowFamilySettings(false)}
+          userId={session.user.id}
+          familyId={ownMember.familyId}
+          familyRole={ownMember.familyRole}
+          onFamilyChanged={(familyId, role) => {
+            setFamilyMembers(prev => prev.map(m => m.id === activeMemberId ? { ...m, familyId, familyRole: role } : m));
+            if (session?.user) saveProfile(session.user.id, { familyId, familyRole: role });
+            loadFamilyMembersFromDB(DEFAULT_GOALS).then(setRealFamilyMembers);
+          }}
+          onFamilyLeft={() => {
+            setFamilyMembers(prev => prev.map(m => m.id === activeMemberId ? { ...m, familyId: undefined, familyRole: undefined } : m));
+            if (session?.user) saveProfile(session.user.id, { familyId: undefined, familyRole: undefined });
+            setRealFamilyMembers([]);
+          }}
+          managedChildren={managedChildren}
+          onChildAdded={() => loadManagedChildren().then(setManagedChildren)}
+          onChildRemoved={() => loadManagedChildren().then(setManagedChildren)}
+          onManageChild={enterManageMode}
+        />
+      )}
+
       <ImportTasksModal
         isOpen={showImportTasks}
         onClose={() => setShowImportTasks(false)}
@@ -1002,11 +1103,11 @@ const App = () => {
             </button>
             {isFamilyMenuOpen && (
               <div className="absolute right-0 mt-2 w-48 bg-white rounded-xl border border-[#2c2c2a]/10 shadow-lg py-2 z-50">
-                {stripeConfigured && activeMember.stripeCustomerId && (
+                {!isManagedChild && stripeConfigured && ownMember.stripeCustomerId && (
                   <button
                     onClick={async () => {
                       try {
-                        const url = await createPortalSession(activeMember.stripeCustomerId!);
+                        const url = await createPortalSession(ownMember.stripeCustomerId!);
                         window.location.href = url;
                       } catch (err) {
                         console.error('Portal error:', err);
@@ -1018,13 +1119,22 @@ const App = () => {
                     <span className="font-bold uppercase tracking-widest text-[10px]">Manage Plan</span>
                   </button>
                 )}
-                {stripeConfigured && (
+                {!isManagedChild && stripeConfigured && (
                   <button
                     onClick={() => { setShowGiftModal(true); setIsFamilyMenuOpen(false); }}
                     className="w-full flex items-center gap-3 px-4 py-2 text-sm text-[#2c2c2a]/60 hover:text-[#2c2c2a] hover:bg-[#2c2c2a]/5 transition-all"
                   >
                     <Gift size={14} />
                     <span className="font-bold uppercase tracking-widest text-[10px]">Gift Trellis</span>
+                  </button>
+                )}
+                {!isManagedChild && (
+                  <button
+                    onClick={() => { setShowFamilySettings(true); setIsFamilyMenuOpen(false); }}
+                    className="w-full flex items-center gap-3 px-4 py-2 text-sm text-[#2c2c2a]/60 hover:text-[#2c2c2a] hover:bg-[#2c2c2a]/5 transition-all"
+                  >
+                    <Users size={14} />
+                    <span className="font-bold uppercase tracking-widest text-[10px]">My Family</span>
                   </button>
                 )}
                 <button
@@ -1048,6 +1158,20 @@ const App = () => {
       </nav>
 
       <main className="max-w-6xl mx-auto px-6 py-12 space-y-12">
+        {isManagingChild && (
+          <div className="flex items-center justify-between bg-[#d4af37]/10 border border-[#d4af37]/30 rounded-2xl px-6 py-3">
+            <div className="flex items-center gap-3">
+              <Sprout size={18} className="text-[#d4af37]" />
+              <span className="text-sm font-bold text-[#d4af37]">Managing {activeMember.name}'s garden</span>
+            </div>
+            <button
+              onClick={exitManageMode}
+              className="px-4 py-2 rounded-full text-[10px] font-bold uppercase tracking-widest bg-[#2c2c2a] text-[#fdfbf7] hover:bg-[#d4af37] hover:text-[#2c2c2a] transition-all"
+            >
+              Back to My Profile
+            </button>
+          </div>
+        )}
         {pendingGiftId && session && (
           <GiftRedeemBanner
             giftId={pendingGiftId}
@@ -1068,7 +1192,7 @@ const App = () => {
             onNotify={notify}
           />
         )}
-        {viewMode === 'leader' && <LeaderHub currentMember={activeMember} />}
+        {viewMode === 'leader' && <LeaderHub currentMember={ownMember} familyMembers={realFamilyMembers} onManageChild={enterManageMode} />}
         {viewMode === 'dashboard' && !isArchitecting && (
           <div className="space-y-12">
             {activeMember.projectTitle ? (
@@ -1204,10 +1328,10 @@ const App = () => {
                 <div className="absolute -bottom-3 left-2 w-[18%] h-[160%] opacity-[0.06] pointer-events-none">
                   <PlantVisual type="cactus" stage={6} />
                 </div>
-                <div className="absolute -bottom-3 left-1/2 -translate-x-1/2 w-[18%] h-[160%] opacity-[0.04] pointer-events-none">
+                <div className="absolute -bottom-3 left-1/2 -translate-x-1/2 w-[18%] h-[130%] opacity-[0.04] pointer-events-none">
                   <PlantVisual type="oak" stage={6} />
                 </div>
-                <div className="absolute -bottom-3 right-2 w-[18%] h-[160%] opacity-[0.06] pointer-events-none">
+                <div className="absolute -bottom-3 right-2 w-[18%] h-[130%] opacity-[0.06] pointer-events-none">
                   <PlantVisual type="sunflower" stage={6} />
                 </div>
                 <button
@@ -1383,7 +1507,7 @@ const App = () => {
                         if (title) setSparkTitle(title);
                         setShowSparkRefinement(false);
                         // Auto-trigger Spark Architect analysis on the refined goal
-                        if (isGeminiConfigured()) {
+                        if (isAIConfigured()) {
                           setSparkAnalyzing(true);
                           setSparkSuggestion(null);
                           sparkArchitectAnalyze(goal).then(result => {
@@ -1393,7 +1517,7 @@ const App = () => {
                             if (!title && result.suggestedTitle) setSparkTitle(result.suggestedTitle);
                           }).catch(err => {
                             console.error('Spark Architect error:', err);
-                            const msg = err instanceof GeminiError ? err.message : 'Could not analyze. Try again.';
+                            const msg = err instanceof AIError ? err.message : 'Could not analyze. Try again.';
                             setSparkSuggestion({ suggestedTitle: '', suggestedDomains: [], suggestedArchetype: 'sunflower', domainRationale: msg, archetypeRationale: '' });
                           }).finally(() => setSparkAnalyzing(false));
                         }
@@ -1406,12 +1530,12 @@ const App = () => {
                         value={sparkInput}
                         onChange={(e) => setSparkInput(e.target.value)}
                         onBlur={() => {
-                          if (isGeminiConfigured() && sparkInput.trim()) {
+                          if (isAIConfigured() && sparkInput.trim()) {
                             setShowSparkRefinement(true);
                           }
                         }}
                         onKeyDown={(e) => {
-                          if (e.key === 'Enter' && !e.shiftKey && isGeminiConfigured() && sparkInput.trim()) {
+                          if (e.key === 'Enter' && !e.shiftKey && isAIConfigured() && sparkInput.trim()) {
                             e.preventDefault();
                             setShowSparkRefinement(true);
                           }
@@ -1419,10 +1543,10 @@ const App = () => {
                         className="w-full bg-[#fdfbf7]/5 border border-[#fdfbf7]/10 rounded-xl p-4 h-32 text-lg focus:border-[#d4af37] outline-none"
                         placeholder="What dream are you planting?"
                       />
-                      {isGeminiConfigured() && sparkInput.trim() && (
+                      {isAIConfigured() && sparkInput.trim() && (
                         <p className="text-[10px] text-[#d4af37]/50 italic">Press Enter or click outside when you're ready — The Guide will help refine your idea</p>
                       )}
-                      {!isGeminiConfigured() && sparkInput.trim() && (
+                      {!isAIConfigured() && sparkInput.trim() && (
                         <button
                           onClick={async () => {
                             setSparkAnalyzing(true);
@@ -1435,7 +1559,7 @@ const App = () => {
                               if (result.suggestedTitle) setSparkTitle(result.suggestedTitle);
                             } catch (err) {
                               console.error('Spark Architect error:', err);
-                              const msg = err instanceof GeminiError ? err.message : 'Could not analyze. Try again.';
+                              const msg = err instanceof AIError ? err.message : 'Could not analyze. Try again.';
                               setSparkSuggestion({ suggestedTitle: '', suggestedDomains: [], suggestedArchetype: 'sunflower', domainRationale: msg, archetypeRationale: '' });
                             } finally {
                               setSparkAnalyzing(false);

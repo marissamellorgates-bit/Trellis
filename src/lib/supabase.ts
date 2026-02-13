@@ -47,6 +47,11 @@ interface ProfileRow {
   chat_history: FamilyMember['chatHistory'];
   shelved_projects: FamilyMember['shelvedProjects'];
   custom_communities: UserCommunity[] | null;
+  family_id: string | null;
+  family_role: string | null;
+  is_managed_child: boolean | null;
+  managed_by_user_id: string | null;
+  child_slug: string | null;
   trial_start: string | null;
   subscription_status: SubscriptionStatus | null;
   stripe_customer_id: string | null;
@@ -118,6 +123,11 @@ export async function loadProfile(
     chatHistory: row.chat_history ?? [],
     shelvedProjects: row.shelved_projects ?? [],
     customCommunities: row.custom_communities ?? undefined,
+    familyId: row.family_id ?? undefined,
+    familyRole: (row.family_role as 'leader' | 'member') ?? undefined,
+    isManagedChild: row.is_managed_child ?? false,
+    managedByUserId: row.managed_by_user_id ?? undefined,
+    childSlug: row.child_slug ?? undefined,
     trialStart: row.trial_start ?? undefined,
     subscriptionStatus: row.subscription_status ?? 'trialing',
     stripeCustomerId: row.stripe_customer_id ?? undefined,
@@ -157,6 +167,11 @@ export async function saveProfile(
   if (updates.chatHistory !== undefined) row.chat_history = updates.chatHistory;
   if (updates.shelvedProjects !== undefined) row.shelved_projects = updates.shelvedProjects;
   if (updates.customCommunities !== undefined) row.custom_communities = updates.customCommunities;
+  if (updates.familyId !== undefined) row.family_id = updates.familyId;
+  if (updates.familyRole !== undefined) row.family_role = updates.familyRole;
+  if (updates.isManagedChild !== undefined) row.is_managed_child = updates.isManagedChild;
+  if (updates.managedByUserId !== undefined) row.managed_by_user_id = updates.managedByUserId;
+  if (updates.childSlug !== undefined) row.child_slug = updates.childSlug;
   if (updates.trialStart !== undefined) row.trial_start = updates.trialStart;
   if (updates.subscriptionStatus !== undefined) row.subscription_status = updates.subscriptionStatus;
   if (updates.stripeCustomerId !== undefined) row.stripe_customer_id = updates.stripeCustomerId;
@@ -173,4 +188,57 @@ export async function saveProfile(
   if (error) {
     console.error('Failed to save profile:', error.message);
   }
+}
+
+/** Load a child profile (parent must have managed_by_user_id = auth.uid() via RLS) */
+export async function loadChildProfile(
+  childUserId: string,
+  defaultGoals: GoalsMap
+): Promise<FamilyMember | null> {
+  const { data, error } = await supabase
+    .from('profiles')
+    .select('*')
+    .eq('id', childUserId)
+    .single();
+
+  if (error || !data) return null;
+
+  const row = data as ProfileRow;
+
+  return {
+    id: 1,
+    name: row.name || '',
+    role: row.role || 'Project Cultivator',
+    goals: rowToGoals(row.goals || {}, defaultGoals),
+    projectTitle: row.project_title || '',
+    projectPlant: row.project_plant || 'sunflower',
+    projectImpactVectors: row.project_impact_vectors || [],
+    currentModule: row.current_module || 1,
+    projectVisibility: row.project_visibility || [],
+    projectEthicsCheck: row.project_ethics_check ?? undefined,
+    projectSharingScope: row.project_sharing_scope ?? ['private'],
+    tasks: row.tasks || [],
+    schedule: row.schedule || [],
+    harvestHistory: row.harvest_history || [],
+    sowLog: row.sow_log || [],
+    knowledgeLog: row.knowledge_log || [],
+    questionMap: row.question_map || [],
+    experienceLog: row.experience_log || [],
+    patternJournal: row.pattern_journal || [],
+    notifications: row.notifications || [],
+    chatHistory: row.chat_history ?? [],
+    shelvedProjects: row.shelved_projects ?? [],
+    customCommunities: row.custom_communities ?? undefined,
+    familyId: row.family_id ?? undefined,
+    familyRole: (row.family_role as 'leader' | 'member') ?? undefined,
+    isManagedChild: row.is_managed_child ?? false,
+    managedByUserId: row.managed_by_user_id ?? undefined,
+    childSlug: row.child_slug ?? undefined,
+    trialStart: row.trial_start ?? undefined,
+    subscriptionStatus: row.subscription_status ?? 'trialing',
+    stripeCustomerId: row.stripe_customer_id ?? undefined,
+    stripeSubscriptionId: row.stripe_subscription_id ?? undefined,
+    subscriptionTier: row.subscription_tier ?? undefined,
+    subscriptionCurrentPeriodEnd: row.subscription_current_period_end ?? undefined,
+  };
 }

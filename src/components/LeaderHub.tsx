@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { X, Mountain, Anchor, Wind, Crown } from 'lucide-react';
+import { X, Mountain, Anchor, Wind, Crown, Users, Sprout, Eye } from 'lucide-react';
 import type { LeaderHubProps, FamilyMember, GoalsMap, DomainKey } from '../types';
 import PlantVisual from './PlantVisual';
 
@@ -40,169 +40,14 @@ const MODULE_NAMES = [
   'The Bloom', 'The Fruit', 'The Harvest',
 ];
 
-// ── Mock goals factory ───────────────────────────────────────
-
-const makeGoals = (overrides: Partial<Record<DomainKey, { completed: number }>>): GoalsMap => {
-  const base: GoalsMap = {
-    biological: { completed: 0, total: 4, label: 'Physical Health', icon: Mountain, goal: '' },
-    mentalClarity: { completed: 0, total: 4, label: 'Mental Clarity', icon: Mountain, goal: '' },
-    environmentalOrder: { completed: 0, total: 4, label: 'Environmental Order', icon: Mountain, goal: '' },
-    coreCompetencies: { completed: 0, total: 5, label: 'Crafts', icon: Mountain, goal: '' },
-    experimentalTendrils: { completed: 0, total: 4, label: 'Tendrils', icon: Mountain, goal: '' },
-    reflectiveSynthesis: { completed: 0, total: 3, label: 'Reflection', icon: Mountain, goal: '' },
-    passiveRestoration: { completed: 0, total: 4, label: 'Rest', icon: Mountain, goal: '' },
-    activePlay: { completed: 0, total: 5, label: 'Play', icon: Mountain, goal: '' },
-    solitude: { completed: 0, total: 3, label: 'Solitude', icon: Mountain, goal: '' },
-    innerCircle: { completed: 0, total: 5, label: 'Family', icon: Anchor, goal: '' },
-    socialCommunion: { completed: 0, total: 4, label: 'Friends', icon: Anchor, goal: '' },
-    safePort: { completed: 0, total: 4, label: 'Village', icon: Anchor, goal: '' },
-    professionalExchange: { completed: 0, total: 7, label: 'Profession', icon: Anchor, goal: '' },
-    marketRealities: { completed: 0, total: 5, label: 'Finances', icon: Anchor, goal: '' },
-    instructionalCurrent: { completed: 0, total: 4, label: 'Opportunity', icon: Anchor, goal: '' },
-    networking: { completed: 0, total: 4, label: 'Connections', icon: Anchor, goal: '' },
-    culturalImmersion: { completed: 0, total: 3, label: 'Culture', icon: Anchor, goal: '' },
-    publicReputation: { completed: 0, total: 3, label: 'Reputation', icon: Anchor, goal: '' },
-    creativeFlow: { completed: 0, total: 5, label: 'Creativity', icon: Wind, goal: '' },
-    physicalExhilaration: { completed: 0, total: 4, label: 'Adventure', icon: Wind, goal: '' },
-    aweAndWonder: { completed: 0, total: 3, label: 'Wonder', icon: Wind, goal: '' },
-    radicalImagination: { completed: 0, total: 4, label: 'Imagination', icon: Wind, goal: '' },
-    beautyExploration: { completed: 0, total: 3, label: 'Beauty', icon: Wind, goal: '' },
-    emotionalRelease: { completed: 0, total: 4, label: 'Expression', icon: Wind, goal: '' },
-    spiritualPurpose: { completed: 0, total: 5, label: 'Spirit', icon: Wind, goal: '' },
-    lifeVision: { completed: 0, total: 4, label: 'Vision', icon: Wind, goal: '' },
-    purePlay: { completed: 0, total: 3, label: 'Freedom', icon: Wind, goal: '' },
-  };
-  for (const [key, val] of Object.entries(overrides)) {
-    if (base[key as DomainKey]) {
-      base[key as DomainKey] = { ...base[key as DomainKey], completed: val.completed };
-    }
-  }
-  return base;
-};
-
-// ── Mock family members ──────────────────────────────────────
-
-const MOCK_MEMBERS: Omit<FamilyMember, 'goals'>[] = [
-  {
-    id: 100,
-    name: 'Elena',
-    role: 'Family Historian',
-    projectTitle: 'Family Cookbook Archive',
-    projectImpactVectors: ['innerCircle', 'culturalImmersion', 'creativeFlow'],
-    currentModule: 4,
-    projectPlant: 'oak',
-    projectVisibility: ['family'],
-    tasks: [],
-    schedule: [],
-    harvestHistory: [],
-    sowLog: [],
-    knowledgeLog: [],
-    questionMap: [],
-    experienceLog: [],
-    patternJournal: [],
-    notifications: [],
-    chatHistory: [],
-    shelvedProjects: [],
-    subscriptionStatus: 'active',
-  },
-  {
-    id: 101,
-    name: 'Noah',
-    role: 'Young Explorer',
-    projectTitle: 'Learn Python',
-    projectImpactVectors: ['coreCompetencies', 'instructionalCurrent', 'professionalExchange'],
-    currentModule: 2,
-    projectPlant: 'cactus',
-    projectVisibility: ['family'],
-    tasks: [],
-    schedule: [],
-    harvestHistory: [],
-    sowLog: [],
-    knowledgeLog: [],
-    questionMap: [],
-    experienceLog: [],
-    patternJournal: [],
-    notifications: [],
-    chatHistory: [],
-    shelvedProjects: [],
-    subscriptionStatus: 'active',
-  },
-  {
-    id: 102,
-    name: 'Ava',
-    role: 'Creative Spark',
-    projectTitle: 'Community Art Mural',
-    projectImpactVectors: ['creativeFlow', 'socialCommunion', 'beautyExploration'],
-    currentModule: 5,
-    projectPlant: 'sunflower',
-    projectVisibility: ['family', 'town'],
-    tasks: [],
-    schedule: [],
-    harvestHistory: [],
-    sowLog: [],
-    knowledgeLog: [],
-    questionMap: [],
-    experienceLog: [],
-    patternJournal: [],
-    notifications: [],
-    chatHistory: [],
-    shelvedProjects: [],
-    subscriptionStatus: 'active',
-  },
-];
-
-const MOCK_GOALS: Record<number, GoalsMap> = {
-  100: makeGoals({
-    biological: { completed: 3 },
-    mentalClarity: { completed: 2 },
-    coreCompetencies: { completed: 4 },
-    passiveRestoration: { completed: 3 },
-    innerCircle: { completed: 4 },
-    socialCommunion: { completed: 3 },
-    professionalExchange: { completed: 2 },
-    creativeFlow: { completed: 3 },
-    spiritualPurpose: { completed: 2 },
-    beautyExploration: { completed: 2 },
-  }),
-  101: makeGoals({
-    biological: { completed: 2 },
-    coreCompetencies: { completed: 1 },
-    experimentalTendrils: { completed: 2 },
-    activePlay: { completed: 4 },
-    innerCircle: { completed: 3 },
-    professionalExchange: { completed: 1 },
-    instructionalCurrent: { completed: 2 },
-    creativeFlow: { completed: 1 },
-    physicalExhilaration: { completed: 3 },
-    purePlay: { completed: 3 },
-  }),
-  102: makeGoals({
-    biological: { completed: 2 },
-    mentalClarity: { completed: 3 },
-    environmentalOrder: { completed: 2 },
-    coreCompetencies: { completed: 3 },
-    reflectiveSynthesis: { completed: 2 },
-    innerCircle: { completed: 3 },
-    socialCommunion: { completed: 4 },
-    safePort: { completed: 3 },
-    networking: { completed: 2 },
-    creativeFlow: { completed: 5 },
-    beautyExploration: { completed: 3 },
-    emotionalRelease: { completed: 3 },
-    radicalImagination: { completed: 3 },
-  }),
-};
-
 // ── Component ────────────────────────────────────────────────
 
-const LeaderHub = ({ currentMember }: LeaderHubProps) => {
+const LeaderHub = ({ currentMember, familyMembers, onManageChild }: LeaderHubProps) => {
   const [selectedMember, setSelectedMember] = useState<FamilyMember | null>(null);
 
-  // Build the full member list: leader first, then mock members
-  const allMembers: FamilyMember[] = [
-    currentMember,
-    ...MOCK_MEMBERS.map(m => ({ ...m, goals: MOCK_GOALS[m.id] })),
-  ];
+  // Build the full member list: current user first, then other family members
+  const otherMembers = familyMembers.filter(m => m.name !== currentMember.name);
+  const allMembers: FamilyMember[] = [currentMember, ...otherMembers];
 
   const getScores = (goals: GoalsMap) => {
     const land = getDomainScore(goals, LAND_KEYS);
@@ -220,23 +65,39 @@ const LeaderHub = ({ currentMember }: LeaderHubProps) => {
         <p className="text-sm text-[#2c2c2a]/40">See how everyone is growing</p>
       </div>
 
+      {/* Empty State */}
+      {allMembers.length <= 1 && (
+        <div className="text-center py-12 space-y-4">
+          <Users size={40} className="text-[#2c2c2a]/10 mx-auto" />
+          <p className="text-sm text-[#2c2c2a]/40">No family members yet</p>
+          <p className="text-xs text-[#2c2c2a]/30">Invite your family from the "My Family" option in the menu</p>
+        </div>
+      )}
+
       {/* Member Grid */}
       <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
         {allMembers.map((member, i) => {
           const scores = getScores(member.goals);
           const moduleName = MODULE_NAMES[member.currentModule - 1] || 'Unknown';
-          const isLeader = i === 0;
+          const isYou = i === 0;
+          const isChild = member.isManagedChild;
 
           return (
             <button
-              key={member.id}
+              key={`${member.name}-${i}`}
               onClick={() => setSelectedMember(member)}
               className="bg-white rounded-3xl border border-[#2c2c2a]/10 p-6 text-left hover:border-[#d4af37] hover:shadow-md transition-all relative"
             >
-              {isLeader && (
+              {isYou && (
                 <span className="absolute top-4 right-4 flex items-center gap-1 bg-[#d4af37]/10 text-[#d4af37] px-2.5 py-1 rounded-full text-[10px] font-bold uppercase tracking-widest">
                   <Crown size={10} />
                   You
+                </span>
+              )}
+              {!isYou && isChild && (
+                <span className="absolute top-4 right-4 flex items-center gap-1 bg-emerald-100 text-emerald-700 px-2.5 py-1 rounded-full text-[10px] font-bold uppercase tracking-widest">
+                  <Sprout size={10} />
+                  Kid
                 </span>
               )}
 
@@ -245,7 +106,7 @@ const LeaderHub = ({ currentMember }: LeaderHubProps) => {
                   <PlantVisual
                     stage={member.currentModule}
                     type={member.projectPlant}
-                    instanceId={`leader-hub-${member.id}`}
+                    instanceId={`leader-hub-${member.name}-${i}`}
                   />
                 </div>
                 <div className="flex-1 min-w-0 space-y-3 pt-1">
@@ -321,7 +182,7 @@ const LeaderHub = ({ currentMember }: LeaderHubProps) => {
                 <PlantVisual
                   stage={selectedMember.currentModule}
                   type={selectedMember.projectPlant}
-                  instanceId={`leader-detail-${selectedMember.id}`}
+                  instanceId={`leader-detail-${selectedMember.name}`}
                 />
               </div>
             </div>
@@ -383,9 +244,22 @@ const LeaderHub = ({ currentMember }: LeaderHubProps) => {
               );
             })()}
 
-            <p className="text-center text-[10px] font-bold uppercase tracking-widest text-[#2c2c2a]/20">
-              Read only — view only mode
-            </p>
+            {selectedMember.isManagedChild && onManageChild && selectedMember.supabaseId ? (
+              <button
+                onClick={() => {
+                  onManageChild(selectedMember.supabaseId!);
+                  setSelectedMember(null);
+                }}
+                className="w-full py-3 rounded-xl text-xs font-bold uppercase tracking-widest bg-[#d4af37] text-[#2c2c2a] hover:bg-[#c4a030] transition-all flex items-center justify-center gap-2"
+              >
+                <Eye size={14} />
+                Manage Dashboard
+              </button>
+            ) : (
+              <p className="text-center text-[10px] font-bold uppercase tracking-widest text-[#2c2c2a]/20">
+                Read only — view only mode
+              </p>
+            )}
           </div>
         </div>
       )}

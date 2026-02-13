@@ -3,8 +3,8 @@ import { X, CheckSquare, Camera, Upload, Loader2, Check, ChevronDown } from 'luc
 import type { Task, DomainKey, GoalsMap } from '../types';
 import { isTodoistConfigured, getTodoistAuthUrl, exchangeTodoistToken, fetchTodoistTasks, mapTodoistToTrellisTask } from '../lib/todoist';
 import type { TodoistTask } from '../lib/todoist';
-import { isGeminiConfigured, extractTasksFromImage } from '../lib/gemini';
-import type { ExtractedTask } from '../lib/gemini';
+import { isAIConfigured, extractTasksFromImage } from '../lib/ai';
+import type { ExtractedTask } from '../lib/ai';
 
 interface ImportTasksModalProps {
   isOpen: boolean;
@@ -401,7 +401,7 @@ const PhotoTab = ({ onImportTasks, goals }: { onImportTasks: (tasks: Task[]) => 
 
 const ImportTasksModal = ({ isOpen, onClose, onImportTasks, goals }: ImportTasksModalProps) => {
   const todoistAvailable = isTodoistConfigured();
-  const photoAvailable = isGeminiConfigured();
+  const photoAvailable = isAIConfigured();
   const bothAvailable = todoistAvailable && photoAvailable;
   const neitherAvailable = !todoistAvailable && !photoAvailable;
 

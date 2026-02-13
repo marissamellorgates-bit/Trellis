@@ -2,27 +2,35 @@ import type { AIMessage, FamilyMember, DomainKey, PlantArchetype, SparkResult } 
 
 // ── Configuration ───────────────────────────────────────────
 
-const GEMINI_API_URL = 'https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent';
+declare const __AI_ENABLED__: boolean;
 
-export function isGeminiConfigured(): boolean {
-  return !!(import.meta.env.VITE_GEMINI_API_KEY);
+export function isAIConfigured(): boolean {
+  return __AI_ENABLED__;
 }
+
+/** @deprecated Use isAIConfigured() */
+export const isGeminiConfigured = isAIConfigured;
 
 // ── Error Handling ──────────────────────────────────────────
 
-export type GeminiErrorCode = 'RATE_LIMIT' | 'AUTH' | 'NETWORK' | 'SAFETY' | 'PARSE';
+export type AIErrorCode = 'RATE_LIMIT' | 'AUTH' | 'NETWORK' | 'SAFETY' | 'PARSE';
 
-export class GeminiError extends Error {
-  code: GeminiErrorCode;
+export class AIError extends Error {
+  code: AIErrorCode;
   retryAfter?: number;
 
-  constructor(code: GeminiErrorCode, message: string, retryAfter?: number) {
+  constructor(code: AIErrorCode, message: string, retryAfter?: number) {
     super(message);
-    this.name = 'GeminiError';
+    this.name = 'AIError';
     this.code = code;
     this.retryAfter = retryAfter;
   }
 }
+
+/** @deprecated Use AIError */
+export const GeminiError = AIError;
+/** @deprecated Use AIErrorCode */
+export type GeminiErrorCode = AIErrorCode;
 
 // ── Module-Specific Prompts ─────────────────────────────────
 
@@ -202,79 +210,61 @@ For suggestedTitle: Create a short, evocative project name (2-5 words) that capt
 
 // ── API Call Helper ─────────────────────────────────────────
 
-interface GeminiTextPart {
-  text: string;
-}
-
-interface GeminiInlineDataPart {
-  inlineData: { mimeType: string; data: string };
-}
-
-type GeminiPart = GeminiTextPart | GeminiInlineDataPart;
-
-interface GeminiContent {
-  role: 'user' | 'model';
-  parts: GeminiPart[];
-}
-
-async function callGemini(
-  contents: GeminiContent[],
-  systemInstruction: string,
+async function callAIProxy(
+  messages: Array<{ role: 'user' | 'assistant'; text: string }>,
+  systemPrompt: string,
   maxOutputTokens: number,
   signal?: AbortSignal,
+  imageData?: { mimeType: string; base64: string },
 ): Promise<string> {
-  const apiKey = import.meta.env.VITE_GEMINI_API_KEY;
-  if (!apiKey) throw new GeminiError('AUTH', 'Gemini API key is not configured.');
+  if (!isAIConfigured()) throw new AIError('AUTH', 'AI is not enabled.');
 
   let response: Response;
   try {
-    response = await fetch(`${GEMINI_API_URL}?key=${apiKey}`, {
+    response = await fetch('/api/ai', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       signal,
       body: JSON.stringify({
-        systemInstruction: { parts: [{ text: systemInstruction }] },
-        contents,
-        generationConfig: {
-          temperature: 0.8,
-          maxOutputTokens,
-        },
-        safetySettings: [
-          { category: 'HARM_CATEGORY_HARASSMENT', threshold: 'BLOCK_MEDIUM_AND_ABOVE' },
-          { category: 'HARM_CATEGORY_HATE_SPEECH', threshold: 'BLOCK_MEDIUM_AND_ABOVE' },
-          { category: 'HARM_CATEGORY_SEXUALLY_EXPLICIT', threshold: 'BLOCK_MEDIUM_AND_ABOVE' },
-          { category: 'HARM_CATEGORY_DANGEROUS_CONTENT', threshold: 'BLOCK_MEDIUM_AND_ABOVE' },
-        ],
+        messages,
+        systemPrompt,
+        maxOutputTokens,
+        temperature: 0.8,
+        ...(imageData ? { imageData } : {}),
       }),
     });
   } catch (err) {
     if (err instanceof DOMException && err.name === 'AbortError') {
       throw err;
     }
-    throw new GeminiError('NETWORK', 'Could not reach Gemini. Check your connection.');
+    throw new AIError('NETWORK', 'Could not reach AI service. Check your connection.');
   }
 
   if (!response.ok) {
-    if (response.status === 429) {
-      const retryAfter = parseInt(response.headers.get('Retry-After') || '30', 10);
-      throw new GeminiError('RATE_LIMIT', 'Rate limited. Try again in a moment.', retryAfter);
+    const errorBody = await response.json().catch(() => ({}));
+    const errorCode = (errorBody as Record<string, unknown>).errorCode as AIErrorCode | undefined;
+    const errorMsg = (errorBody as Record<string, unknown>).error as string | undefined;
+    const retryAfter = (errorBody as Record<string, unknown>).retryAfter as number | undefined;
+
+    if (errorCode === 'RATE_LIMIT') {
+      throw new AIError('RATE_LIMIT', errorMsg || 'Rate limited. Try again in a moment.', retryAfter);
     }
-    if (response.status === 401 || response.status === 403) {
-      throw new GeminiError('AUTH', 'Invalid API key. Check your Gemini configuration.');
+    if (errorCode === 'AUTH') {
+      throw new AIError('AUTH', errorMsg || 'Invalid API key. Check your AI configuration.');
     }
-    throw new GeminiError('NETWORK', `Gemini returned status ${response.status}.`);
+    if (errorCode === 'SAFETY') {
+      throw new AIError('SAFETY', errorMsg || 'Response was blocked by safety filters. Try rephrasing.');
+    }
+    throw new AIError(
+      (errorCode as AIErrorCode) || 'NETWORK',
+      errorMsg || `AI service returned status ${response.status}.`,
+    );
   }
 
   const data = await response.json();
-
-  // Check for safety blocks
-  if (data.candidates?.[0]?.finishReason === 'SAFETY') {
-    throw new GeminiError('SAFETY', 'Response was blocked by safety filters. Try rephrasing.');
-  }
-
-  const text = data.candidates?.[0]?.content?.parts?.[0]?.text;
+  const text = (data as Record<string, unknown>).text as string | undefined;
   if (!text) {
-    throw new GeminiError('PARSE', 'Received an empty response from Gemini.');
+    throw new AIError('PARSE', 'Received an empty response from AI service.');
   }
 
   return text;
@@ -310,12 +300,13 @@ export async function refineSparkGoal(
   messages: { role: 'user' | 'model'; text: string }[],
   signal?: AbortSignal,
 ): Promise<RefinementResponse> {
-  const contents: GeminiContent[] = messages.map(msg => ({
-    role: msg.role,
-    parts: [{ text: msg.text }],
+  // Convert 'model' role to 'assistant' for the proxy
+  const proxyMessages = messages.map(msg => ({
+    role: (msg.role === 'model' ? 'assistant' : 'user') as 'user' | 'assistant',
+    text: msg.text,
   }));
 
-  const rawText = await callGemini(contents, SPARK_REFINEMENT_SYSTEM_PROMPT, 2048, signal);
+  const rawText = await callAIProxy(proxyMessages, SPARK_REFINEMENT_SYSTEM_PROMPT, 2048, signal);
 
   // Try to extract a refined goal JSON from the end of the response
   const goalMatch = rawText.match(/\{"refinedGoal"\s*:[\s\S]*\}\s*$/);
@@ -354,14 +345,14 @@ export async function sendGuideMessage(
 ): Promise<GuideResponse> {
   const systemPrompt = buildGuideSystemPrompt(member, domainScores);
 
-  // Convert chat history to Gemini format (last 20 messages)
+  // Convert chat history to proxy format (last 20 messages)
   const recentHistory = history.slice(-20);
-  const contents: GeminiContent[] = recentHistory.map(msg => ({
-    role: msg.role === 'user' ? 'user' : 'model',
-    parts: [{ text: msg.text }],
+  const messages = recentHistory.map(msg => ({
+    role: (msg.role === 'user' ? 'user' : 'assistant') as 'user' | 'assistant',
+    text: msg.text,
   }));
 
-  const rawText = await callGemini(contents, systemPrompt, 2048, signal);
+  const rawText = await callAIProxy(messages, systemPrompt, 2048, signal);
 
   // Try to extract a task suggestion from the end of the response
   const taskMatch = rawText.match(/\{"task"\s*:\s*\{[^}]+\}\s*\}\s*$/);
@@ -411,24 +402,17 @@ export async function extractTasksFromImage(
   base64Image: string,
   mimeType: string,
 ): Promise<ExtractedTask[]> {
-  const apiKey = import.meta.env.VITE_GEMINI_API_KEY;
-  if (!apiKey) throw new GeminiError('AUTH', 'Gemini API key is not configured.');
-
-  const contents: GeminiContent[] = [
-    {
-      role: 'user',
-      parts: [
-        { inlineData: { mimeType, data: base64Image } },
-        { text: 'Extract all tasks and to-do items from this image.' },
-      ],
-    },
-  ];
-
-  const rawText = await callGemini(contents, IMAGE_TASK_SYSTEM_PROMPT, 1024);
+  const rawText = await callAIProxy(
+    [{ role: 'user', text: 'Extract all tasks and to-do items from this image.' }],
+    IMAGE_TASK_SYSTEM_PROMPT,
+    1024,
+    undefined,
+    { mimeType, base64: base64Image },
+  );
 
   const jsonMatch = rawText.match(/\[[\s\S]*\]/);
   if (!jsonMatch) {
-    throw new GeminiError('PARSE', 'Could not parse tasks from image.');
+    throw new AIError('PARSE', 'Could not parse tasks from image.');
   }
 
   try {
@@ -441,7 +425,7 @@ export async function extractTasksFromImage(
         estimatedMinutes: typeof t.estimatedMinutes === 'number' ? t.estimatedMinutes : undefined,
       }));
   } catch {
-    throw new GeminiError('PARSE', 'Could not parse tasks from image.');
+    throw new AIError('PARSE', 'Could not parse tasks from image.');
   }
 }
 
@@ -449,16 +433,16 @@ export async function sparkArchitectAnalyze(
   goalText: string,
   signal?: AbortSignal,
 ): Promise<SparkResult> {
-  const contents: GeminiContent[] = [
-    { role: 'user', parts: [{ text: `Analyze this goal and suggest domains + archetype:\n\n"${goalText}"` }] },
+  const messages = [
+    { role: 'user' as const, text: `Analyze this goal and suggest domains + archetype:\n\n"${goalText}"` },
   ];
 
-  const rawText = await callGemini(contents, SPARK_SYSTEM_PROMPT, 2048, signal);
+  const rawText = await callAIProxy(messages, SPARK_SYSTEM_PROMPT, 2048, signal);
 
   // Extract JSON from the response (may be wrapped in markdown code fences)
   const jsonMatch = rawText.match(/\{[\s\S]*\}/);
   if (!jsonMatch) {
-    throw new GeminiError('PARSE', 'Could not parse Spark Architect response.');
+    throw new AIError('PARSE', 'Could not parse Spark Architect response.');
   }
 
   try {
@@ -499,7 +483,7 @@ export async function sparkArchitectAnalyze(
       archetypeRationale: parsed.archetypeRationale || '',
     };
   } catch (err) {
-    if (err instanceof GeminiError) throw err;
-    throw new GeminiError('PARSE', 'Could not parse Spark Architect response.');
+    if (err instanceof AIError) throw err;
+    throw new AIError('PARSE', 'Could not parse Spark Architect response.');
   }
 }

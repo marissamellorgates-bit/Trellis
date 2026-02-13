@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { Sparkles, ArrowUp, X, Loader2 } from 'lucide-react';
-import { refineSparkGoal, GeminiError } from '../lib/gemini';
+import { refineSparkGoal, AIError } from '../lib/ai';
 
 interface SparkRefinementProps {
   initialSpark: string;
@@ -56,7 +56,7 @@ const SparkRefinement: React.FC<SparkRefinementProps> = ({ initialSpark, onAccep
       }
     } catch (err) {
       if (err instanceof DOMException && err.name === 'AbortError') return;
-      const msg = err instanceof GeminiError ? err.message : 'Something went wrong. Try again.';
+      const msg = err instanceof AIError ? err.message : 'Something went wrong. Try again.';
       setError(msg);
     } finally {
       setIsThinking(false);

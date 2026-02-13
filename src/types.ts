@@ -232,6 +232,7 @@ export type SubscriptionStatus = 'trialing' | 'active' | 'past_due' | 'expired' 
 
 export interface FamilyMember {
   id: number;
+  supabaseId?: string;
   name: string;
   role: string;
   goals: GoalsMap;
@@ -254,6 +255,11 @@ export interface FamilyMember {
   chatHistory: AIMessage[];
   shelvedProjects: ShelvedProject[];
   customCommunities?: UserCommunity[];
+  familyId?: string;
+  familyRole?: 'leader' | 'member';
+  isManagedChild?: boolean;
+  managedByUserId?: string;
+  childSlug?: string;
   trialStart?: string;
   subscriptionStatus?: SubscriptionStatus;
   stripeCustomerId?: string;
@@ -438,6 +444,30 @@ export interface ModuleWorkshopModalProps {
   onUpdateMember: (updates: Partial<FamilyMember>) => void;
 }
 
+export interface ManagedChildSummary {
+  userId: string;
+  name: string;
+  slug: string;
+}
+
 export interface LeaderHubProps {
   currentMember: FamilyMember;
+  familyMembers: FamilyMember[];
+  onManageChild?: (childUserId: string) => void;
+}
+
+// ── Family System ─────────────────────────────────────────────
+
+export interface FamilyInfo {
+  id: string;
+  name: string;
+  joinCode: string;
+  leaderId: string;
+}
+
+export interface FamilyInvite {
+  id: string;
+  email: string;
+  status: 'pending' | 'accepted' | 'expired';
+  createdAt: string;
 }
