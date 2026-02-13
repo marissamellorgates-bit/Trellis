@@ -1189,7 +1189,13 @@ const App = () => {
               </div>
             ) : isArchitecting ? null : (
               <div className="bg-white border-2 border-dashed border-[#2c2c2a]/10 rounded-3xl p-16 text-center space-y-6">
-                <h2 className="font-serif text-3xl">No Project</h2>
+                <button
+                  onClick={() => setIsArchitecting(true)}
+                  disabled={(activeMember.shelvedProjects ?? []).length >= 3}
+                  className="bg-[#2c2c2a] text-[#fdfbf7] px-8 py-4 rounded-full font-bold uppercase disabled:opacity-30 disabled:cursor-not-allowed"
+                >
+                  {(activeMember.shelvedProjects ?? []).length >= 3 ? 'Max 3 Projects Reached' : 'Start Project'}
+                </button>
                 <p className="text-sm text-[#2c2c2a]/40">Start a new focus project or resume a saved one.</p>
                 {(activeMember.shelvedProjects ?? []).length > 0 && (
                   <div className="mt-4">
@@ -1251,13 +1257,6 @@ const App = () => {
                     </div>
                   </div>
                 )}
-                <button
-                  onClick={() => setIsArchitecting(true)}
-                  disabled={(activeMember.shelvedProjects ?? []).length >= 3}
-                  className="bg-[#2c2c2a] text-[#fdfbf7] px-8 py-4 rounded-full font-bold uppercase disabled:opacity-30 disabled:cursor-not-allowed"
-                >
-                  {(activeMember.shelvedProjects ?? []).length >= 3 ? 'Max 3 Projects Reached' : 'Start Project'}
-                </button>
               </div>
             )}
 

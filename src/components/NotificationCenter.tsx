@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import { Bell, CheckCircle2, Sprout, AlertTriangle, Calendar, Trash2, CheckCheck, CloudRain, Share2 } from 'lucide-react';
 import type { NotificationCenterProps, NotificationType } from '../types';
 import { requestNotificationPermission } from '../lib/notifications';
@@ -34,16 +34,34 @@ const NotificationCenter: React.FC<NotificationCenterProps> = ({
   onClear,
   onClose,
 }) => {
+  const panelRef = useRef<HTMLDivElement>(null);
+  const onCloseRef = useRef(onClose);
+  onCloseRef.current = onClose;
+
   const unreadCount = notifications.filter(n => !n.read).length;
-  const showPushButton =
-    'Notification' in window && Notification.permission === 'default';
+  const [pushPermission, setPushPermission] = useState(
+    'Notification' in window ? Notification.permission : 'denied'
+  );
+  const showPushButton = pushPermission === 'default';
+
+  useEffect(() => {
+    const handleClick = (e: MouseEvent) => {
+      if (panelRef.current && !panelRef.current.contains(e.target as Node)) {
+        onCloseRef.current();
+      }
+    };
+    // Delay adding listener so the opening click doesn't immediately close
+    const timer = setTimeout(() => {
+      document.addEventListener('mousedown', handleClick);
+    }, 0);
+    return () => {
+      clearTimeout(timer);
+      document.removeEventListener('mousedown', handleClick);
+    };
+  }, []);
 
   return (
-    <>
-      {/* Transparent backdrop */}
-      <div className="fixed inset-0 z-[90]" onClick={onClose} />
-
-      <div className="absolute right-0 top-full mt-2 w-96 max-w-[calc(100vw-2rem)] bg-white rounded-2xl border border-[#2c2c2a]/10 shadow-xl z-[100] overflow-hidden">
+      <div ref={panelRef} className="absolute right-0 top-full mt-2 w-96 max-w-[calc(100vw-2rem)] bg-white rounded-2xl border border-[#2c2c2a]/10 shadow-xl z-[100] overflow-hidden">
         {/* Header */}
         <div className="flex items-center justify-between px-4 py-3 border-b border-[#2c2c2a]/5">
           <div className="flex items-center gap-2">
@@ -117,7 +135,10 @@ const NotificationCenter: React.FC<NotificationCenterProps> = ({
         {showPushButton && (
           <div className="px-4 py-3 border-t border-[#2c2c2a]/5 bg-[#2c2c2a]/[0.02]">
             <button
-              onClick={() => requestNotificationPermission()}
+              onClick={async () => {
+                const result = await requestNotificationPermission();
+                setPushPermission(result);
+              }}
               className="w-full text-[10px] font-bold uppercase tracking-widest text-[#d4af37] hover:text-[#b08d2b] transition-colors py-1"
             >
               Enable Push Notifications
@@ -125,7 +146,6 @@ const NotificationCenter: React.FC<NotificationCenterProps> = ({
           </div>
         )}
       </div>
-    </>
   );
 };
 
