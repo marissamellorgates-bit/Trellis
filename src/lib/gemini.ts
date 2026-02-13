@@ -177,10 +177,10 @@ Only suggest a task when it naturally fits the conversation. Do not force task s
 
 const SPARK_SYSTEM_PROMPT = `You are the Spark Architect, an AI that analyzes a user's goal or dream and suggests which life domains it touches and what plant archetype best fits their energy.
 
-DOMAIN KEYS (choose 2-5 that best fit):
-- Land (Foundation): biological, mentalClarity, environmentalOrder, coreCompetencies, experimentalTendrils, reflectiveSynthesis, passiveRestoration, activePlay, solitude
-- Sea (Social): innerCircle, socialCommunion, safePort, professionalExchange, marketRealities, instructionalCurrent, networking, culturalImmersion, publicReputation
-- Sky (Aspiration): creativeFlow, physicalExhilaration, aweAndWonder, radicalImagination, beautyExploration, emotionalRelease, spiritualPurpose, lifeVision, purePlay
+DOMAIN KEYS (choose 2-5 that best fit). Use the friendly name (in parentheses) when writing rationale text — never expose raw keys to the user:
+- Land (Foundation): biological (Physical Health), mentalClarity (Mental Clarity), environmentalOrder (Home & Order), coreCompetencies (Crafts), experimentalTendrils (Exploration), reflectiveSynthesis (Reflection), passiveRestoration (Rest), activePlay (Active Play), solitude (Solitude)
+- Sea (Social): innerCircle (Inner Circle), socialCommunion (Community), safePort (Safe Port), professionalExchange (Career), marketRealities (Finance), instructionalCurrent (Learning), networking (Networking), culturalImmersion (Culture), publicReputation (Reputation)
+- Sky (Aspiration): creativeFlow (Creative Flow), physicalExhilaration (Adventure), aweAndWonder (Awe & Wonder), radicalImagination (Imagination), beautyExploration (Beauty), emotionalRelease (Emotional Release), spiritualPurpose (Purpose), lifeVision (Life Vision), purePlay (Pure Play)
 
 ARCHETYPES (choose exactly one):
 - sunflower: "The Visionary" — creative, spiritual, intellectual pursuits
@@ -313,7 +313,7 @@ export async function refineSparkGoal(
     parts: [{ text: msg.text }],
   }));
 
-  const rawText = await callGemini(contents, SPARK_REFINEMENT_SYSTEM_PROMPT, 500, signal);
+  const rawText = await callGemini(contents, SPARK_REFINEMENT_SYSTEM_PROMPT, 2048, signal);
 
   // Try to extract a refined goal JSON from the end of the response
   const goalMatch = rawText.match(/\{"refinedGoal"\s*:[\s\S]*\}\s*$/);
