@@ -56,7 +56,8 @@ src/
 │   ├── subscription.ts              # Subscription status helpers, Stripe checkout/portal wrappers
 │   ├── googleCalendar.ts            # Google Calendar API fetch
 │   ├── icsParser.ts                 # ICS file parser
-│   └── eventTypeMapper.ts           # Calendar event type mapping
+│   ├── eventTypeMapper.ts           # Calendar event type mapping
+│   └── communityIcons.ts            # Community icon registry, defaults, resolve/ensure helpers
 └── components/
     ├── PlantVisual.tsx              # Procedural SVG plant (7 stages, 3 archetypes)
     ├── AIMentorPanel.tsx            # Sliding side panel chat with The Guide (Gemini AI)
@@ -72,6 +73,7 @@ src/
     ├── PaywallScreen.tsx            # Full-screen paywall with monthly/annual pricing cards
     ├── GiftModal.tsx                # Gift subscription purchase modal
     ├── GiftRedeemBanner.tsx         # Banner for redeeming gifted subscriptions
+    ├── CommunitySettingsModal.tsx   # Manage custom communities — add/rename/delete with icon picker
     ├── SparkRefinement.tsx           # Inline AI chat for refining goals in Seed Discovery Step 1
     ├── Toast.tsx                    # Auto-dismissing toast notifications (bottom-right, z-200)
     └── NotificationCenter.tsx       # Bell dropdown — notification history with mark-read/clear
@@ -79,7 +81,8 @@ src/
 
 ### Key Components
 
-- **`App`** — Root component. Manages all state via `useState`. Contains four view modes, Seed Discovery flow, delete/abandon projects, notification system, shelved projects, dashboard inline editing, and layout. ~1100 lines.
+- **`App`** — Root component. Manages all state via `useState`. Contains four view modes, Seed Discovery flow, delete/abandon projects, notification system, shelved projects, dashboard inline editing, customizable communities, and layout. ~1150 lines.
+- **`CommunitySettingsModal`** — Full community management modal opened from user dropdown menu. Inline rename, icon picker (16 Lucide icons), delete button (Private Greenhouse undeletable), add community row. Cap at 10 communities. Works on local copy, commits on Save.
 - **`PlantVisual`** — Procedural SVG plant generation with 7 stages and 3 archetypes (sunflower, oak, cactus). Uses unique SVG filter IDs via `useId()` to prevent collisions. Keyframe animation in `index.css`.
 - **`AIMentorPanel`** — Sliding side panel chat with "The Guide". Uses **Gemini 2.5 Flash** for Socratic questioning within the 7-Module framework, prioritizing "Earth Care, People Care, Fair Share." Falls back to mock keyword matching when no API key is configured. Supports AbortController cancel, error handling, and persisted chat history.
 - **`MicroCycleModal`** — Standalone 4-step practice loop (Observe → Analyze → Implement → Reflect). Independent of module progression. Users can run anytime.
@@ -138,7 +141,7 @@ User selects archetype during Seed Discovery (Step 3). Spark Architect AI sugges
 - **Step 2: Domain Mapping** — Domain chips grouped under Land (Foundation), Sea (Social Space), Sky (Aspiration) with category labels. Spark Architect pre-selects suggested domains.
 - **Step 3: Archetype** — User picks Sunflower/Oak/Cactus. Spark Architect pre-selects suggested archetype.
 - **Step 4: Ethics Check** — Earth Care, People Care, Share the Harvest toggles.
-- **Step 5: Pollination Strategy** — Select sharing communities.
+- **Step 5: Pollination Strategy** — Select sharing communities from user's custom list + quick-add inline input to create new communities on the fly.
 
 ### Shelved Projects
 - Users can save ("shelve") their current project and start a new one
@@ -150,6 +153,21 @@ User selects archetype during Seed Discovery (Step 3). Spark Architect AI sugges
 - Swapping projects auto-shelves the current one
 - Shelved data includes: title, plant, module, impact vectors, ethics check, sharing scope, visibility, knowledge log, question map, experience log, pattern journal, chat history
 - Stored in `profiles.shelved_projects` (jsonb column)
+
+### Customizable Communities
+- Replaces the old hardcoded 5-community list with user-managed communities
+- 3 defaults: Private Greenhouse (`Lock`), Family Garden (`Home`), Friends Circle (`Users`)
+- Private Greenhouse is always present and undeletable (`isDefault: true`)
+- Users can add/rename/delete communities from the settings modal (user dropdown → "My Communities")
+- Quick-add inline input in Seed Discovery Step 5 — creates community and auto-selects it
+- Cap at 10 communities per user
+- Icon picker with 16 curated Lucide icons
+- **Architecture:** `src/lib/communityIcons.ts` provides `COMMUNITY_ICON_MAP`, `DEFAULT_COMMUNITIES`, `ensureDefaults()`, `resolveCommunitiesForUI()`
+- **Data:** `UserCommunity` interface: `{ id, name, iconKey: string, type, isDefault }`
+- **Serialization:** `iconKey` is a string (e.g. `'Lock'`, `'Users'`) → resolved to `LucideIcon` at render time via `COMMUNITY_ICON_MAP`
+- **Persistence:** `customCommunities?: UserCommunity[]` on `FamilyMember`, stored in `profiles.custom_communities` (jsonb column, default NULL)
+- Communities derived from member data: `ensureDefaults(activeMember.customCommunities)` → `resolveCommunitiesForUI()`
+- HarvestModal receives `resolvedCommunities` (same list)
 
 ### Dashboard Inline Editing
 - Pencil icon on active project card opens inline edit mode
@@ -320,7 +338,7 @@ UPDATE profiles SET trial_start = now(), subscription_status = 'trialing' WHERE 
 ### Data Model (TypeScript)
 
 All types defined in `src/types.ts`. Key interfaces:
-- `FamilyMember` — includes `harvestHistory`, `sowLog`, `knowledgeLog`, `questionMap`, `experienceLog`, `patternJournal`, `notifications`, `chatHistory`, `shelvedProjects`
+- `FamilyMember` — includes `harvestHistory`, `sowLog`, `knowledgeLog`, `questionMap`, `experienceLog`, `patternJournal`, `notifications`, `chatHistory`, `shelvedProjects`, `customCommunities`
 - `GoalsMap` — `Record<DomainKey, Goal>`
 - `HarvestRecord` — persisted harvest wisdom + sharing choices
 - `TrellisNotification` — `{ id, type, title, message, timestamp, read, domain? }`
@@ -328,6 +346,7 @@ All types defined in `src/types.ts`. Key interfaces:
 - `NotificationType` — union of 10 event types
 - `DBCommunityProject`, `DBInteraction`, `MarketplaceFilters`, `ProjectAnalytics` — community marketplace types
 - `ShelvedProject` — saved project state (title, plant, module, logs, chat history)
+- `UserCommunity` — `{ id, name, iconKey: string, type, isDefault }` — serializable community definition
 - `SparkResult` — `{ suggestedTitle, suggestedDomains, suggestedArchetype, domainRationale, archetypeRationale }`
 - `RefinementResponse` — `{ text, refinedGoal?, suggestedTitle? }` — returned by `refineSparkGoal()`
 - `KnowledgeEntry`, `QuestionEntry`, `ExperienceEntry`, `PatternEntry` — module ritual data
@@ -380,9 +399,13 @@ All types defined in `src/types.ts`. Key interfaces:
 
 **Phase 5: Guided Discovery (complete)** — ~~Guided goal refinement with The Guide in Seed Discovery~~, ~~SparkRefinement inline chat component~~, ~~Auto-trigger Spark Architect after refinement~~
 
+**Phase 5.5: Customizable Communities (complete)** — ~~User-managed community list~~, ~~CommunitySettingsModal with icon picker~~, ~~Quick-add in Seed Discovery Step 5~~, ~~Private Greenhouse always present~~, ~~DB persistence~~
+
 **DB migration required for Phase 4:** 3 new tables (`community_projects`, `community_interactions`, `project_views`) with RLS, triggers, and indexes. See migration SQL in project docs.
 
 **DB migration required for shelved projects:** `ALTER TABLE profiles ADD COLUMN IF NOT EXISTS shelved_projects jsonb DEFAULT '[]'::jsonb;`
+
+**DB migration required for custom communities (done):** `ALTER TABLE profiles ADD COLUMN IF NOT EXISTS custom_communities jsonb DEFAULT NULL;`
 
 ## Deployment
 
@@ -400,7 +423,7 @@ All types defined in `src/types.ts`. Key interfaces:
     -H "Content-Type: application/json" \
     -d '{"query": "YOUR SQL HERE"}'
   ```
-- **Database columns on `profiles`:** id, name, role, goals, project_title, project_plant, project_impact_vectors, current_module, project_visibility, project_ethics_check, project_sharing_scope, tasks, schedule, harvest_history, sow_log, knowledge_log, question_map, experience_log, pattern_journal, notifications, chat_history, shelved_projects, trial_start, subscription_status, stripe_customer_id, stripe_subscription_id, subscription_tier, subscription_current_period_end
+- **Database columns on `profiles`:** id, name, role, goals, project_title, project_plant, project_impact_vectors, current_module, project_visibility, project_ethics_check, project_sharing_scope, tasks, schedule, harvest_history, sow_log, knowledge_log, question_map, experience_log, pattern_journal, notifications, chat_history, shelved_projects, custom_communities, trial_start, subscription_status, stripe_customer_id, stripe_subscription_id, subscription_tier, subscription_current_period_end
 - **Additional tables:** community_projects, community_interactions, project_views, gift_subscriptions
 
 ## Technical Document
