@@ -175,6 +175,7 @@ const AIMentorPanel = ({
           <input
             className="flex-1 bg-transparent outline-none px-2 text-sm placeholder:text-[#fdfbf7]/20"
             placeholder="Ask for guidance..."
+            aria-label="Message to The Guide"
             value={input}
             onChange={(e) => setInput(e.target.value)}
             onKeyDown={(e) => e.key === 'Enter' && handleSend()}

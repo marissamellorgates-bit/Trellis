@@ -146,7 +146,7 @@ const SowModal = ({ isOpen, onClose, onComplete, domains, goals }: SowModalProps
                 className={`px-2.5 py-1 rounded-full text-[10px] font-bold uppercase transition-all ${
                   selectedDomain === d
                     ? 'bg-[#d4af37] text-[#2c2c2a]'
-                    : 'bg-[#2c2c2a]/5 text-[#2c2c2a]/30'
+                    : 'bg-[#2c2c2a]/5 text-[#2c2c2a]/50'
                 }`}
               >
                 {goals[d]?.label ?? d}

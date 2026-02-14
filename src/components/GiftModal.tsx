@@ -36,7 +36,7 @@ const GiftModal = ({ isOpen, onClose, userId, email }: GiftModalProps) => {
   return (
     <div className="fixed inset-0 bg-black/40 backdrop-blur-sm z-50 flex items-center justify-center p-4" onClick={onClose} role="dialog" aria-modal="true" aria-labelledby="gift-title">
       <div ref={modalRef} className="bg-[#fdfbf7] rounded-3xl max-w-md w-full p-8 relative space-y-6" onClick={e => e.stopPropagation()}>
-        <button onClick={onClose} aria-label="Close" className="absolute top-4 right-4 text-[#2c2c2a]/30 hover:text-[#2c2c2a] transition-colors">
+        <button onClick={onClose} aria-label="Close" className="absolute top-4 right-4 text-[#2c2c2a]/50 hover:text-[#2c2c2a] transition-colors">
           <X size={20} />
         </button>
 
@@ -48,8 +48,9 @@ const GiftModal = ({ isOpen, onClose, userId, email }: GiftModalProps) => {
 
         <div className="space-y-4">
           <div className="space-y-2">
-            <label className="text-[10px] font-bold uppercase tracking-widest text-[#2c2c2a]/50">Recipient's Email</label>
+            <label htmlFor="gift-email" className="text-[10px] font-bold uppercase tracking-widest text-[#2c2c2a]/50">Recipient's Email</label>
             <input
+              id="gift-email"
               type="email"
               value={recipientEmail}
               onChange={e => setRecipientEmail(e.target.value)}

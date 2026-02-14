@@ -903,7 +903,7 @@ const App = () => {
       <div className="min-h-screen bg-[#2c2c2a] flex items-center justify-center">
         <div className="text-center space-y-4">
           <Sprout className="text-[#d4af37] mx-auto animate-pulse" size={40} />
-          <p className="text-[#fdfbf7]/40 text-sm font-bold uppercase tracking-widest">Loading...</p>
+          <p className="text-[#fdfbf7]/60 text-sm font-bold uppercase tracking-widest">Loading...</p>
         </div>
       </div>
     );
@@ -918,7 +918,7 @@ const App = () => {
       <div className="min-h-screen bg-[#2c2c2a] flex items-center justify-center">
         <div className="text-center space-y-4">
           <Sprout className="text-[#d4af37] mx-auto animate-pulse" size={40} />
-          <p className="text-[#fdfbf7]/40 text-sm font-bold uppercase tracking-widest">Loading your garden...</p>
+          <p className="text-[#fdfbf7]/60 text-sm font-bold uppercase tracking-widest">Loading your garden...</p>
         </div>
       </div>
     );
@@ -1051,6 +1051,7 @@ const App = () => {
 
       {/* Nav */}
       <nav className="border-b border-[#2c2c2a]/10 bg-white/50 backdrop-blur-md px-6 h-16 flex justify-between items-center sticky top-0 md:relative z-50">
+        <h1 className="sr-only">Trellis</h1>
         <div className="flex items-center gap-8">
           <img src="/trellis-logo.png" alt="Trellis." className="h-14 mix-blend-multiply rounded-xl" />
           <div className="hidden md:flex gap-1 bg-[#2c2c2a]/5 p-1 rounded-full">
@@ -1209,7 +1210,7 @@ const App = () => {
                     {!editingProject && (
                       <button
                         onClick={() => { setEditTitle(activeMember.projectTitle); setEditArchetype(activeMember.projectPlant); setEditingProject(true); }}
-                        className="text-[#2c2c2a]/20 hover:text-[#2c2c2a]/60 transition-colors"
+                        className="text-[#2c2c2a]/40 hover:text-[#2c2c2a]/60 transition-colors"
                         aria-label="Edit project"
                       >
                         <Pencil size={12} />
@@ -1310,7 +1311,7 @@ const App = () => {
                           </button>
                           <button
                             onClick={() => setConfirmDelete(null)}
-                            className="px-2.5 py-1 rounded-full text-[9px] font-bold uppercase tracking-widest text-[#2c2c2a]/30 hover:text-[#2c2c2a] transition-all"
+                            className="px-2.5 py-1 rounded-full text-[9px] font-bold uppercase tracking-widest text-[#2c2c2a]/50 hover:text-[#2c2c2a] transition-all"
                           >
                             Cancel
                           </button>
@@ -1383,7 +1384,7 @@ const App = () => {
                           {!(confirmDelete?.type === 'shelved' && confirmDelete.shelvedId === sp.id) && (
                             <button
                               onClick={(e) => { e.stopPropagation(); setConfirmDelete({ type: 'shelved', shelvedId: sp.id }); }}
-                              className="absolute top-1 right-1 p-1 rounded-full text-[#2c2c2a]/20 hover:text-red-400 hover:bg-red-50 transition-all"
+                              className="absolute top-1 right-1 p-1 rounded-full text-[#2c2c2a]/40 hover:text-red-400 hover:bg-red-50 transition-all"
                               aria-label="Delete project"
                             >
                               <X size={12} />
@@ -1453,7 +1454,7 @@ const App = () => {
                         </div>
                         <div className="grid grid-cols-3 gap-2 pt-3 w-full">
                           {group.keys.map(k => (
-                            <span key={k} className="text-[8px] text-[#2c2c2a]/30 font-bold uppercase text-center">{goals[k].label}</span>
+                            <span key={k} className="text-[8px] text-[#2c2c2a]/50 font-bold uppercase text-center">{goals[k].label}</span>
                           ))}
                         </div>
                       </button>
@@ -1473,7 +1474,7 @@ const App = () => {
                     <div key={group.name} className="space-y-3">
                       <div className="flex items-baseline gap-2 px-1">
                         <h4 className="font-serif text-lg">{group.name}</h4>
-                        <span className="text-[10px] text-[#2c2c2a]/25">{group.subtitle}</span>
+                        <span className="text-[10px] text-[#2c2c2a]/50">{group.subtitle}</span>
                       </div>
                       <div className="grid md:grid-cols-3 gap-4">
                         {group.keys.map(k => (
@@ -1605,7 +1606,7 @@ const App = () => {
                       <div key={group.label}>
                         <div className="flex items-center gap-2 mb-2">
                           <span className="text-[11px] font-bold uppercase tracking-widest text-[#d4af37]">{group.label}</span>
-                          <span className="text-[10px] text-[#fdfbf7]/40 italic normal-case">{group.subtitle}</span>
+                          <span className="text-[10px] text-[#fdfbf7]/60 italic normal-case">{group.subtitle}</span>
                         </div>
                         <div className="flex flex-wrap gap-2">
                           {group.keys.map(k => (

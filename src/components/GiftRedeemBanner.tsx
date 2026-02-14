@@ -45,7 +45,7 @@ const GiftRedeemBanner = ({ giftId, userId, email, onRedeemed }: GiftRedeemBanne
         >
           {loading ? 'Redeeming...' : 'Redeem'}
         </button>
-        <button onClick={() => setDismissed(true)} className="text-[#2c2c2a]/30 hover:text-[#2c2c2a]">
+        <button onClick={() => setDismissed(true)} className="text-[#2c2c2a]/50 hover:text-[#2c2c2a]">
           <X size={16} />
         </button>
       </div>

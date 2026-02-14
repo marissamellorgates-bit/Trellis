@@ -93,7 +93,7 @@ const SparkRefinement: React.FC<SparkRefinementProps> = ({ initialSpark, onAccep
           <Sparkles size={14} className="text-[#d4af37]" />
           <span className="text-[10px] font-bold uppercase tracking-widest text-[#d4af37]">Refining with The Guide</span>
         </div>
-        <button onClick={onCancel} className="text-[#fdfbf7]/30 hover:text-[#fdfbf7]/60 transition-colors">
+        <button onClick={onCancel} className="text-[#fdfbf7]/50 hover:text-[#fdfbf7]/80 transition-colors">
           <X size={16} />
         </button>
       </div>
@@ -110,7 +110,7 @@ const SparkRefinement: React.FC<SparkRefinementProps> = ({ initialSpark, onAccep
           </div>
         ))}
         {isThinking && (
-          <div className="bg-[#fdfbf7]/5 text-[#fdfbf7]/40 rounded-xl px-4 py-3 mr-8 flex items-center gap-2 text-sm">
+          <div className="bg-[#fdfbf7]/5 text-[#fdfbf7]/60 rounded-xl px-4 py-3 mr-8 flex items-center gap-2 text-sm">
             <Loader2 size={14} className="animate-spin" />
             Thinking...
           </div>
@@ -130,7 +130,7 @@ const SparkRefinement: React.FC<SparkRefinementProps> = ({ initialSpark, onAccep
             className="w-full bg-[#fdfbf7]/5 border-2 border-[#d4af37] rounded-xl p-4 text-lg text-[#fdfbf7] focus:border-[#d4af37] outline-none resize-none"
             rows={3}
           />
-          <p className="text-[10px] text-[#fdfbf7]/30 italic">Edit the goal above if you'd like, then accept it.</p>
+          <p className="text-[10px] text-[#fdfbf7]/50 italic">Edit the goal above if you'd like, then accept it.</p>
           <div className="flex gap-3">
             <button
               onClick={() => onAcceptRefinedGoal(refinedGoal, suggestedTitle || undefined)}
@@ -140,7 +140,7 @@ const SparkRefinement: React.FC<SparkRefinementProps> = ({ initialSpark, onAccep
             </button>
             <button
               onClick={onCancel}
-              className="px-5 py-2.5 rounded-full text-xs font-bold uppercase tracking-widest text-[#fdfbf7]/40 hover:text-[#fdfbf7] transition-all"
+              className="px-5 py-2.5 rounded-full text-xs font-bold uppercase tracking-widest text-[#fdfbf7]/60 hover:text-[#fdfbf7] transition-all"
             >
               Back to editing
             </button>

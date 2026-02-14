@@ -70,9 +70,9 @@ const LeaderHub = ({ currentMember, familyMembers, onManageChild }: LeaderHubPro
       {/* Empty State */}
       {allMembers.length <= 1 && (
         <div className="text-center py-12 space-y-4">
-          <Users size={40} className="text-[#2c2c2a]/10 mx-auto" />
+          <Users size={40} className="text-[#2c2c2a]/50 mx-auto" />
           <p className="text-sm text-[#2c2c2a]/40">No family members yet</p>
-          <p className="text-xs text-[#2c2c2a]/30">Invite your family from the "My Family" option in the menu</p>
+          <p className="text-xs text-[#2c2c2a]/50">Invite your family from the "My Family" option in the menu</p>
         </div>
       )}
 
@@ -135,7 +135,7 @@ const LeaderHub = ({ currentMember, familyMembers, onManageChild }: LeaderHubPro
                   {/* Sovereignty Score */}
                   <div className="flex items-baseline gap-2">
                     <span className="font-serif text-2xl">{scores.sovereignty}%</span>
-                    <span className="text-[10px] font-bold uppercase tracking-widest text-[#2c2c2a]/30">Sovereignty</span>
+                    <span className="text-[10px] font-bold uppercase tracking-widest text-[#2c2c2a]/50">Sovereignty</span>
                   </div>
 
                   {/* Mini domain bars */}
@@ -146,11 +146,11 @@ const LeaderHub = ({ currentMember, familyMembers, onManageChild }: LeaderHubPro
                       { label: 'Sky', score: scores.sky, color: 'bg-amber-500' },
                     ] as const).map(d => (
                       <div key={d.label} className="flex items-center gap-2">
-                        <span className="text-[8px] font-bold uppercase tracking-widest text-[#2c2c2a]/30 w-6">{d.label}</span>
+                        <span className="text-[8px] font-bold uppercase tracking-widest text-[#2c2c2a]/50 w-6">{d.label}</span>
                         <div className="flex-1 bg-[#2c2c2a]/5 h-1 rounded-full overflow-hidden">
                           <div className={`h-full ${d.color} transition-all`} style={{ width: `${d.score}%` }} />
                         </div>
-                        <span className="text-[9px] font-mono text-[#2c2c2a]/30 w-7 text-right">{d.score}%</span>
+                        <span className="text-[9px] font-mono text-[#2c2c2a]/50 w-7 text-right">{d.score}%</span>
                       </div>
                     ))}
                   </div>
@@ -178,7 +178,7 @@ const LeaderHub = ({ currentMember, familyMembers, onManageChild }: LeaderHubPro
             <button
               onClick={() => setSelectedMember(null)}
               aria-label="Close"
-              className="absolute top-4 right-4 text-[#2c2c2a]/30 hover:text-[#2c2c2a] transition-colors"
+              className="absolute top-4 right-4 text-[#2c2c2a]/50 hover:text-[#2c2c2a] transition-colors"
             >
               <X size={20} />
             </button>
@@ -263,7 +263,7 @@ const LeaderHub = ({ currentMember, familyMembers, onManageChild }: LeaderHubPro
                 Manage Dashboard
               </button>
             ) : (
-              <p className="text-center text-[10px] font-bold uppercase tracking-widest text-[#2c2c2a]/20">
+              <p className="text-center text-[10px] font-bold uppercase tracking-widest text-[#2c2c2a]/40">
                 Read only — view only mode
               </p>
             )}

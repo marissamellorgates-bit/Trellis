@@ -76,7 +76,7 @@ const ProjectDetailModal = ({ project, userId, userName, isOwn, onClose, onInter
               </div>
               <h2 id="project-detail-title" className="font-serif text-3xl italic text-[#2c2c2a]">{project.title}</h2>
             </div>
-            <button onClick={onClose} aria-label="Close" className="text-[#2c2c2a]/30 hover:text-[#2c2c2a] transition-colors">
+            <button onClick={onClose} aria-label="Close" className="text-[#2c2c2a]/50 hover:text-[#2c2c2a] transition-colors">
               <X size={20} />
             </button>
           </div>
@@ -205,7 +205,7 @@ const ProjectDetailModal = ({ project, userId, userName, isOwn, onClose, onInter
                       </p>
                       {i.message && <p className="text-[10px] text-[#2c2c2a]/40 truncate">{i.message}</p>}
                     </div>
-                    <div className="flex items-center gap-1 text-[10px] text-[#2c2c2a]/30">
+                    <div className="flex items-center gap-1 text-[10px] text-[#2c2c2a]/50">
                       <Clock size={10} /> {timeAgo(i.created_at)}
                     </div>
                   </div>

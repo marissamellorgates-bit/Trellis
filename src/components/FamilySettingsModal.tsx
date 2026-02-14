@@ -185,7 +185,7 @@ const FamilySettingsModal = ({ isOpen, onClose, userId, familyId, familyRole, on
     return (
       <div className="fixed inset-0 bg-black/40 backdrop-blur-sm z-50 flex items-center justify-center p-4" onClick={onClose} role="dialog" aria-modal="true" aria-labelledby="family-title">
         <div ref={modalRef} className="bg-[#fdfbf7] rounded-3xl max-w-md w-full p-8 relative space-y-6" onClick={e => e.stopPropagation()}>
-          <button onClick={onClose} aria-label="Close" className="absolute top-4 right-4 text-[#2c2c2a]/30 hover:text-[#2c2c2a]"><X size={20} /></button>
+          <button onClick={onClose} aria-label="Close" className="absolute top-4 right-4 text-[#2c2c2a]/50 hover:text-[#2c2c2a]"><X size={20} /></button>
 
           <div className="text-center space-y-2">
             <h2 id="family-title" className="font-serif text-2xl italic">My Family</h2>
@@ -196,11 +196,13 @@ const FamilySettingsModal = ({ isOpen, onClose, userId, familyId, familyRole, on
           <div className="bg-white rounded-2xl border border-[#2c2c2a]/10 p-5 space-y-3">
             <p className="text-[10px] font-bold uppercase tracking-widest text-[#d4af37]">Create a Family</p>
             <input
+              id="family-name"
               type="text"
               value={familyName}
               onChange={e => setFamilyName(e.target.value)}
               className="w-full bg-[#2c2c2a]/5 border border-[#2c2c2a]/10 rounded-xl px-4 py-3 text-sm outline-none focus:border-[#d4af37]"
               placeholder="Family name (optional)"
+              aria-label="Family name"
               maxLength={50}
             />
             <button
@@ -216,11 +218,13 @@ const FamilySettingsModal = ({ isOpen, onClose, userId, familyId, familyRole, on
           <div className="bg-white rounded-2xl border border-[#2c2c2a]/10 p-5 space-y-3">
             <p className="text-[10px] font-bold uppercase tracking-widest text-[#2c2c2a]/40">Join a Family</p>
             <input
+              id="join-code"
               type="text"
               value={joinCode}
               onChange={e => setJoinCode(e.target.value.toUpperCase())}
               className="w-full bg-[#2c2c2a]/5 border border-[#2c2c2a]/10 rounded-xl px-4 py-3 text-sm font-mono outline-none focus:border-[#d4af37] uppercase"
               placeholder="Enter join code (e.g. GROVE-7X2K)"
+              aria-label="Join code"
               maxLength={12}
             />
             <button
@@ -243,7 +247,7 @@ const FamilySettingsModal = ({ isOpen, onClose, userId, familyId, familyRole, on
   return (
     <div className="fixed inset-0 bg-black/40 backdrop-blur-sm z-50 flex items-center justify-center p-4" onClick={onClose} role="dialog" aria-modal="true" aria-labelledby="family-title2">
       <div ref={modalRef} className="bg-[#fdfbf7] rounded-3xl max-w-md w-full p-8 relative space-y-6 max-h-[90vh] overflow-y-auto" onClick={e => e.stopPropagation()}>
-        <button onClick={onClose} aria-label="Close" className="absolute top-4 right-4 text-[#2c2c2a]/30 hover:text-[#2c2c2a]"><X size={20} /></button>
+        <button onClick={onClose} aria-label="Close" className="absolute top-4 right-4 text-[#2c2c2a]/50 hover:text-[#2c2c2a]"><X size={20} /></button>
 
         <div className="text-center space-y-2">
           <h2 id="family-title2" className="font-serif text-2xl italic">{familyInfo?.name || 'My Family'}</h2>
@@ -278,11 +282,13 @@ const FamilySettingsModal = ({ isOpen, onClose, userId, familyId, familyRole, on
               <p className="text-[10px] font-bold uppercase tracking-widest text-[#2c2c2a]/40">Invite by Email</p>
               <form onSubmit={e => { e.preventDefault(); handleInvite(); }} className="flex gap-2">
                 <input
+                  id="invite-email"
                   type="email"
                   value={inviteEmail}
                   onChange={e => setInviteEmail(e.target.value)}
                   className="flex-1 bg-[#2c2c2a]/5 border border-[#2c2c2a]/10 rounded-xl px-4 py-2.5 text-sm outline-none focus:border-[#d4af37]"
                   placeholder="email@example.com"
+                  aria-label="Invite email"
                 />
                 <button
                   type="submit"
@@ -301,7 +307,7 @@ const FamilySettingsModal = ({ isOpen, onClose, userId, familyId, familyRole, on
                 <p className="text-[10px] font-bold uppercase tracking-widest text-[#2c2c2a]/40">Invites</p>
                 {invites.map(inv => (
                   <div key={inv.id} className="flex items-center gap-3 bg-white rounded-xl border border-[#2c2c2a]/10 px-4 py-3">
-                    <Mail size={14} className="text-[#2c2c2a]/30 shrink-0" />
+                    <Mail size={14} className="text-[#2c2c2a]/50 shrink-0" />
                     <span className="text-sm flex-1 truncate">{inv.email}</span>
                     <span className={`text-[9px] font-bold uppercase tracking-widest px-2 py-0.5 rounded-full ${
                       inv.status === 'accepted' ? 'bg-emerald-100 text-emerald-700' :
@@ -330,7 +336,7 @@ const FamilySettingsModal = ({ isOpen, onClose, userId, familyId, familyRole, on
                       <span className="text-sm font-bold flex-1">{child.name}</span>
                       <button
                         onClick={() => { onManageChild?.(child.userId); onClose(); }}
-                        className="p-1.5 rounded-lg text-[#2c2c2a]/30 hover:text-[#d4af37] hover:bg-[#d4af37]/10 transition-all"
+                        className="p-1.5 rounded-lg text-[#2c2c2a]/50 hover:text-[#d4af37] hover:bg-[#d4af37]/10 transition-all"
                         aria-label="Manage dashboard"
                       >
                         <Eye size={14} />
@@ -346,7 +352,7 @@ const FamilySettingsModal = ({ isOpen, onClose, userId, familyId, familyRole, on
                           </button>
                           <button
                             onClick={() => setConfirmRemoveChild(null)}
-                            className="px-2 py-1 rounded-full text-[9px] font-bold uppercase tracking-widest text-[#2c2c2a]/30 hover:text-[#2c2c2a] transition-all"
+                            className="px-2 py-1 rounded-full text-[9px] font-bold uppercase tracking-widest text-[#2c2c2a]/50 hover:text-[#2c2c2a] transition-all"
                           >
                             No
                           </button>
@@ -354,7 +360,7 @@ const FamilySettingsModal = ({ isOpen, onClose, userId, familyId, familyRole, on
                       ) : (
                         <button
                           onClick={() => setConfirmRemoveChild(child.userId)}
-                          className="p-1.5 rounded-lg text-[#2c2c2a]/20 hover:text-red-400 hover:bg-red-50 transition-all"
+                          className="p-1.5 rounded-lg text-[#2c2c2a]/40 hover:text-red-400 hover:bg-red-50 transition-all"
                           aria-label="Remove child"
                         >
                           <Trash2 size={14} />
@@ -368,11 +374,13 @@ const FamilySettingsModal = ({ isOpen, onClose, userId, familyId, familyRole, on
               {/* Add child form */}
               <div className="space-y-2 pt-1">
                 <input
+                  id="child-name"
                   type="text"
                   value={childName}
                   onChange={e => setChildName(e.target.value)}
                   className="w-full bg-[#2c2c2a]/5 border border-[#2c2c2a]/10 rounded-xl px-4 py-2.5 text-sm outline-none focus:border-[#d4af37]"
                   placeholder="Child's name"
+                  aria-label="Child's name"
                   maxLength={30}
                 />
                 <div className="flex gap-2">
@@ -382,6 +390,7 @@ const FamilySettingsModal = ({ isOpen, onClose, userId, familyId, familyRole, on
                     onChange={e => setChildPin(e.target.value.replace(/\D/g, '').slice(0, 4))}
                     className="flex-1 bg-[#2c2c2a]/5 border border-[#2c2c2a]/10 rounded-xl px-4 py-2.5 text-sm font-mono tracking-widest outline-none focus:border-[#d4af37] text-center"
                     placeholder="4-digit PIN"
+                    aria-label="4-digit PIN"
                     maxLength={4}
                     inputMode="numeric"
                   />
@@ -393,7 +402,7 @@ const FamilySettingsModal = ({ isOpen, onClose, userId, familyId, familyRole, on
                     {addingChild ? '...' : 'Add'}
                   </button>
                 </div>
-                <p className="text-[9px] text-[#2c2c2a]/30">Tell kids to use "Kid Login" with your join code and their PIN</p>
+                <p className="text-[9px] text-[#2c2c2a]/50">Tell kids to use "Kid Login" with your join code and their PIN</p>
               </div>
             </div>
           </>
@@ -417,7 +426,7 @@ const FamilySettingsModal = ({ isOpen, onClose, userId, familyId, familyRole, on
                 </button>
                 <button
                   onClick={() => setConfirmLeave(false)}
-                  className="px-3 py-1.5 rounded-full text-[10px] font-bold uppercase tracking-widest text-[#2c2c2a]/30 hover:text-[#2c2c2a] transition-all"
+                  className="px-3 py-1.5 rounded-full text-[10px] font-bold uppercase tracking-widest text-[#2c2c2a]/50 hover:text-[#2c2c2a] transition-all"
                 >
                   Cancel
                 </button>

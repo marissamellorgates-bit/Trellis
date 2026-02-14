@@ -46,12 +46,12 @@ const FlowView = ({ schedule, tasks, goals, onToggleTask, onCompleteScheduleItem
       </div>
       <div className="bg-white rounded-3xl border border-[#2c2c2a]/10 p-6 relative overflow-hidden">
         <div className="absolute left-8 top-0 bottom-0 w-px bg-[#2c2c2a]/10"></div>
-        <div className="space-y-6 relative z-10">
+        <ul className="space-y-6 relative z-10 list-none m-0 p-0">
           {schedule.map((item, i) => {
             const key = scheduleItemKey(item);
             const done = completedScheduleItems.has(key);
             return (
-              <div key={key} className="flex gap-4 items-start group">
+              <li key={key} className="flex gap-4 items-start group">
                 <span className="text-xs font-mono text-[#2c2c2a]/40 w-14 pt-1">{formatTime12(item.time)}</span>
                 <button
                   onClick={() => !done && onCompleteScheduleItem(i)}
@@ -70,10 +70,10 @@ const FlowView = ({ schedule, tasks, goals, onToggleTask, onCompleteScheduleItem
                     </div>
                   </div>
                 </button>
-              </div>
+              </li>
             );
           })}
-        </div>
+        </ul>
       </div>
     </div>
 
@@ -81,7 +81,7 @@ const FlowView = ({ schedule, tasks, goals, onToggleTask, onCompleteScheduleItem
       <div className="flex items-center justify-between">
         <h2 className="font-serif text-3xl text-[#2c2c2a]">Prioritized Actions</h2>
       </div>
-      <div className="space-y-3">
+      <ul className="space-y-3 list-none m-0 p-0">
         {[...tasks].sort((a, b) => {
           // 1. Done tasks last
           if (a.done !== b.done) return a.done ? 1 : -1;
@@ -96,7 +96,7 @@ const FlowView = ({ schedule, tasks, goals, onToggleTask, onCompleteScheduleItem
           const bMin = b.estimatedMinutes ?? 999;
           return aMin - bMin;
         }).map((task) => (
-          <div key={task.id} className={`p-4 rounded-xl border flex items-center justify-between transition-all group ${task.done ? 'bg-[#fdfbf7] border-transparent opacity-50' : 'bg-white border-[#2c2c2a]/5 hover:border-[#d4af37] hover:shadow-md'}`}>
+          <li key={task.id} className={`p-4 rounded-xl border flex items-center justify-between transition-all group ${task.done ? 'bg-[#fdfbf7] border-transparent opacity-50' : 'bg-white border-[#2c2c2a]/5 hover:border-[#d4af37] hover:shadow-md'}`}>
             <div className="flex items-center gap-4">
               <button
                 onClick={() => onToggleTask(task.id)}
@@ -117,9 +117,9 @@ const FlowView = ({ schedule, tasks, goals, onToggleTask, onCompleteScheduleItem
               </div>
             </div>
             <span className="text-xs font-mono text-[#2c2c2a]/40">{task.due}</span>
-          </div>
+          </li>
         ))}
-      </div>
+      </ul>
     </div>
   </div>
 );

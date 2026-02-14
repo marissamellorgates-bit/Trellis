@@ -133,7 +133,7 @@ const AnalyticsDashboard = ({ isOpen, onClose, userId }: AnalyticsDashboardProps
                 </p>
               </div>
             </div>
-            <button onClick={onClose} aria-label="Close" className="text-[#2c2c2a]/30 hover:text-[#2c2c2a]"><X size={20} /></button>
+            <button onClick={onClose} aria-label="Close" className="text-[#2c2c2a]/50 hover:text-[#2c2c2a]"><X size={20} /></button>
           </div>
 
           {loading ? (
@@ -147,7 +147,7 @@ const AnalyticsDashboard = ({ isOpen, onClose, userId }: AnalyticsDashboardProps
               {/* Totals */}
               <div className="grid grid-cols-3 gap-4">
                 <div className="bg-white p-6 rounded-2xl border border-[#2c2c2a]/10 text-center">
-                  <Eye size={20} className="mx-auto text-[#2c2c2a]/30 mb-2" />
+                  <Eye size={20} className="mx-auto text-[#2c2c2a]/50 mb-2" />
                   <p className="font-serif text-3xl text-[#2c2c2a]">{totalViews}</p>
                   <p className="text-[10px] font-bold uppercase tracking-widest text-[#2c2c2a]/40 mt-1">Views</p>
                 </div>
@@ -187,7 +187,7 @@ const AnalyticsDashboard = ({ isOpen, onClose, userId }: AnalyticsDashboardProps
                           }`}>
                             {p.status}
                           </span>
-                          <span className="text-[10px] text-[#2c2c2a]/30 capitalize">{p.plant}</span>
+                          <span className="text-[10px] text-[#2c2c2a]/50 capitalize">{p.plant}</span>
                         </div>
                       </div>
                       <div className="flex gap-4 text-xs text-[#2c2c2a]/40 shrink-0">
@@ -256,7 +256,7 @@ const AnalyticsDashboard = ({ isOpen, onClose, userId }: AnalyticsDashboardProps
                             {i.from_user_name} <span className="font-normal text-[#2c2c2a]/50 capitalize">{i.tier.replace(/-/g, ' ')}</span>
                           </p>
                         </div>
-                        <span className="text-[10px] text-[#2c2c2a]/30 shrink-0">
+                        <span className="text-[10px] text-[#2c2c2a]/50 shrink-0">
                           {new Date(i.created_at).toLocaleDateString()}
                         </span>
                       </div>

@@ -51,7 +51,7 @@ const ToastItem: React.FC<ToastItemProps> = ({ toast, onDismiss }) => {
       <button
         onClick={() => onDismiss(toast.id)}
         aria-label="Dismiss"
-        className="text-[#2c2c2a]/20 hover:text-[#2c2c2a]/60 transition-colors shrink-0"
+        className="text-[#2c2c2a]/40 hover:text-[#2c2c2a]/60 transition-colors shrink-0"
       >
         <X size={14} />
       </button>

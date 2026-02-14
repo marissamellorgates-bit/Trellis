@@ -33,7 +33,7 @@ const PaywallScreen = ({ userId, email, onLogout, onOpenGift }: PaywallScreenPro
             <Sprout className="text-[#d4af37]" size={32} />
             <h1 className="font-serif text-4xl italic font-bold text-[#fdfbf7]">Trellis.</h1>
           </div>
-          <p className="text-[#fdfbf7]/40 text-sm">Your free trial has ended. Subscribe to keep growing.</p>
+          <p className="text-[#fdfbf7]/60 text-sm">Your free trial has ended. Subscribe to keep growing.</p>
         </div>
 
         {/* Pricing Cards */}
@@ -44,7 +44,7 @@ const PaywallScreen = ({ userId, email, onLogout, onOpenGift }: PaywallScreenPro
               <h3 className="text-[10px] font-bold uppercase tracking-widest text-[#fdfbf7]/50">Monthly</h3>
               <div className="flex items-baseline gap-1 mt-2">
                 <span className="font-serif text-4xl text-[#fdfbf7]">$5</span>
-                <span className="text-[#fdfbf7]/40 text-sm">/month</span>
+                <span className="text-[#fdfbf7]/60 text-sm">/month</span>
               </div>
             </div>
             <ul className="space-y-3">
@@ -73,9 +73,9 @@ const PaywallScreen = ({ userId, email, onLogout, onOpenGift }: PaywallScreenPro
               <h3 className="text-[10px] font-bold uppercase tracking-widest text-[#d4af37]">Annual</h3>
               <div className="flex items-baseline gap-1 mt-2">
                 <span className="font-serif text-4xl text-[#fdfbf7]">$39</span>
-                <span className="text-[#fdfbf7]/40 text-sm">/year</span>
+                <span className="text-[#fdfbf7]/60 text-sm">/year</span>
               </div>
-              <p className="text-[#fdfbf7]/30 text-xs mt-1">$3.25/month</p>
+              <p className="text-[#fdfbf7]/50 text-xs mt-1">$3.25/month</p>
             </div>
             <ul className="space-y-3">
               {['Everything in Monthly', 'Priority support', 'Early access to features', 'Support the mission'].map(f => (

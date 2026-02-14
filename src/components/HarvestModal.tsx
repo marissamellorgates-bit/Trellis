@@ -28,8 +28,9 @@ const HarvestModal = ({ isOpen, wisdom, sharing, communities, onWisdomChange, on
           </div>
 
           <div className="space-y-2">
-            <label className="text-[10px] font-bold uppercase tracking-widest text-[#2c2c2a]/40">Key Wisdom Gained</label>
+            <label htmlFor="harvest-wisdom" className="text-[10px] font-bold uppercase tracking-widest text-[#2c2c2a]/40">Key Wisdom Gained</label>
             <textarea
+              id="harvest-wisdom"
               value={wisdom}
               onChange={(e) => onWisdomChange(e.target.value)}
               className="w-full bg-[#2c2c2a]/5 p-3 rounded-xl text-sm outline-none focus:ring-1 ring-[#d4af37]"

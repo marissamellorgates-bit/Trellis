@@ -80,7 +80,7 @@ const PublishProjectModal = ({ isOpen, onClose, member, userId, existingProject,
               </h2>
               <p className="text-xs text-[#2c2c2a]/40 mt-1">{member.projectTitle}</p>
             </div>
-            <button onClick={onClose} aria-label="Close" className="text-[#2c2c2a]/30 hover:text-[#2c2c2a]"><X size={20} /></button>
+            <button onClick={onClose} aria-label="Close" className="text-[#2c2c2a]/50 hover:text-[#2c2c2a]"><X size={20} /></button>
           </div>
 
           {/* Pre-filled info */}
@@ -100,8 +100,9 @@ const PublishProjectModal = ({ isOpen, onClose, member, userId, existingProject,
 
           {/* Description */}
           <div className="space-y-2">
-            <label className="text-[10px] font-bold uppercase tracking-widest text-[#2c2c2a]/40">Description</label>
+            <label htmlFor="publish-desc" className="text-[10px] font-bold uppercase tracking-widest text-[#2c2c2a]/40">Description</label>
             <textarea
+              id="publish-desc"
               value={description}
               onChange={e => setDescription(e.target.value)}
               className="w-full bg-white border border-[#2c2c2a]/10 rounded-xl p-4 h-28 text-sm focus:border-[#d4af37] outline-none resize-none"
@@ -111,8 +112,9 @@ const PublishProjectModal = ({ isOpen, onClose, member, userId, existingProject,
 
           {/* Tags */}
           <div className="space-y-2">
-            <label className="text-[10px] font-bold uppercase tracking-widest text-[#2c2c2a]/40">Tags</label>
+            <label htmlFor="publish-tags" className="text-[10px] font-bold uppercase tracking-widest text-[#2c2c2a]/40">Tags</label>
             <input
+              id="publish-tags"
               type="text"
               value={tagsInput}
               onChange={e => setTagsInput(e.target.value)}

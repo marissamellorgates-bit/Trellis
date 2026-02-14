@@ -64,7 +64,7 @@ const CommunitySettingsModal = ({ isOpen, communities, onSave, onClose }: Commun
       <div ref={modalRef} className="bg-[#fdfbf7] w-full max-w-lg rounded-3xl shadow-2xl overflow-hidden">
         <div className="flex items-center justify-between px-6 py-4 border-b border-[#2c2c2a]/10">
           <h2 id="community-settings-title" className="font-serif text-xl italic">My Communities</h2>
-          <button onClick={onClose} aria-label="Close" className="text-[#2c2c2a]/30 hover:text-[#2c2c2a] transition-colors">
+          <button onClick={onClose} aria-label="Close" className="text-[#2c2c2a]/50 hover:text-[#2c2c2a] transition-colors">
             <X size={20} />
           </button>
         </div>
@@ -115,7 +115,7 @@ const CommunitySettingsModal = ({ isOpen, communities, onSave, onClose }: Commun
                         autoFocus
                       />
                       <button type="submit" className="text-[10px] font-bold uppercase tracking-widest text-[#d4af37]">OK</button>
-                      <button type="button" onClick={() => setEditingId(null)} className="text-[10px] font-bold uppercase tracking-widest text-[#2c2c2a]/30">Cancel</button>
+                      <button type="button" onClick={() => setEditingId(null)} className="text-[10px] font-bold uppercase tracking-widest text-[#2c2c2a]/50">Cancel</button>
                     </form>
                   ) : (
                     <button
@@ -129,7 +129,7 @@ const CommunitySettingsModal = ({ isOpen, communities, onSave, onClose }: Commun
                       title={isPrivate ? undefined : 'Click to rename'}
                     >
                       {c.name}
-                      {isPrivate && <span className="text-[9px] text-[#2c2c2a]/30 ml-2 uppercase">(always present)</span>}
+                      {isPrivate && <span className="text-[9px] text-[#2c2c2a]/50 ml-2 uppercase">(always present)</span>}
                     </button>
                   )}
                 </div>
@@ -193,7 +193,7 @@ const CommunitySettingsModal = ({ isOpen, communities, onSave, onClose }: Commun
           )}
 
           {local.length >= MAX_COMMUNITIES && (
-            <p className="text-[10px] text-[#2c2c2a]/30 text-center py-1">Maximum 10 communities reached</p>
+            <p className="text-[10px] text-[#2c2c2a]/50 text-center py-1">Maximum 10 communities reached</p>
           )}
         </div>
 

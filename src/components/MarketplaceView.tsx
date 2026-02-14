@@ -109,7 +109,7 @@ const MarketplaceView = ({ userId, userName, activeMember, onNotify }: Marketpla
       <div className="flex flex-wrap items-center gap-3">
         {/* Search */}
         <div className="relative flex-1 min-w-[200px]">
-          <Search size={14} className="absolute left-3 top-1/2 -translate-y-1/2 text-[#2c2c2a]/30" />
+          <Search size={14} className="absolute left-3 top-1/2 -translate-y-1/2 text-[#2c2c2a]/50" />
           <input
             type="text"
             value={searchInput}
@@ -177,9 +177,9 @@ const MarketplaceView = ({ userId, userName, activeMember, onNotify }: Marketpla
         </div>
       ) : projects.length === 0 ? (
         <div className="text-center py-16 bg-white rounded-3xl border-2 border-dashed border-[#2c2c2a]/10">
-          <Sprout className="mx-auto text-[#2c2c2a]/20" size={40} />
+          <Sprout className="mx-auto text-[#2c2c2a]/40" size={40} />
           <p className="text-sm text-[#2c2c2a]/40 mt-4">No projects found</p>
-          <p className="text-xs text-[#2c2c2a]/30 mt-1">
+          <p className="text-xs text-[#2c2c2a]/50 mt-1">
             {filters.search || filters.archetype ? 'Try adjusting your filters' : 'Be the first to publish a project!'}
           </p>
         </div>
@@ -226,7 +226,7 @@ const MarketplaceView = ({ userId, userName, activeMember, onNotify }: Marketpla
                       </span>
                     ))}
                     {p.tags.length > 3 && (
-                      <span className="text-[9px] text-[#2c2c2a]/30">+{p.tags.length - 3}</span>
+                      <span className="text-[9px] text-[#2c2c2a]/50">+{p.tags.length - 3}</span>
                     )}
                   </div>
                 )}

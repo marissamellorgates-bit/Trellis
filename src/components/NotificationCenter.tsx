@@ -76,7 +76,7 @@ const NotificationCenter: React.FC<NotificationCenterProps> = ({
             {unreadCount > 0 && (
               <button
                 onClick={onMarkAllRead}
-                className="p-1.5 text-[#2c2c2a]/30 hover:text-[#2c2c2a] transition-colors rounded-lg hover:bg-[#2c2c2a]/5"
+                className="p-1.5 text-[#2c2c2a]/50 hover:text-[#2c2c2a] transition-colors rounded-lg hover:bg-[#2c2c2a]/5"
                 aria-label="Mark all as read"
               >
                 <CheckCheck size={14} />
@@ -85,7 +85,7 @@ const NotificationCenter: React.FC<NotificationCenterProps> = ({
             {notifications.length > 0 && (
               <button
                 onClick={onClear}
-                className="p-1.5 text-[#2c2c2a]/30 hover:text-[#2c2c2a] transition-colors rounded-lg hover:bg-[#2c2c2a]/5"
+                className="p-1.5 text-[#2c2c2a]/50 hover:text-[#2c2c2a] transition-colors rounded-lg hover:bg-[#2c2c2a]/5"
                 aria-label="Clear all notifications"
               >
                 <Trash2 size={14} />
@@ -98,36 +98,39 @@ const NotificationCenter: React.FC<NotificationCenterProps> = ({
         <div className="max-h-80 overflow-y-auto">
           {notifications.length === 0 ? (
             <div className="py-12 text-center">
-              <Bell size={24} className="mx-auto text-[#2c2c2a]/10 mb-3" />
-              <p className="text-xs text-[#2c2c2a]/30">No notifications yet</p>
+              <Bell size={24} className="mx-auto text-[#2c2c2a]/50 mb-3" />
+              <p className="text-xs text-[#2c2c2a]/50">No notifications yet</p>
             </div>
           ) : (
-            notifications.map(n => {
-              const Icon = ICON_MAP[n.type] || CheckCircle2;
-              return (
-                <button
-                  key={n.id}
-                  onClick={() => !n.read && onMarkRead(n.id)}
-                  className={`w-full flex items-start gap-3 px-4 py-3 border-b border-[#2c2c2a]/5 last:border-b-0 transition-colors text-left ${
-                    !n.read ? 'bg-[#d4af37]/[0.03] hover:bg-[#d4af37]/[0.07] cursor-pointer' : ''
-                  }`}
-                >
-                  <div className="w-7 h-7 rounded-full bg-[#d4af37]/10 flex items-center justify-center shrink-0 mt-0.5">
-                    <Icon size={12} className="text-[#d4af37]" />
-                  </div>
-                  <div className="flex-1 min-w-0">
-                    <div className="flex items-center gap-2">
-                      <p className="text-xs font-bold text-[#2c2c2a]">{n.title}</p>
-                      {!n.read && (
-                        <span className="w-1.5 h-1.5 rounded-full bg-[#d4af37] shrink-0" />
-                      )}
-                    </div>
-                    <p className="text-[11px] text-[#2c2c2a]/50 mt-0.5 leading-relaxed">{n.message}</p>
-                    <p className="text-[10px] text-[#2c2c2a]/25 mt-1">{timeAgo(n.timestamp)}</p>
-                  </div>
-                </button>
-              );
-            })
+            <ul className="list-none m-0 p-0">
+              {notifications.map(n => {
+                const Icon = ICON_MAP[n.type] || CheckCircle2;
+                return (
+                  <li key={n.id}>
+                    <button
+                      onClick={() => !n.read && onMarkRead(n.id)}
+                      className={`w-full flex items-start gap-3 px-4 py-3 border-b border-[#2c2c2a]/5 last:border-b-0 transition-colors text-left ${
+                        !n.read ? 'bg-[#d4af37]/[0.03] hover:bg-[#d4af37]/[0.07] cursor-pointer' : ''
+                      }`}
+                    >
+                      <div className="w-7 h-7 rounded-full bg-[#d4af37]/10 flex items-center justify-center shrink-0 mt-0.5">
+                        <Icon size={12} className="text-[#d4af37]" />
+                      </div>
+                      <div className="flex-1 min-w-0">
+                        <div className="flex items-center gap-2">
+                          <p className="text-xs font-bold text-[#2c2c2a]">{n.title}</p>
+                          {!n.read && (
+                            <span className="w-1.5 h-1.5 rounded-full bg-[#d4af37] shrink-0" />
+                          )}
+                        </div>
+                        <p className="text-[11px] text-[#2c2c2a]/50 mt-0.5 leading-relaxed">{n.message}</p>
+                        <p className="text-[10px] text-[#2c2c2a]/50 mt-1">{timeAgo(n.timestamp)}</p>
+                      </div>
+                    </button>
+                  </li>
+                );
+              })}
+            </ul>
           )}
         </div>
 

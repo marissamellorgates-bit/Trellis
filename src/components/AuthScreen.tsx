@@ -123,7 +123,7 @@ const AuthScreen: React.FC = () => {
             <Sprout className="text-[#d4af37]" size={32} />
             <h1 className="font-serif text-4xl italic font-bold text-[#fdfbf7]">Trellis.</h1>
           </div>
-          <p className="text-[#fdfbf7]/40 text-sm">Your holistic life operating system</p>
+          <p className="text-[#fdfbf7]/60 text-sm">Your holistic life operating system</p>
         </div>
 
         {/* Form */}
@@ -138,7 +138,7 @@ const AuthScreen: React.FC = () => {
                 className={`flex-1 py-2 rounded-full text-[10px] font-bold uppercase tracking-widest transition-all ${
                   mode === m
                     ? 'bg-[#d4af37] text-[#2c2c2a]'
-                    : 'text-[#fdfbf7]/40 hover:text-[#fdfbf7]'
+                    : 'text-[#fdfbf7]/60 hover:text-[#fdfbf7]'
                 }`}
               >
                 {m === 'signin' ? 'Sign In' : m === 'signup' ? 'Sign Up' : 'Kid Login'}
@@ -178,7 +178,7 @@ const AuthScreen: React.FC = () => {
                 <div className="space-y-4">
                   <button
                     onClick={() => { setKidStep(1); setError(''); localStorage.removeItem('trellis_kid_family_code'); }}
-                    className="flex items-center gap-1 text-[10px] font-bold uppercase tracking-widest text-[#fdfbf7]/40 hover:text-[#fdfbf7] transition-all"
+                    className="flex items-center gap-1 text-[10px] font-bold uppercase tracking-widest text-[#fdfbf7]/60 hover:text-[#fdfbf7] transition-all"
                   >
                     <ChevronLeft size={12} />
                     Change Family
@@ -203,7 +203,7 @@ const AuthScreen: React.FC = () => {
                 <div className="space-y-4">
                   <button
                     onClick={() => { setKidStep(2); setKidPin(''); setError(''); }}
-                    className="flex items-center gap-1 text-[10px] font-bold uppercase tracking-widest text-[#fdfbf7]/40 hover:text-[#fdfbf7] transition-all"
+                    className="flex items-center gap-1 text-[10px] font-bold uppercase tracking-widest text-[#fdfbf7]/60 hover:text-[#fdfbf7] transition-all"
                   >
                     <ChevronLeft size={12} />
                     Back
@@ -315,7 +315,7 @@ const AuthScreen: React.FC = () => {
                     placeholder="e.g. GROVE-7X2K"
                     maxLength={12}
                   />
-                  <p className="text-[9px] text-[#fdfbf7]/30">Have a family join code? Enter it here to auto-join</p>
+                  <p className="text-[9px] text-[#fdfbf7]/50">Have a family join code? Enter it here to auto-join</p>
                 </div>
               )}
 

@@ -227,7 +227,7 @@ const ImportScheduleModal = ({ isOpen, onClose, onImport, existingSourceIds }: I
                   : 'border-[#2c2c2a]/10 hover:border-[#d4af37]/50'
               }`}
             >
-              <FileText size={32} className="mx-auto text-[#2c2c2a]/20 mb-3" />
+              <FileText size={32} className="mx-auto text-[#2c2c2a]/40 mb-3" />
               <p className="text-sm font-medium text-[#2c2c2a]/60">
                 {fileName || 'Drop calendar file here or click to browse'}
               </p>
@@ -263,7 +263,7 @@ const ImportScheduleModal = ({ isOpen, onClose, onImport, existingSourceIds }: I
           {/* Google Tab */}
           {activeTab === 'google' && preview.length === 0 && (
             <div className="text-center py-6 space-y-4">
-              <Calendar size={32} className="mx-auto text-[#2c2c2a]/20" />
+              <Calendar size={32} className="mx-auto text-[#2c2c2a]/40" />
               <p className="text-sm text-[#2c2c2a]/50">Connect your Google Calendar to import today's events.</p>
               <button
                 onClick={handleGoogleConnect}
@@ -274,7 +274,7 @@ const ImportScheduleModal = ({ isOpen, onClose, onImport, existingSourceIds }: I
                 {googleLoading ? 'Connecting...' : 'Connect Google Calendar'}
               </button>
               {!isGoogleAuthAvailable() && (
-                <p className="text-[10px] text-[#2c2c2a]/30">Requires VITE_GOOGLE_CLIENT_ID in .env</p>
+                <p className="text-[10px] text-[#2c2c2a]/50">Requires VITE_GOOGLE_CLIENT_ID in .env</p>
               )}
             </div>
           )}
@@ -319,7 +319,7 @@ const ImportScheduleModal = ({ isOpen, onClose, onImport, existingSourceIds }: I
                       <span className="font-mono text-xs text-[#2c2c2a]/40 w-12">{item.time}</span>
                       <div className="flex-1 min-w-0">
                         <span className="block truncate">{item.title}</span>
-                        {alreadyIn && <span className="text-[10px] text-[#2c2c2a]/30">Already imported</span>}
+                        {alreadyIn && <span className="text-[10px] text-[#2c2c2a]/50">Already imported</span>}
                       </div>
                       <span className={`text-[10px] font-bold uppercase px-2 py-0.5 rounded ${
                         item.type === 'bio' ? 'bg-green-100 text-green-700' :
