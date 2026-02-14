@@ -115,7 +115,7 @@ const AuthScreen: React.FC = () => {
   };
 
   return (
-    <div className="min-h-screen bg-[#2c2c2a] flex items-center justify-center px-4">
+    <main className="min-h-screen bg-[#2c2c2a] flex items-center justify-center px-4">
       <div className="w-full max-w-md space-y-8">
         {/* Logo */}
         <div className="text-center space-y-3">
@@ -264,7 +264,7 @@ const AuthScreen: React.FC = () => {
               {/* Name (signup only) */}
               {mode === 'signup' && (
                 <div className="space-y-2">
-                  <label className="text-[10px] font-bold uppercase tracking-widest text-[#fdfbf7]/50">Name</label>
+                  <label className="text-[10px] font-bold uppercase tracking-widest text-[#fdfbf7]/60">Name</label>
                   <input
                     type="text"
                     value={name}
@@ -278,7 +278,7 @@ const AuthScreen: React.FC = () => {
 
               {/* Email */}
               <div className="space-y-2">
-                <label className="text-[10px] font-bold uppercase tracking-widest text-[#fdfbf7]/50">Email</label>
+                <label className="text-[10px] font-bold uppercase tracking-widest text-[#fdfbf7]/60">Email</label>
                 <input
                   type="email"
                   value={email}
@@ -291,7 +291,7 @@ const AuthScreen: React.FC = () => {
 
               {/* Password */}
               <div className="space-y-2">
-                <label className="text-[10px] font-bold uppercase tracking-widest text-[#fdfbf7]/50">Password</label>
+                <label className="text-[10px] font-bold uppercase tracking-widest text-[#fdfbf7]/60">Password</label>
                 <input
                   type="password"
                   value={password}
@@ -306,7 +306,7 @@ const AuthScreen: React.FC = () => {
               {/* Join Code (signup only) */}
               {mode === 'signup' && (
                 <div className="space-y-2">
-                  <label className="text-[10px] font-bold uppercase tracking-widest text-[#fdfbf7]/50">Join Code <span className="normal-case font-normal opacity-60">(optional)</span></label>
+                  <label className="text-[10px] font-bold uppercase tracking-widest text-[#fdfbf7]/60">Join Code <span className="normal-case font-normal opacity-60">(optional)</span></label>
                   <input
                     type="text"
                     value={joinCodeInput}
@@ -347,7 +347,7 @@ const AuthScreen: React.FC = () => {
           )}
         </div>
       </div>
-    </div>
+    </main>
   );
 };
 

@@ -41,7 +41,7 @@ const PaywallScreen = ({ userId, email, onLogout, onOpenGift }: PaywallScreenPro
           {/* Monthly */}
           <div className="bg-[#fdfbf7]/5 border border-[#fdfbf7]/10 rounded-2xl p-8 space-y-6">
             <div>
-              <h3 className="text-[10px] font-bold uppercase tracking-widest text-[#fdfbf7]/50">Monthly</h3>
+              <h3 className="text-[10px] font-bold uppercase tracking-widest text-[#fdfbf7]/60">Monthly</h3>
               <div className="flex items-baseline gap-1 mt-2">
                 <span className="font-serif text-4xl text-[#fdfbf7]">$5</span>
                 <span className="text-[#fdfbf7]/60 text-sm">/month</span>
@@ -75,7 +75,7 @@ const PaywallScreen = ({ userId, email, onLogout, onOpenGift }: PaywallScreenPro
                 <span className="font-serif text-4xl text-[#fdfbf7]">$39</span>
                 <span className="text-[#fdfbf7]/60 text-sm">/year</span>
               </div>
-              <p className="text-[#fdfbf7]/50 text-xs mt-1">$3.25/month</p>
+              <p className="text-[#fdfbf7]/60 text-xs mt-1">$3.25/month</p>
             </div>
             <ul className="space-y-3">
               {['Everything in Monthly', 'Priority support', 'Early access to features', 'Support the mission'].map(f => (
