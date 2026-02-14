@@ -523,7 +523,7 @@ All types defined in `src/types.ts`. Key interfaces:
 - AI mentor requires `VITE_AI_ENABLED=true` + server-side `AI_API_KEY` — falls back to mock keyword matching when not enabled
 - Plant stage gating not enforced (renders based on module number only)
 - `isFamilyMenuOpen` toggles a dropdown but no member selection is implemented (only 1 hardcoded member)
-- No accessibility: Missing ARIA labels, keyboard focus indicators, low-contrast text patterns
+- ~~No accessibility~~ — WCAG AA compliant: modal focus traps, aria-labels, form labels, semantic HTML, contrast fixes, live regions (Lighthouse 100/100)
 
 ### Resolved Technical Debt (Phase 1.5)
 - ~~Components defined inside `App()`~~ — Extracted to `src/components/`
@@ -563,6 +563,8 @@ All types defined in `src/types.ts`. Key interfaces:
 **Phase 7: Family Linking (complete)** — ~~Family creation with join codes~~, ~~Email invites~~, ~~Join by code or pending invite~~, ~~FamilySettingsModal (create/invite/join/leave)~~, ~~LeaderHub shows real family data~~, ~~AuthScreen join code field~~, ~~DB tables + RLS policies~~
 
 **Phase 8: Managed Child Profiles (complete)** — ~~Add kids without email~~, ~~Kid Login (join code + name + PIN)~~, ~~Parent manage child dashboard~~, ~~Management banner + back button~~, ~~FamilySettingsModal kids section~~, ~~LeaderHub child badges + manage button~~, ~~DB columns + RLS policies~~
+
+**Phase 9: Accessibility (complete)** — ~~useModal hook (focus trap, Escape, focus restore)~~, ~~12 modals + AIMentorPanel accessible~~, ~~aria-labels on 30+ icon buttons~~, ~~toast live region~~, ~~decorative SVG aria-hidden~~, ~~WCAG AA contrast fixes (20 files)~~, ~~form label associations~~, ~~semantic HTML (ul/li, main landmark)~~, ~~Lighthouse 100/100~~
 
 **DB migration required for Phase 4:** 3 new tables (`community_projects`, `community_interactions`, `project_views`) with RLS, triggers, and indexes. See migration SQL in project docs.
 
