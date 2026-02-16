@@ -515,7 +515,17 @@ All types defined in `src/types.ts`. Key interfaces:
 - Typography: serif font for headings (italic), sans for body
 - Labels use `text-[10px] font-bold uppercase tracking-widest` pattern throughout
 - UI should feel "hand-crafted" — procedural/organic visuals
-- Z-index stack: nav z-50 → notification backdrop z-[90] → dropdown z-[100] → toasts z-[200]
+- Z-index stack: nav z-50 → mobile tab bar z-[60] → notification backdrop z-[90] → dropdown z-[100] → toasts z-[200]
+
+### Mobile Responsive (Phase 10)
+- **Bottom tab bar:** Fixed `h-16` bar with 5 icon tabs (Sprout/Calendar/Users/Crown/Sparkles), `md:hidden`, `z-[60]`, gold top border + shadow
+- **Top nav:** Icon-only view switcher on mobile (`md:hidden` labels), tightened padding `px-3 md:px-6`
+- **Breakpoint strategy:** `md:` (768px) for layout shifts, `sm:` (640px) for intermediate stacking
+- **Pattern:** `p-5 md:p-8` for modal padding, `text-2xl md:text-4xl` for heading scaling
+- **Touch targets:** Minimum 40px on mobile for buttons/checkboxes (`w-8 h-8 md:w-6 md:h-6`, `py-2.5 md:py-1.5`)
+- **Safe area:** `.safe-area-pb` utility in `index.css` for notched phones, applied to bottom tab bar and AI panel input
+- **Toast positioning:** `bottom-20 md:bottom-6` to clear the bottom tab bar on mobile
+- **Files changed:** App.tsx, 11 component files, index.css
 
 ### Current Limitations
 - ~~All state is local (no persistence — resets on refresh)~~ — Supabase profiles table with RLS
@@ -565,6 +575,8 @@ All types defined in `src/types.ts`. Key interfaces:
 **Phase 8: Managed Child Profiles (complete)** — ~~Add kids without email~~, ~~Kid Login (join code + name + PIN)~~, ~~Parent manage child dashboard~~, ~~Management banner + back button~~, ~~FamilySettingsModal kids section~~, ~~LeaderHub child badges + manage button~~, ~~DB columns + RLS policies~~
 
 **Phase 9: Accessibility (complete)** — ~~useModal hook (focus trap, Escape, focus restore)~~, ~~12 modals + AIMentorPanel accessible~~, ~~aria-labels on 30+ icon buttons~~, ~~toast live region~~, ~~decorative SVG aria-hidden~~, ~~WCAG AA contrast fixes (20 files)~~, ~~form label associations~~, ~~semantic HTML (ul/li, main landmark)~~, ~~Lighthouse 100/100~~
+
+**Phase 10: Mobile Responsive (complete)** — ~~Bottom tab bar (Home/Flow/Community/Family/Guide) with icons~~, ~~Top nav icon-only view switcher on mobile~~, ~~Dashboard card vertical stack with plant on top~~, ~~Sovereignty Score + domain cards full-width stack~~, ~~Domain group grids 1-col mobile / 3-col desktop~~, ~~AI Panel safe-area padding~~, ~~Modal padding p-5 md:p-8 (9 modals)~~, ~~MarketplaceView stacking filter bar + scrollable chips~~, ~~FlowView md-breakpoint grid + larger touch targets~~, ~~Seed Discovery reduced padding + stacking ethics~~, ~~Toast above bottom bar on mobile~~, ~~Typography scaling across 5 components~~, ~~Touch targets (Sow, Bell, checkboxes)~~, ~~safe-area-pb CSS utility~~
 
 **DB migration required for Phase 4:** 3 new tables (`community_projects`, `community_interactions`, `project_views`) with RLS, triggers, and indexes. See migration SQL in project docs.
 
