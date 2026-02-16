@@ -1418,8 +1418,8 @@ const App = () => {
             )}
 
             {/* Sovereignty Score + Domain Cards */}
-            <div className="space-y-3 md:space-y-0 md:grid md:grid-cols-4 md:gap-6">
-              <div className="bg-white p-4 md:p-8 rounded-2xl border border-[#2c2c2a]/10 shadow-sm">
+            <div className="grid grid-cols-3 md:grid-cols-4 gap-3 md:gap-6">
+              <div className="col-span-3 md:col-span-1 bg-white p-4 md:p-8 rounded-2xl border border-[#2c2c2a]/10 shadow-sm">
                 <p className="text-xs font-bold uppercase text-[#2c2c2a]/40">Sovereignty Score</p>
                 <h2 className="font-serif text-3xl md:text-5xl mt-2">{totalSovereigntyScore}%</h2>
               </div>
