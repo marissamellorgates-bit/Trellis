@@ -165,7 +165,7 @@ const ImportScheduleModal = ({ isOpen, onClose, onImport, existingSourceIds }: I
   if (imported) {
     return (
       <div className="fixed inset-0 z-[100] flex items-center justify-center p-6 bg-[#2c2c2a]/90 backdrop-blur-md" role="dialog" aria-modal="true" aria-labelledby="import-schedule-title">
-        <div ref={modalRef} className="bg-[#fdfbf7] w-full max-w-md rounded-3xl overflow-hidden shadow-2xl animate-in zoom-in duration-300 p-8 text-center space-y-4">
+        <div ref={modalRef} className="bg-[#fdfbf7] w-full max-w-md rounded-3xl overflow-hidden shadow-2xl animate-in zoom-in duration-300 p-5 md:p-8 text-center space-y-4">
           <div className="w-12 h-12 rounded-full bg-green-100 flex items-center justify-center mx-auto">
             <Check size={24} className="text-green-600" />
           </div>

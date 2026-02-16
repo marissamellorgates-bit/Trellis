@@ -23,28 +23,28 @@ const SourceBadge = ({ source }: { source?: ScheduleItem['source'] }) => {
 };
 
 const FlowView = ({ schedule, tasks, goals, onToggleTask, onCompleteScheduleItem, completedScheduleItems, onOpenImport, onOpenImportTasks }: FlowViewProps) => (
-  <div className="grid lg:grid-cols-3 gap-8 animate-in fade-in slide-in-from-right-8 duration-500">
-    <div className="lg:col-span-1 space-y-6">
+  <div className="grid md:grid-cols-3 gap-4 md:gap-8 animate-in fade-in slide-in-from-right-8 duration-500">
+    <div className="md:col-span-1 space-y-6">
       <div className="flex items-center justify-between">
-        <h2 className="font-serif text-3xl text-[#2c2c2a]">Daily Flow</h2>
+        <h2 className="font-serif text-2xl md:text-3xl text-[#2c2c2a]">Daily Flow</h2>
         <div className="flex gap-2">
           <button
             onClick={onOpenImport}
             aria-label="Import schedule"
-            className="w-8 h-8 rounded-full border border-[#2c2c2a]/10 flex items-center justify-center text-[#2c2c2a]/40 hover:bg-[#4285F4] hover:text-white hover:border-transparent transition-all"
+            className="w-10 h-10 md:w-8 md:h-8 rounded-full border border-[#2c2c2a]/10 flex items-center justify-center text-[#2c2c2a]/40 hover:bg-[#4285F4] hover:text-white hover:border-transparent transition-all"
           >
             <Calendar size={14}/>
           </button>
           <button
             onClick={onOpenImportTasks}
             aria-label="Import tasks"
-            className="w-8 h-8 rounded-full border border-[#2c2c2a]/10 flex items-center justify-center text-[#2c2c2a]/40 hover:bg-[#E44332] hover:text-white hover:border-transparent transition-all"
+            className="w-10 h-10 md:w-8 md:h-8 rounded-full border border-[#2c2c2a]/10 flex items-center justify-center text-[#2c2c2a]/40 hover:bg-[#E44332] hover:text-white hover:border-transparent transition-all"
           >
             <CheckSquare size={14}/>
           </button>
         </div>
       </div>
-      <div className="bg-white rounded-3xl border border-[#2c2c2a]/10 p-6 relative overflow-hidden">
+      <div className="bg-white rounded-2xl md:rounded-3xl border border-[#2c2c2a]/10 p-4 md:p-6 relative overflow-hidden">
         <div className="absolute left-8 top-0 bottom-0 w-px bg-[#2c2c2a]/10"></div>
         <ul className="space-y-6 relative z-10 list-none m-0 p-0">
           {schedule.map((item, i) => {
@@ -77,9 +77,9 @@ const FlowView = ({ schedule, tasks, goals, onToggleTask, onCompleteScheduleItem
       </div>
     </div>
 
-    <div className="lg:col-span-2 space-y-6">
+    <div className="md:col-span-2 space-y-6">
       <div className="flex items-center justify-between">
-        <h2 className="font-serif text-3xl text-[#2c2c2a]">Prioritized Actions</h2>
+        <h2 className="font-serif text-2xl md:text-3xl text-[#2c2c2a]">Prioritized Actions</h2>
       </div>
       <ul className="space-y-3 list-none m-0 p-0">
         {[...tasks].sort((a, b) => {
@@ -96,11 +96,11 @@ const FlowView = ({ schedule, tasks, goals, onToggleTask, onCompleteScheduleItem
           const bMin = b.estimatedMinutes ?? 999;
           return aMin - bMin;
         }).map((task) => (
-          <li key={task.id} className={`p-4 rounded-xl border flex items-center justify-between transition-all group ${task.done ? 'bg-[#fdfbf7] border-transparent opacity-50' : 'bg-white border-[#2c2c2a]/5 hover:border-[#d4af37] hover:shadow-md'}`}>
+          <li key={task.id} className={`p-3 md:p-4 rounded-xl border flex items-center justify-between transition-all group ${task.done ? 'bg-[#fdfbf7] border-transparent opacity-50' : 'bg-white border-[#2c2c2a]/5 hover:border-[#d4af37] hover:shadow-md'}`}>
             <div className="flex items-center gap-4">
               <button
                 onClick={() => onToggleTask(task.id)}
-                className={`w-6 h-6 rounded-full border-2 flex items-center justify-center transition-all ${task.done ? 'bg-[#2c2c2a] border-[#2c2c2a] text-[#fdfbf7]' : 'border-[#2c2c2a]/20 hover:border-[#d4af37]'}`}
+                className={`w-8 h-8 md:w-6 md:h-6 rounded-full border-2 flex items-center justify-center transition-all shrink-0 ${task.done ? 'bg-[#2c2c2a] border-[#2c2c2a] text-[#fdfbf7]' : 'border-[#2c2c2a]/20 hover:border-[#d4af37]'}`}
               >
                 {task.done && <CheckSquare size={14}/>}
               </button>

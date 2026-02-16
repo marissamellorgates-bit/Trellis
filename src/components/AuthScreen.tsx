@@ -127,7 +127,7 @@ const AuthScreen: React.FC = () => {
         </div>
 
         {/* Form */}
-        <div className="bg-[#fdfbf7]/5 border border-[#fdfbf7]/10 rounded-2xl p-8 space-y-6">
+        <div className="bg-[#fdfbf7]/5 border border-[#fdfbf7]/10 rounded-2xl p-5 md:p-8 space-y-6">
           {/* Mode Toggle */}
           <div className="flex bg-[#fdfbf7]/5 p-1 rounded-full">
             {(['signin', 'signup', 'kidlogin'] as const).map(m => (

@@ -4,7 +4,7 @@ import {
   CheckCircle2,
   Sprout,
   ChevronDown,
-  Home, Bell,
+  Home, Bell, Calendar, Crown,
   LogOut, Gift, CreditCard, Clock, Settings,
   Droplets, Eye, FolderOpen, Pencil, X,
   Wrench, FlaskConical, BookOpen,
@@ -1050,33 +1050,39 @@ const App = () => {
       />
 
       {/* Nav */}
-      <nav className="border-b border-[#2c2c2a]/10 bg-white/50 backdrop-blur-md px-6 h-16 flex justify-between items-center sticky top-0 md:relative z-50">
+      <nav className="border-b border-[#2c2c2a]/10 bg-white/50 backdrop-blur-md px-3 md:px-6 h-16 flex justify-between items-center sticky top-0 md:relative z-50">
         <h1 className="sr-only">Trellis</h1>
-        <div className="flex items-center gap-8">
+        <div className="flex items-center gap-3 md:gap-8">
           <img src="/trellis-logo.png" alt="Trellis." className="h-14 mix-blend-multiply rounded-xl" />
-          <div className="hidden md:flex gap-1 bg-[#2c2c2a]/5 p-1 rounded-full">
-            {(['dashboard', 'flow', 'community', 'leader'] as const).map(mode => (
+          <div className="flex gap-1 bg-[#2c2c2a]/5 p-1 rounded-full">
+            {([
+              { mode: 'dashboard' as const, icon: Sprout, label: 'Dashboard' },
+              { mode: 'flow' as const, icon: Calendar, label: 'Daily Flow' },
+              { mode: 'community' as const, icon: Users, label: 'Community' },
+              { mode: 'leader' as const, icon: Crown, label: 'Leader Hub' },
+            ]).map(tab => (
               <button
-                key={mode}
-                onClick={() => setViewMode(mode)}
-                className={`px-4 py-1.5 rounded-full text-[10px] font-bold uppercase tracking-widest transition-all ${viewMode === mode ? 'bg-white shadow-sm text-[#2c2c2a]' : 'text-[#2c2c2a]/40 hover:text-[#2c2c2a]'}`}
+                key={tab.mode}
+                onClick={() => setViewMode(tab.mode)}
+                className={`px-2 md:px-4 py-1.5 rounded-full text-[10px] font-bold uppercase tracking-widest transition-all flex items-center gap-1.5 ${viewMode === tab.mode ? 'bg-white shadow-sm text-[#2c2c2a]' : 'text-[#2c2c2a]/40 hover:text-[#2c2c2a]'}`}
               >
-                {mode === 'flow' ? 'Daily Flow' : mode === 'leader' ? 'Leader Hub' : mode.charAt(0).toUpperCase() + mode.slice(1)}
+                <span className="md:hidden">{React.createElement(tab.icon, { size: 14 })}</span>
+                <span className="hidden md:inline">{tab.label}</span>
               </button>
             ))}
           </div>
         </div>
-        <div className="flex items-center gap-6">
-          <button onClick={() => setShowSow(true)} className="flex items-center gap-2 text-[#2c2c2a]/60 hover:text-[#2c2c2a] transition-colors border border-[#2c2c2a]/10 px-3 py-1.5 rounded-full bg-white/50">
+        <div className="flex items-center gap-3 md:gap-6">
+          <button onClick={() => setShowSow(true)} className="flex items-center gap-2 text-[#2c2c2a]/60 hover:text-[#2c2c2a] transition-colors border border-[#2c2c2a]/10 px-3 py-2.5 md:py-1.5 rounded-full bg-white/50">
             <Shield size={14} />
             <span className="text-xs font-bold uppercase tracking-widest hidden md:inline">Sow</span>
           </button>
-          <button onClick={() => setShowAIMentor(true)} className="flex items-center gap-2 text-[#d4af37] hover:text-[#b08d2b] transition-colors border border-[#d4af37]/20 px-3 py-1.5 rounded-full bg-[#d4af37]/5">
+          <button onClick={() => setShowAIMentor(true)} className="hidden md:flex items-center gap-2 text-[#d4af37] hover:text-[#b08d2b] transition-colors border border-[#d4af37]/20 px-3 py-1.5 rounded-full bg-[#d4af37]/5">
             <Sparkles size={16} />
             <span className="text-xs font-bold uppercase tracking-widest hidden md:inline">Consult Guide</span>
           </button>
           <div className="relative">
-            <button onClick={() => setShowNotifications(!showNotifications)} aria-label="Notifications" className="relative text-[#2c2c2a]/60 hover:text-[#2c2c2a]">
+            <button onClick={() => setShowNotifications(!showNotifications)} aria-label="Notifications" className="relative text-[#2c2c2a]/60 hover:text-[#2c2c2a] p-2 -m-2">
               <Bell size={20}/>
               {(activeMember.notifications ?? []).filter(n => !n.read).length > 0 && (
                 <span className="absolute top-0 right-0 w-2 h-2 bg-[#d4af37] rounded-full"></span>
@@ -1106,7 +1112,7 @@ const App = () => {
             {isFamilyMenuOpen && (
               <>
               <div className="fixed inset-0 z-40" onClick={() => setIsFamilyMenuOpen(false)} />
-              <div className="absolute right-0 mt-2 w-48 bg-white rounded-xl border border-[#2c2c2a]/10 shadow-lg py-2 z-50">
+              <div className="absolute right-0 mt-2 w-48 max-w-[calc(100vw-2rem)] bg-white rounded-xl border border-[#2c2c2a]/10 shadow-lg py-2 z-50">
                 {!isManagedChild && stripeConfigured && ownMember.stripeCustomerId && (
                   <button
                     onClick={async () => {
@@ -1164,7 +1170,7 @@ const App = () => {
         </div>
       </nav>
 
-      <main className="max-w-6xl mx-auto px-6 py-12 space-y-12">
+      <main className="max-w-6xl mx-auto px-4 md:px-6 py-8 md:py-12 pb-24 md:pb-12 space-y-8 md:space-y-12">
         {isManagingChild && (
           <div className="flex items-center justify-between bg-[#d4af37]/10 border border-[#d4af37]/30 rounded-2xl px-6 py-3">
             <div className="flex items-center gap-3">
@@ -1203,7 +1209,7 @@ const App = () => {
         {viewMode === 'dashboard' && !isArchitecting && (
           <div className="space-y-12">
             {activeMember.projectTitle ? (
-              <div className="bg-white rounded-3xl border border-[#2c2c2a]/10 p-8 flex justify-between items-center relative">
+              <div className="bg-white rounded-3xl border border-[#2c2c2a]/10 p-5 md:p-8 flex flex-col md:flex-row md:justify-between md:items-center relative">
                 <div className="relative z-10 space-y-4 flex-1">
                   <div className="flex items-center gap-2">
                     <span className="text-[10px] font-bold uppercase tracking-widest text-[#d4af37]">Active Project</span>
@@ -1223,7 +1229,7 @@ const App = () => {
                         type="text"
                         value={editTitle}
                         onChange={e => setEditTitle(e.target.value)}
-                        className="w-full font-serif text-3xl italic bg-transparent border-b-2 border-[#d4af37] outline-none pb-1"
+                        className="w-full font-serif text-2xl md:text-3xl italic bg-transparent border-b-2 border-[#d4af37] outline-none pb-1"
                         autoFocus
                       />
                       <div className="flex gap-2">
@@ -1261,7 +1267,7 @@ const App = () => {
                     </div>
                   ) : (
                     <>
-                      <h2 className="font-serif text-4xl italic">{activeMember.projectTitle}</h2>
+                      <h2 className="font-serif text-2xl md:text-4xl italic">{activeMember.projectTitle}</h2>
                       <div className="flex gap-2">
                         <span className="text-xs font-bold uppercase bg-[#2c2c2a]/5 px-2 py-1 rounded text-[#2c2c2a]/60">Module {activeMember.currentModule}</span>
                         <span className="text-xs font-bold uppercase bg-[#2c2c2a]/5 px-2 py-1 rounded text-[#2c2c2a]/60 capitalize">{activeMember.projectPlant} Archetype</span>
@@ -1327,10 +1333,10 @@ const App = () => {
                     </>
                   )}
                 </div>
-                <div className="relative w-56 h-64 shrink-0"><PlantVisual stage={activeMember.currentModule} type={editingProject ? editArchetype : activeMember.projectPlant}/></div>
+                <div className="relative w-40 h-48 md:w-56 md:h-64 mx-auto md:mx-0 order-first md:order-last shrink-0"><PlantVisual stage={activeMember.currentModule} type={editingProject ? editArchetype : activeMember.projectPlant}/></div>
               </div>
             ) : isArchitecting ? null : (
-              <div className="relative bg-white border-2 border-dashed border-[#2c2c2a]/10 rounded-3xl py-16 px-16 text-center space-y-6 overflow-hidden">
+              <div className="relative bg-white border-2 border-dashed border-[#2c2c2a]/10 rounded-3xl py-10 px-6 md:py-16 md:px-16 text-center space-y-6 overflow-hidden">
                 {/* Decorative plant silhouettes — pushed down so bases hide below card edge */}
                 <div className="absolute -bottom-3 left-2 w-[18%] h-[160%] opacity-[0.06] pointer-events-none">
                   <PlantVisual type="cactus" stage={6} />
@@ -1412,15 +1418,15 @@ const App = () => {
             )}
 
             {/* Sovereignty Score + Domain Cards */}
-            <div className="grid md:grid-cols-4 gap-6">
-              <div className="bg-white p-8 rounded-2xl border border-[#2c2c2a]/10 shadow-sm">
+            <div className="space-y-3 md:space-y-0 md:grid md:grid-cols-4 md:gap-6">
+              <div className="bg-white p-4 md:p-8 rounded-2xl border border-[#2c2c2a]/10 shadow-sm">
                 <p className="text-xs font-bold uppercase text-[#2c2c2a]/40">Sovereignty Score</p>
-                <h2 className="font-serif text-5xl mt-2">{totalSovereigntyScore}%</h2>
+                <h2 className="font-serif text-3xl md:text-5xl mt-2">{totalSovereigntyScore}%</h2>
               </div>
               {(['land', 'sea', 'sky'] as const).map(d => (
-                <button key={d} onClick={() => { setActiveDomain(d); setExpandedGroup(null); }} className={`p-8 rounded-2xl border text-left transition-all ${activeDomain === d ? 'bg-[#2c2c2a] text-white' : 'bg-white hover:border-[#d4af37]'}`}>
-                  <h3 className="font-serif text-2xl capitalize">{d}</h3>
-                  <p className="text-xs opacity-50 mt-1 uppercase font-bold tracking-widest">{domains[d].subtitle}</p>
+                <button key={d} onClick={() => { setActiveDomain(d); setExpandedGroup(null); }} className={`p-4 md:p-8 rounded-2xl border text-center md:text-left transition-all ${activeDomain === d ? 'bg-[#2c2c2a] text-white' : 'bg-white hover:border-[#d4af37]'}`}>
+                  <h3 className="font-serif text-xl md:text-2xl capitalize">{d}</h3>
+                  <p className="text-[10px] md:text-xs opacity-50 mt-1 uppercase font-bold tracking-widest">{domains[d].subtitle}</p>
                 </button>
               ))}
             </div>
@@ -1435,14 +1441,14 @@ const App = () => {
                 </div>
               </div>
               {domains[activeDomain].groups && !expandedGroup ? (
-                <div className="grid md:grid-cols-3 gap-8">
+                <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 md:gap-8">
                   {domains[activeDomain].groups!.map(group => {
                     const groupScore = getDomainScore(goals, group.keys);
                     return (
                       <button
                         key={group.name}
                         onClick={() => setExpandedGroup(group.name)}
-                        className="bg-white p-8 rounded-2xl border border-[#2c2c2a]/10 hover:border-[#d4af37] transition-all text-center flex flex-col items-center"
+                        className="bg-white p-4 md:p-8 rounded-2xl border border-[#2c2c2a]/10 hover:border-[#d4af37] transition-all text-center flex flex-col items-center"
                       >
                         <h4 className="font-serif text-lg">{group.name}</h4>
                         <p className="text-[10px] font-bold uppercase tracking-widest text-[#2c2c2a]/40 mt-2">{group.subtitle}</p>
@@ -1476,9 +1482,9 @@ const App = () => {
                         <h4 className="font-serif text-lg">{group.name}</h4>
                         <span className="text-[10px] text-[#2c2c2a]/50">{group.subtitle}</span>
                       </div>
-                      <div className="grid md:grid-cols-3 gap-4">
+                      <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
                         {group.keys.map(k => (
-                          <div key={k} className="bg-white p-6 rounded-2xl border border-[#2c2c2a]/10 hover:border-[#d4af37] transition-all">
+                          <div key={k} className="bg-white p-4 md:p-6 rounded-2xl border border-[#2c2c2a]/10 hover:border-[#d4af37] transition-all">
                             <div className="flex justify-between mb-4">
                               {React.createElement(goals[k].icon, {size: 20, className: "text-[#d4af37]"})}
                               <span className="text-xs font-mono opacity-40">{Math.floor(goals[k].completed)}/{goals[k].total}</span>
@@ -1500,9 +1506,9 @@ const App = () => {
 
         {/* Seed Discovery */}
         {isArchitecting && (
-          <section className="bg-[#2c2c2a] text-[#fdfbf7] rounded-3xl p-8 md:p-12 shadow-xl animate-in zoom-in duration-300 relative overflow-hidden">
+          <section className="bg-[#2c2c2a] text-[#fdfbf7] rounded-3xl p-5 md:p-12 shadow-xl animate-in zoom-in duration-300 relative overflow-hidden">
             <div className="relative z-10 space-y-8">
-              <div className="flex items-center gap-3"><Sprout className="text-[#d4af37]" /><h2 className="font-serif text-3xl">The Seed: Discovery</h2></div>
+              <div className="flex items-center gap-3"><Sprout className="text-[#d4af37]" /><h2 className="font-serif text-2xl md:text-3xl">The Seed: Discovery</h2></div>
               <div className="grid md:grid-cols-2 gap-12">
                 <div className="space-y-6">
                   <label className="text-[10px] font-bold uppercase tracking-widest opacity-50">Step 1: The Spark</label>
@@ -1643,11 +1649,11 @@ const App = () => {
                     <p className="text-xs text-[#d4af37]/80 italic">Spark Architect: {sparkSuggestion.archetypeRationale}</p>
                   )}
                 </div>
-                <div className="space-y-8 border-l border-white/10 pl-0 md:pl-12">
+                <div className="space-y-8 md:border-l border-white/10 pl-0 md:pl-12">
                   <div className="space-y-4">
                     <label className="text-[10px] font-bold uppercase tracking-widest opacity-50">Step 4: Ethics Check</label>
                     <p className="text-xs text-white/30">Does your project honor these permaculture principles?</p>
-                    <div className="flex gap-2">
+                    <div className="flex flex-col sm:flex-row gap-2">
                       {([
                         { key: 'earth' as const, label: 'Earth Care', desc: 'Nurtures the environment and natural systems' },
                         { key: 'people' as const, label: 'People Care', desc: 'Supports well-being of yourself and others' },
@@ -1718,6 +1724,32 @@ const App = () => {
           </section>
         )}
       </main>
+
+      {/* Mobile Bottom Tab Bar */}
+      <nav className="fixed bottom-0 left-0 right-0 h-16 safe-area-pb bg-white border-t-2 border-[#d4af37] z-[60] md:hidden flex justify-around items-center shadow-[0_-4px_12px_rgba(0,0,0,0.1)]" aria-label="Mobile navigation">
+        {([
+          { mode: 'dashboard' as const, icon: Sprout, label: 'Home' },
+          { mode: 'flow' as const, icon: Calendar, label: 'Flow' },
+          { mode: 'community' as const, icon: Users, label: 'Community' },
+          { mode: 'leader' as const, icon: Crown, label: 'Family' },
+        ]).map(tab => (
+          <button
+            key={tab.mode}
+            onClick={() => setViewMode(tab.mode)}
+            className={`flex flex-col items-center gap-1 px-3 py-1 transition-colors ${viewMode === tab.mode ? 'text-[#d4af37]' : 'text-[#2c2c2a]/40'}`}
+          >
+            {React.createElement(tab.icon, { size: 22 })}
+            <span className="text-[9px] font-bold uppercase tracking-wider">{tab.label}</span>
+          </button>
+        ))}
+        <button
+          onClick={() => setShowAIMentor(true)}
+          className="flex flex-col items-center gap-1 px-3 py-1 text-[#d4af37]"
+        >
+          <Sparkles size={22} />
+          <span className="text-[9px] font-bold uppercase tracking-wider">Guide</span>
+        </button>
+      </nav>
     </div>
   );
 };

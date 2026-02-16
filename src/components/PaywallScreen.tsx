@@ -31,7 +31,7 @@ const PaywallScreen = ({ userId, email, onLogout, onOpenGift }: PaywallScreenPro
         <div className="text-center space-y-3">
           <div className="flex items-center justify-center gap-3">
             <Sprout className="text-[#d4af37]" size={32} />
-            <h1 className="font-serif text-4xl italic font-bold text-[#fdfbf7]">Trellis.</h1>
+            <h1 className="font-serif text-2xl md:text-4xl italic font-bold text-[#fdfbf7]">Trellis.</h1>
           </div>
           <p className="text-[#fdfbf7]/60 text-sm">Your free trial has ended. Subscribe to keep growing.</p>
         </div>
@@ -39,7 +39,7 @@ const PaywallScreen = ({ userId, email, onLogout, onOpenGift }: PaywallScreenPro
         {/* Pricing Cards */}
         <div className="grid md:grid-cols-2 gap-6">
           {/* Monthly */}
-          <div className="bg-[#fdfbf7]/5 border border-[#fdfbf7]/10 rounded-2xl p-8 space-y-6">
+          <div className="bg-[#fdfbf7]/5 border border-[#fdfbf7]/10 rounded-2xl p-5 md:p-8 space-y-6">
             <div>
               <h3 className="text-[10px] font-bold uppercase tracking-widest text-[#fdfbf7]/60">Monthly</h3>
               <div className="flex items-baseline gap-1 mt-2">
@@ -65,7 +65,7 @@ const PaywallScreen = ({ userId, email, onLogout, onOpenGift }: PaywallScreenPro
           </div>
 
           {/* Annual */}
-          <div className="bg-[#d4af37]/10 border border-[#d4af37]/30 rounded-2xl p-8 space-y-6 relative">
+          <div className="bg-[#d4af37]/10 border border-[#d4af37]/30 rounded-2xl p-5 md:p-8 space-y-6 relative">
             <span className="absolute -top-3 right-6 bg-[#d4af37] text-[#2c2c2a] text-[10px] font-bold uppercase tracking-widest px-3 py-1 rounded-full">
               Save 35%
             </span>

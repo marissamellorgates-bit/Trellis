@@ -61,7 +61,7 @@ const ProjectDetailModal = ({ project, userId, userName, isOwn, onClose, onInter
   return (
     <div className="fixed inset-0 bg-black/40 backdrop-blur-sm z-[100] flex items-center justify-center p-4" onClick={onClose} role="dialog" aria-modal="true" aria-labelledby="project-detail-title">
       <div ref={modalRef} className="bg-[#fdfbf7] rounded-3xl max-w-2xl w-full max-h-[90vh] overflow-y-auto shadow-2xl" onClick={e => e.stopPropagation()}>
-        <div className="p-8 space-y-6">
+        <div className="p-5 md:p-8 space-y-6">
           {/* Header */}
           <div className="flex justify-between items-start">
             <div className="space-y-2">
@@ -74,7 +74,7 @@ const ProjectDetailModal = ({ project, userId, userName, isOwn, onClose, onInter
                   <span className="text-[10px] uppercase font-bold text-[#2c2c2a]/40">Module {project.stage}</span>
                 </div>
               </div>
-              <h2 id="project-detail-title" className="font-serif text-3xl italic text-[#2c2c2a]">{project.title}</h2>
+              <h2 id="project-detail-title" className="font-serif text-2xl md:text-3xl italic text-[#2c2c2a]">{project.title}</h2>
             </div>
             <button onClick={onClose} aria-label="Close" className="text-[#2c2c2a]/50 hover:text-[#2c2c2a] transition-colors">
               <X size={20} />

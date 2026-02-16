@@ -170,7 +170,7 @@ const AIMentorPanel = ({
         )}
       </div>
 
-      <div className="p-4 border-t border-[#fdfbf7]/10 bg-[#2c2c2a]">
+      <div className="p-4 border-t border-[#fdfbf7]/10 bg-[#2c2c2a] safe-area-pb">
         <div className="flex items-center gap-2 bg-[#fdfbf7]/5 rounded-xl p-2 border border-[#fdfbf7]/10 focus-within:border-[#d4af37] transition-colors">
           <input
             className="flex-1 bg-transparent outline-none px-2 text-sm placeholder:text-[#fdfbf7]/20"

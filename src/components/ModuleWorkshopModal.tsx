@@ -329,7 +329,7 @@ const ModuleWorkshopModal = ({ isOpen, module, onClose, onAdvance, member, onUpd
   return (
     <div className="fixed inset-0 z-[100] flex items-center justify-center p-6 bg-[#2c2c2a]/90 backdrop-blur-md" role="dialog" aria-modal="true" aria-labelledby="module-workshop-title">
       <div ref={modalRef} className="bg-[#fdfbf7] w-full max-w-xl rounded-3xl overflow-hidden shadow-2xl animate-in zoom-in duration-300">
-        <div className="p-8 space-y-6">
+        <div className="p-5 md:p-8 space-y-6">
           <div className="flex justify-between items-start">
             <div className="flex items-center gap-4">
               <div className="w-12 h-12 bg-[#d4af37]/10 rounded-full flex items-center justify-center text-[#d4af37]">

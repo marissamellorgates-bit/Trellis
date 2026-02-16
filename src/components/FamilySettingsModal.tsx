@@ -184,7 +184,7 @@ const FamilySettingsModal = ({ isOpen, onClose, userId, familyId, familyRole, on
   if (!familyId) {
     return (
       <div className="fixed inset-0 bg-black/40 backdrop-blur-sm z-50 flex items-center justify-center p-4" onClick={onClose} role="dialog" aria-modal="true" aria-labelledby="family-title">
-        <div ref={modalRef} className="bg-[#fdfbf7] rounded-3xl max-w-md w-full p-8 relative space-y-6" onClick={e => e.stopPropagation()}>
+        <div ref={modalRef} className="bg-[#fdfbf7] rounded-3xl max-w-md w-full p-5 md:p-8 relative space-y-6" onClick={e => e.stopPropagation()}>
           <button onClick={onClose} aria-label="Close" className="absolute top-4 right-4 text-[#2c2c2a]/50 hover:text-[#2c2c2a]"><X size={20} /></button>
 
           <div className="text-center space-y-2">
@@ -246,7 +246,7 @@ const FamilySettingsModal = ({ isOpen, onClose, userId, familyId, familyRole, on
   // Has family — show management view
   return (
     <div className="fixed inset-0 bg-black/40 backdrop-blur-sm z-50 flex items-center justify-center p-4" onClick={onClose} role="dialog" aria-modal="true" aria-labelledby="family-title2">
-      <div ref={modalRef} className="bg-[#fdfbf7] rounded-3xl max-w-md w-full p-8 relative space-y-6 max-h-[90vh] overflow-y-auto" onClick={e => e.stopPropagation()}>
+      <div ref={modalRef} className="bg-[#fdfbf7] rounded-3xl max-w-md w-full p-5 md:p-8 relative space-y-6 max-h-[90vh] overflow-y-auto" onClick={e => e.stopPropagation()}>
         <button onClick={onClose} aria-label="Close" className="absolute top-4 right-4 text-[#2c2c2a]/50 hover:text-[#2c2c2a]"><X size={20} /></button>
 
         <div className="text-center space-y-2">

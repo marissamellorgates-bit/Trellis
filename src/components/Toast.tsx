@@ -37,7 +37,7 @@ const ToastItem: React.FC<ToastItemProps> = ({ toast, onDismiss }) => {
 
   return (
     <div
-      className={`flex items-start gap-3 bg-white border border-[#2c2c2a]/10 rounded-2xl shadow-lg p-4 max-w-80 transition-all duration-300 ${
+      className={`flex items-start gap-3 bg-white border border-[#2c2c2a]/10 rounded-2xl shadow-lg p-4 max-w-full md:max-w-80 transition-all duration-300 ${
         fading ? 'opacity-0 translate-x-4' : 'opacity-100 translate-x-0'
       }`}
     >
@@ -68,7 +68,7 @@ const ToastContainer: React.FC<ToastContainerProps> = ({ toasts, onDismiss }) =>
   if (toasts.length === 0) return null;
 
   return (
-    <div className="fixed bottom-6 right-6 z-[200] flex flex-col-reverse gap-3" role="status" aria-live="polite">
+    <div className="fixed bottom-20 md:bottom-6 right-4 md:right-6 left-4 md:left-auto z-[200] flex flex-col-reverse gap-3" role="status" aria-live="polite">
       {toasts.map(toast => (
         <ToastItem key={toast.id} toast={toast} onDismiss={onDismiss} />
       ))}

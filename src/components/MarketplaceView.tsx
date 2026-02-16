@@ -82,9 +82,9 @@ const MarketplaceView = ({ userId, userName, activeMember, onNotify }: Marketpla
   return (
     <div className="space-y-8 animate-in fade-in slide-in-from-right-8 duration-500">
       {/* Header */}
-      <div className="flex items-center justify-between flex-wrap gap-4">
+      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
         <div>
-          <h2 className="font-serif text-3xl text-[#2c2c2a]">The Community Garden</h2>
+          <h2 className="font-serif text-2xl md:text-3xl text-[#2c2c2a]">The Community Garden</h2>
           <p className="text-xs font-bold uppercase tracking-widest text-[#2c2c2a]/40 mt-2">Discover, Support & Grow Together</p>
         </div>
         <div className="flex gap-2">
@@ -106,9 +106,9 @@ const MarketplaceView = ({ userId, userName, activeMember, onNotify }: Marketpla
       </div>
 
       {/* Filter Bar */}
-      <div className="flex flex-wrap items-center gap-3">
+      <div className="flex flex-col sm:flex-row flex-wrap items-stretch sm:items-center gap-3">
         {/* Search */}
-        <div className="relative flex-1 min-w-[200px]">
+        <div className="relative flex-1 min-w-0">
           <Search size={14} className="absolute left-3 top-1/2 -translate-y-1/2 text-[#2c2c2a]/50" />
           <input
             type="text"
@@ -120,7 +120,7 @@ const MarketplaceView = ({ userId, userName, activeMember, onNotify }: Marketpla
         </div>
 
         {/* Archetype Chips */}
-        <div className="flex gap-1.5">
+        <div className="flex gap-1.5 overflow-x-auto">
           <button
             onClick={() => setArchetypeFilter(null)}
             className={`px-3 py-2 rounded-full text-[10px] font-bold uppercase tracking-widest transition-all ${
@@ -184,7 +184,7 @@ const MarketplaceView = ({ userId, userName, activeMember, onNotify }: Marketpla
           </p>
         </div>
       ) : (
-        <div className="grid md:grid-cols-2 gap-6">
+        <div className="grid md:grid-cols-2 gap-4 md:gap-6">
           {projects.map(p => {
             const isOwn = p.user_id === userId;
             return (

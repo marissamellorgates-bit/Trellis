@@ -115,7 +115,7 @@ const AnalyticsDashboard = ({ isOpen, onClose, userId }: AnalyticsDashboardProps
   return (
     <div className="fixed inset-0 bg-black/40 backdrop-blur-sm z-[100] flex items-center justify-center p-4" onClick={onClose} role="dialog" aria-modal="true" aria-labelledby="analytics-title">
       <div ref={modalRef} className="bg-[#fdfbf7] rounded-3xl max-w-2xl w-full max-h-[90vh] overflow-y-auto shadow-2xl" onClick={e => e.stopPropagation()}>
-        <div className="p-8 space-y-6">
+        <div className="p-5 md:p-8 space-y-6">
           {/* Header */}
           <div className="flex justify-between items-start">
             <div className="flex items-center gap-3">

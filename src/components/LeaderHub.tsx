@@ -63,7 +63,7 @@ const LeaderHub = ({ currentMember, familyMembers, onManageChild }: LeaderHubPro
     <div className="space-y-8">
       {/* Header */}
       <div className="text-center space-y-2">
-        <h1 className="font-serif text-4xl italic">The Family Garden</h1>
+        <h1 className="font-serif text-2xl md:text-4xl italic">The Family Garden</h1>
         <p className="text-sm text-[#2c2c2a]/40">See how everyone is growing</p>
       </div>
 
@@ -77,7 +77,7 @@ const LeaderHub = ({ currentMember, familyMembers, onManageChild }: LeaderHubPro
       )}
 
       {/* Member Grid */}
-      <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 md:gap-6">
         {allMembers.map((member, i) => {
           const scores = getScores(member.goals);
           const moduleName = MODULE_NAMES[member.currentModule - 1] || 'Unknown';
@@ -88,7 +88,7 @@ const LeaderHub = ({ currentMember, familyMembers, onManageChild }: LeaderHubPro
             <button
               key={`${member.name}-${i}`}
               onClick={() => setSelectedMember(member)}
-              className="bg-white rounded-3xl border border-[#2c2c2a]/10 p-6 text-left hover:border-[#d4af37] hover:shadow-md transition-all relative"
+              className="bg-white rounded-2xl md:rounded-3xl border border-[#2c2c2a]/10 p-4 md:p-6 text-left hover:border-[#d4af37] hover:shadow-md transition-all relative"
             >
               {isYou && (
                 <span className="absolute top-4 right-4 flex items-center gap-1 bg-[#d4af37]/10 text-[#d4af37] px-2.5 py-1 rounded-full text-[10px] font-bold uppercase tracking-widest">
@@ -104,7 +104,7 @@ const LeaderHub = ({ currentMember, familyMembers, onManageChild }: LeaderHubPro
               )}
 
               <div className="flex items-start gap-4">
-                <div className="w-32 h-40 shrink-0">
+                <div className="w-24 h-32 md:w-32 md:h-40 shrink-0">
                   <PlantVisual
                     stage={member.currentModule}
                     type={member.projectPlant}
@@ -172,7 +172,7 @@ const LeaderHub = ({ currentMember, familyMembers, onManageChild }: LeaderHubPro
         >
           <div
             ref={modalRef}
-            className="bg-[#fdfbf7] rounded-3xl max-w-lg w-full p-8 relative space-y-6 max-h-[90vh] overflow-y-auto"
+            className="bg-[#fdfbf7] rounded-3xl max-w-lg w-full p-5 md:p-8 relative space-y-6 max-h-[90vh] overflow-y-auto"
             onClick={e => e.stopPropagation()}
           >
             <button
@@ -227,7 +227,7 @@ const LeaderHub = ({ currentMember, familyMembers, onManageChild }: LeaderHubPro
                 <>
                   <div className="text-center">
                     <p className="text-[10px] font-bold uppercase tracking-widest text-[#2c2c2a]/40">Sovereignty Score</p>
-                    <p className="font-serif text-5xl mt-1">{scores.sovereignty}%</p>
+                    <p className="font-serif text-3xl md:text-5xl mt-1">{scores.sovereignty}%</p>
                   </div>
 
                   <div className="grid grid-cols-3 gap-3">
