@@ -34,7 +34,7 @@ Trellis is a holistic life operating system (Ontology Engine) built around **per
 ## Architecture
 
 ### Entry Flow
-`index.html` → `src/main.tsx` (React StrictMode) → `src/App.tsx`
+`index.html` → `src/main.tsx` (React StrictMode) → path check: `/tutorial` renders `TutorialPage`, all other paths render `App.tsx`
 
 ### File Structure
 ```
@@ -55,7 +55,7 @@ src/
 ├── App.tsx                          # Root component, state management, layout
 ├── types.ts                         # All TypeScript interfaces and type definitions
 ├── index.css                        # Tailwind + custom keyframe animations
-├── main.tsx                         # React entry point + PWA service worker registration
+├── main.tsx                         # React entry point + PWA SW registration + /tutorial route
 ├── lib/
 │   ├── supabase.ts                  # Supabase client, profile load/save
 │   ├── community.ts                 # Community marketplace CRUD (projects, interactions, views, analytics)
@@ -87,6 +87,7 @@ src/
     ├── FamilySettingsModal.tsx       # Manage family — create, join, invite, leave
     ├── ImportTasksModal.tsx          # Two-tab modal: Todoist OAuth import + Photo AI task extraction
     ├── SparkRefinement.tsx           # Inline AI chat for refining goals in Seed Discovery Step 1
+    ├── TutorialPage.tsx             # Public tutorial/onboarding page (no auth required, /tutorial)
     ├── Toast.tsx                    # Auto-dismissing toast notifications (bottom-right, z-200)
     └── NotificationCenter.tsx       # Bell dropdown — notification history with mark-read/clear
 ```
@@ -108,6 +109,7 @@ src/
 - **`AnalyticsDashboard`** — Overview and per-project analytics. SVG bar chart for views by day (30d), interaction tier breakdowns, recent interaction list.
 - **`ImportTasksModal`** — Two-tab modal for importing tasks into Prioritized Actions. **Todoist tab:** OAuth popup flow → fetch tasks → checklist with select-all → domain picker → import. **Photo tab:** Camera capture or file upload → Gemini multimodal AI extraction → editable checklist → domain picker → import. Graceful degradation: tabs hidden when respective env vars are missing. Triggered by CheckSquare button in FlowView.
 - **`SparkRefinement`** — Inline AI chat widget in Seed Discovery Step 1. User's initial spark is auto-sent to The Guide, who asks 2-3 clarifying questions, then suggests a refined goal. Editable refined goal textarea with gold border. On accept, auto-triggers Spark Architect analysis. Only appears when AI is configured.
+- **`TutorialPage`** — Public onboarding page at `/tutorial`. No auth required — routed via path check in `main.tsx` before `App` mounts. 12 scrollable sections: hero, three domains (Land/Sea/Sky with all 27 sub-domains), Sovereignty Score mock, 7 growth modules with PlantVisual at each stage, plant archetypes, permacognition micro-cycle, ethics (Earth Care, People Care, Share the Harvest), daily flow mock, community & family, AI Guide, and CTA footer. Fully responsive. Shareable URL for external websites.
 - **`Toast`** — Auto-dismissing toast popups (fixed bottom-right, z-200). 6-second duration with fade-out animation. Type-specific icons (Sprout, CheckCircle2, AlertTriangle, Calendar).
 - **`NotificationCenter`** — Bell dropdown with notification history. Supports tap-to-mark-read on individual items, mark-all-read, clear-all. Shows "Enable Push Notifications" button when browser permission is `default`. Newest-first, max-h-80 scrollable list.
 
@@ -575,6 +577,8 @@ All types defined in `src/types.ts`. Key interfaces:
 **Phase 8: Managed Child Profiles (complete)** — ~~Add kids without email~~, ~~Kid Login (join code + name + PIN)~~, ~~Parent manage child dashboard~~, ~~Management banner + back button~~, ~~FamilySettingsModal kids section~~, ~~LeaderHub child badges + manage button~~, ~~DB columns + RLS policies~~
 
 **Phase 9: Accessibility (complete)** — ~~useModal hook (focus trap, Escape, focus restore)~~, ~~12 modals + AIMentorPanel accessible~~, ~~aria-labels on 30+ icon buttons~~, ~~toast live region~~, ~~decorative SVG aria-hidden~~, ~~WCAG AA contrast fixes (20 files)~~, ~~form label associations~~, ~~semantic HTML (ul/li, main landmark)~~, ~~Lighthouse 100/100~~
+
+**Phase 11: Public Tutorial (complete)** — ~~Public onboarding page at /tutorial~~, ~~No auth required (path check in main.tsx)~~, ~~12 sections: hero, domains, sovereignty score, 7 modules with PlantVisual, archetypes, micro-cycle, ethics, daily flow, community/family, AI guide, CTA~~, ~~Shareable URL for external websites~~, ~~Fully responsive~~
 
 **Phase 10: Mobile Responsive (complete)** — ~~Bottom tab bar (Home/Flow/Community/Family/Guide) with icons~~, ~~Top nav icon-only view switcher on mobile~~, ~~Dashboard card vertical stack with plant on top~~, ~~Sovereignty Score + domain cards full-width stack~~, ~~Domain group grids 1-col mobile / 3-col desktop~~, ~~AI Panel safe-area padding~~, ~~Modal padding p-5 md:p-8 (9 modals)~~, ~~MarketplaceView stacking filter bar + scrollable chips~~, ~~FlowView md-breakpoint grid + larger touch targets~~, ~~Seed Discovery reduced padding + stacking ethics~~, ~~Toast above bottom bar on mobile~~, ~~Typography scaling across 5 components~~, ~~Touch targets (Sow, Bell, checkboxes)~~, ~~safe-area-pb CSS utility~~
 
