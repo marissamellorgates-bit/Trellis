@@ -1054,28 +1054,22 @@ const App = () => {
         <h1 className="sr-only">Trellis</h1>
         <div className="flex items-center gap-3 md:gap-8">
           <img src="/trellis-logo.png" alt="Trellis." className="h-14 mix-blend-multiply rounded-xl" />
-          <div className="flex gap-1 bg-[#2c2c2a]/5 p-1 rounded-full">
-            {([
-              { mode: 'dashboard' as const, icon: Sprout, label: 'Dashboard' },
-              { mode: 'flow' as const, icon: Calendar, label: 'Daily Flow' },
-              { mode: 'community' as const, icon: Users, label: 'Community' },
-              { mode: 'leader' as const, icon: Crown, label: 'Leader Hub' },
-            ]).map(tab => (
+          <div className="hidden md:flex gap-1 bg-[#2c2c2a]/5 p-1 rounded-full">
+            {(['dashboard', 'flow', 'community', 'leader'] as const).map(mode => (
               <button
-                key={tab.mode}
-                onClick={() => setViewMode(tab.mode)}
-                className={`px-2 md:px-4 py-1.5 rounded-full text-[10px] font-bold uppercase tracking-widest transition-all flex items-center gap-1.5 ${viewMode === tab.mode ? 'bg-white shadow-sm text-[#2c2c2a]' : 'text-[#2c2c2a]/40 hover:text-[#2c2c2a]'}`}
+                key={mode}
+                onClick={() => setViewMode(mode)}
+                className={`px-4 py-1.5 rounded-full text-[10px] font-bold uppercase tracking-widest transition-all ${viewMode === mode ? 'bg-white shadow-sm text-[#2c2c2a]' : 'text-[#2c2c2a]/40 hover:text-[#2c2c2a]'}`}
               >
-                <span className="md:hidden">{React.createElement(tab.icon, { size: 14 })}</span>
-                <span className="hidden md:inline">{tab.label}</span>
+                {mode === 'flow' ? 'Daily Flow' : mode === 'leader' ? 'Leader Hub' : mode.charAt(0).toUpperCase() + mode.slice(1)}
               </button>
             ))}
           </div>
         </div>
         <div className="flex items-center gap-3 md:gap-6">
-          <button onClick={() => setShowSow(true)} className="flex items-center gap-2 text-[#2c2c2a]/60 hover:text-[#2c2c2a] transition-colors border border-[#2c2c2a]/10 px-3 py-2.5 md:py-1.5 rounded-full bg-white/50">
+          <button onClick={() => setShowSow(true)} className="hidden md:flex items-center gap-2 text-[#2c2c2a]/60 hover:text-[#2c2c2a] transition-colors border border-[#2c2c2a]/10 px-3 py-1.5 rounded-full bg-white/50">
             <Shield size={14} />
-            <span className="text-xs font-bold uppercase tracking-widest hidden md:inline">Sow</span>
+            <span className="text-xs font-bold uppercase tracking-widest">Sow</span>
           </button>
           <button onClick={() => setShowAIMentor(true)} className="hidden md:flex items-center gap-2 text-[#d4af37] hover:text-[#b08d2b] transition-colors border border-[#d4af37]/20 px-3 py-1.5 rounded-full bg-[#d4af37]/5">
             <Sparkles size={16} />
