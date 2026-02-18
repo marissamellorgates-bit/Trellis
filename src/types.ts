@@ -98,8 +98,8 @@ export const ARCHETYPE_INFO: ArchetypeInfo[] = [
   { type: 'oak', category: 'builder', name: 'The Builder', description: 'Family — the gathering tree, shelter', icon: '🌳' },
   { type: 'apple', category: 'builder', name: 'The Provider', description: 'Village — communal harvest, shared abundance', icon: '🍎' },
   { type: 'maple', category: 'builder', name: 'The Strategist', description: 'Finances — valuable resources', icon: '🍁' },
-  { type: 'pine', category: 'builder', name: 'The Sentinel', description: 'Opportunity — evergreen, always ready', icon: '🎄' },
-  { type: 'redwood', category: 'builder', name: 'The Networker', description: 'Connections — interconnected root systems', icon: '🎋' },
+  { type: 'pine', category: 'builder', name: 'The Sentinel', description: 'Opportunity — evergreen, always ready', icon: '🌲' },
+  { type: 'redwood', category: 'builder', name: 'The Networker', description: 'Connections — interconnected root systems', icon: '🎍' },
   { type: 'olive', category: 'builder', name: 'The Diplomat', description: 'Culture — ancient heritage, symbol of peace', icon: '🫒' },
   // Survivor — Land (Medicine & Herbs)
   { type: 'lavender', category: 'survivor', name: 'The Survivor', description: 'Calm — aromatic resilience, soothing spirit', icon: '🌾' },
