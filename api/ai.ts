@@ -264,9 +264,9 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
   }
 
   // Resolve provider + key from env
-  const providerName = process.env.AI_PROVIDER || 'gemini';
-  const apiKey = process.env.AI_API_KEY;
-  const model = process.env.AI_MODEL;
+  const providerName = (process.env.AI_PROVIDER || 'gemini').trim();
+  const apiKey = (process.env.AI_API_KEY || '').trim();
+  const model = process.env.AI_MODEL?.trim();
 
   if (!apiKey) {
     return res.status(500).json({ error: 'AI_API_KEY not configured on server', errorCode: 'AUTH' });

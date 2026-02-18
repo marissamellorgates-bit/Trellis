@@ -1226,17 +1226,22 @@ const App = () => {
                         className="w-full font-serif text-2xl md:text-3xl italic bg-transparent border-b-2 border-[#d4af37] outline-none pb-1"
                         autoFocus
                       />
-                      <div className="flex gap-2">
-                        {ARCHETYPE_INFO.map(a => (
-                          <button
-                            key={a.type}
-                            onClick={() => setEditArchetype(a.type)}
-                            className={`px-3 py-1.5 rounded-full text-[10px] font-bold uppercase tracking-widest transition-all ${
-                              editArchetype === a.type ? 'bg-[#d4af37] text-[#2c2c2a]' : 'bg-[#2c2c2a]/5 text-[#2c2c2a]/40 hover:text-[#2c2c2a]'
-                            }`}
-                          >
-                            {a.icon} {a.name}
-                          </button>
+                      <div className="space-y-2">
+                        {(['visionary', 'builder', 'survivor'] as const).map(cat => (
+                          <div key={cat} className="flex flex-wrap gap-1.5">
+                            <span className="text-[9px] font-bold uppercase tracking-widest text-[#d4af37]/60 self-center mr-1">{cat}</span>
+                            {ARCHETYPE_INFO.filter(a => a.category === cat).map(a => (
+                              <button
+                                key={a.type}
+                                onClick={() => setEditArchetype(a.type)}
+                                className={`px-2 py-1 rounded-full text-[9px] font-bold uppercase tracking-widest transition-all ${
+                                  editArchetype === a.type ? 'bg-[#d4af37] text-[#2c2c2a]' : 'bg-[#2c2c2a]/5 text-[#2c2c2a]/40 hover:text-[#2c2c2a]'
+                                }`}
+                              >
+                                {a.icon} {a.name}
+                              </button>
+                            ))}
+                          </div>
                         ))}
                       </div>
                       <div className="flex gap-2">
@@ -1622,21 +1627,34 @@ const App = () => {
                   )}
 
                   <label className="text-[10px] font-bold uppercase tracking-widest opacity-50">Step 3: Choose Your Archetype</label>
-                  <div className="grid grid-cols-3 gap-3">
-                    {ARCHETYPE_INFO.map(a => (
-                      <button
-                        key={a.type}
-                        onClick={() => setSelectedArchetype(a.type)}
-                        className={`p-4 rounded-xl border text-center transition-all ${
-                          selectedArchetype === a.type
-                            ? 'bg-[#d4af37] border-[#d4af37] text-[#2c2c2a]'
-                            : 'border-white/10 hover:bg-white/5'
-                        }`}
-                      >
-                        <div className="text-2xl mb-1">{a.icon}</div>
-                        <div className="text-xs font-bold">{a.name}</div>
-                        <div className="text-[10px] opacity-60 mt-1">{a.description}</div>
-                      </button>
+                  <div className="space-y-4">
+                    {([
+                      { category: 'visionary' as const, label: 'Visionary', meta: 'Sky (Aspiration)' },
+                      { category: 'builder' as const, label: 'Builder', meta: 'Sea (Exchange)' },
+                      { category: 'survivor' as const, label: 'Survivor', meta: 'Land (Foundation)' },
+                    ]).map(cat => (
+                      <div key={cat.category} className="space-y-2">
+                        <div className="text-[10px] font-bold uppercase tracking-widest text-[#d4af37]">
+                          {cat.label} — {cat.meta}
+                        </div>
+                        <div className="grid grid-cols-2 sm:grid-cols-3 gap-2">
+                          {ARCHETYPE_INFO.filter(a => a.category === cat.category).map(a => (
+                            <button
+                              key={a.type}
+                              onClick={() => setSelectedArchetype(a.type)}
+                              className={`p-3 rounded-xl border text-center transition-all ${
+                                selectedArchetype === a.type
+                                  ? 'bg-[#d4af37] border-[#d4af37] text-[#2c2c2a]'
+                                  : 'border-white/10 hover:bg-white/5'
+                              }`}
+                            >
+                              <div className="text-xl mb-0.5">{a.icon}</div>
+                              <div className="text-[10px] font-bold">{a.name}</div>
+                              <div className="text-[9px] opacity-60 mt-0.5 leading-tight">{a.description}</div>
+                            </button>
+                          ))}
+                        </div>
+                      </div>
                     ))}
                   </div>
                   {sparkSuggestion?.archetypeRationale && (

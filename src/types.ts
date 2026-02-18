@@ -68,19 +68,46 @@ export interface ScheduleItem {
 
 // ── Plant & Project ───────────────────────────────────────────
 
-export type PlantArchetype = 'sunflower' | 'oak' | 'cactus';
+export type PlantArchetype =
+  // Visionary (Sky)
+  | 'sunflower' | 'fern' | 'mushroom' | 'bonsai' | 'lotus' | 'bamboo'
+  // Builder (Sea)
+  | 'oak' | 'apple' | 'maple' | 'pine' | 'redwood' | 'olive'
+  // Survivor (Land)
+  | 'cactus' | 'aloe' | 'succulent' | 'agave' | 'yucca' | 'joshuaTree';
+
+export type ArchetypeCategory = 'visionary' | 'builder' | 'survivor';
 
 export interface ArchetypeInfo {
   type: PlantArchetype;
+  category: ArchetypeCategory;
   name: string;
   description: string;
   icon: string;
 }
 
 export const ARCHETYPE_INFO: ArchetypeInfo[] = [
-  { type: 'sunflower', name: 'The Visionary', description: 'Creative, spiritual, intellectual pursuits', icon: '🌻' },
-  { type: 'oak', name: 'The Builder', description: 'Legacy, financial, long-term growth', icon: '🌳' },
-  { type: 'cactus', name: 'The Survivor', description: 'Resilience, health, efficiency', icon: '🌵' },
+  // Visionary — Sky (Aspiration)
+  { type: 'sunflower', category: 'visionary', name: 'The Visionary', description: 'Creativity — turns to face the light', icon: '🌻' },
+  { type: 'fern', category: 'visionary', name: 'The Explorer', description: 'Wonder — ancient fractal beauty', icon: '🌿' },
+  { type: 'mushroom', category: 'visionary', name: 'The Alchemist', description: 'Imagination — surreal forms, hidden networks', icon: '🍄' },
+  { type: 'bonsai', category: 'visionary', name: 'The Artist', description: 'Beauty — living art, aesthetic mastery', icon: '🎋' },
+  { type: 'lotus', category: 'visionary', name: 'The Enlightened', description: 'Spirit — rises from darkness, awakening', icon: '🪷' },
+  { type: 'bamboo', category: 'visionary', name: 'The Dreamer', description: 'Vision — grows rapidly toward the sky', icon: '🎍' },
+  // Builder — Sea (Exchange)
+  { type: 'oak', category: 'builder', name: 'The Builder', description: 'Family — the gathering tree, shelter', icon: '🌳' },
+  { type: 'apple', category: 'builder', name: 'The Provider', description: 'Village — communal harvest, shared abundance', icon: '🍎' },
+  { type: 'maple', category: 'builder', name: 'The Strategist', description: 'Finances — valuable resources', icon: '🍁' },
+  { type: 'pine', category: 'builder', name: 'The Sentinel', description: 'Opportunity — evergreen, always ready', icon: '🌲' },
+  { type: 'redwood', category: 'builder', name: 'The Networker', description: 'Connections — interconnected root systems', icon: '🏔️' },
+  { type: 'olive', category: 'builder', name: 'The Diplomat', description: 'Culture — ancient heritage, symbol of peace', icon: '🫒' },
+  // Survivor — Land (Foundation)
+  { type: 'cactus', category: 'survivor', name: 'The Survivor', description: 'Physical health — adapts to store water', icon: '🌵' },
+  { type: 'aloe', category: 'survivor', name: 'The Healer', description: 'Mental clarity — soothing, restorative', icon: '💚' },
+  { type: 'succulent', category: 'survivor', name: 'The Artisan', description: 'Crafts — diverse beautiful forms', icon: '🪴' },
+  { type: 'agave', category: 'survivor', name: 'The Contemplator', description: 'Reflection — decades of patient growth', icon: '🌱' },
+  { type: 'yucca', category: 'survivor', name: 'The Warrior', description: 'Play — sharp, active, sword-like energy', icon: '⚔️' },
+  { type: 'joshuaTree', category: 'survivor', name: 'The Hermit', description: 'Solitude — standing alone in vast desert', icon: '🏜️' },
 ];
 
 export interface EthicsCheck {

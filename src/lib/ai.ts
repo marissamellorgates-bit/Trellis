@@ -2,10 +2,9 @@ import type { AIMessage, FamilyMember, DomainKey, PlantArchetype, SparkResult } 
 
 // ── Configuration ───────────────────────────────────────────
 
-declare const __AI_ENABLED__: boolean;
-
 export function isAIConfigured(): boolean {
-  return __AI_ENABLED__;
+  // Runtime check: always true when /api/ai endpoint exists (production + proxied dev)
+  return true;
 }
 
 /** @deprecated Use isAIConfigured() */
@@ -190,10 +189,31 @@ DOMAIN KEYS (choose 2-5 that best fit). Use the friendly name (in parentheses) w
 - Sea (Social): innerCircle (Inner Circle), socialCommunion (Community), safePort (Safe Port), professionalExchange (Career), marketRealities (Finance), instructionalCurrent (Learning), networking (Networking), culturalImmersion (Culture), publicReputation (Reputation)
 - Sky (Aspiration): creativeFlow (Creative Flow), physicalExhilaration (Adventure), aweAndWonder (Awe & Wonder), radicalImagination (Imagination), beautyExploration (Beauty), emotionalRelease (Emotional Release), spiritualPurpose (Purpose), lifeVision (Life Vision), purePlay (Pure Play)
 
-ARCHETYPES (choose exactly one):
-- sunflower: "The Visionary" — creative, spiritual, intellectual pursuits
-- oak: "The Builder" — legacy, financial, long-term growth
-- cactus: "The Survivor" — resilience, health, efficiency
+ARCHETYPES (choose exactly one). Each archetype belongs to a category — Visionary (Sky), Builder (Sea), or Survivor (Land):
+
+Visionary (Sky — Aspiration):
+- sunflower: "The Visionary" — creativity, turns to face the light
+- fern: "The Explorer" — wonder, ancient fractal beauty
+- mushroom: "The Alchemist" — imagination, surreal forms, hidden networks
+- bonsai: "The Artist" — beauty, living art, aesthetic mastery
+- lotus: "The Enlightened" — spirit, rises from darkness, awakening
+- bamboo: "The Dreamer" — vision, grows rapidly toward the sky
+
+Builder (Sea — Exchange):
+- oak: "The Builder" — family, the gathering tree, shelter
+- apple: "The Provider" — village, communal harvest, shared abundance
+- maple: "The Strategist" — finances, valuable resources
+- pine: "The Sentinel" — opportunity, evergreen, always ready
+- redwood: "The Networker" — connections, interconnected root systems
+- olive: "The Diplomat" — culture, ancient heritage, peace
+
+Survivor (Land — Foundation):
+- cactus: "The Survivor" — physical health, adapts to store water
+- aloe: "The Healer" — mental clarity, soothing, restorative
+- succulent: "The Artisan" — crafts, diverse beautiful forms
+- agave: "The Contemplator" — reflection, decades of patient growth
+- yucca: "The Warrior" — play, sharp active energy
+- joshuaTree: "The Hermit" — solitude, standing alone in vast desert
 
 Respond ONLY with valid JSON in this exact format:
 {
@@ -465,7 +485,11 @@ export async function sparkArchitectAnalyze(
       'spiritualPurpose', 'lifeVision', 'purePlay',
     ];
 
-    const validArchetypes: PlantArchetype[] = ['sunflower', 'oak', 'cactus'];
+    const validArchetypes: PlantArchetype[] = [
+      'sunflower', 'fern', 'mushroom', 'bonsai', 'lotus', 'bamboo',
+      'oak', 'apple', 'maple', 'pine', 'redwood', 'olive',
+      'cactus', 'aloe', 'succulent', 'agave', 'yucca', 'joshuaTree',
+    ];
 
     const filteredDomains = parsed.suggestedDomains.filter(
       (d: string) => validDomains.includes(d as DomainKey)

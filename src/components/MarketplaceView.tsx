@@ -133,11 +133,11 @@ const MarketplaceView = ({ userId, userName, activeMember, onNotify }: Marketpla
             <button
               key={a.type}
               onClick={() => setArchetypeFilter(a.type)}
-              className={`px-3 py-2 rounded-full text-[10px] font-bold uppercase tracking-widest transition-all ${
+              className={`px-2.5 py-1.5 rounded-full text-[9px] font-bold uppercase tracking-widest transition-all ${
                 filters.archetype === a.type ? 'bg-[#2c2c2a] text-white' : 'bg-white border border-[#2c2c2a]/10 text-[#2c2c2a]/50 hover:text-[#2c2c2a]'
               }`}
             >
-              {a.icon} {a.type}
+              {a.icon} {a.name}
             </button>
           ))}
         </div>

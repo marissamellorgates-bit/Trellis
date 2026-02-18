@@ -69,7 +69,27 @@ src/
 │   ├── communityIcons.ts            # Community icon registry, defaults, resolve/ensure helpers
 │   └── family.ts                    # Family CRUD: create, invite, join, load members/info
 └── components/
-    ├── PlantVisual.tsx              # Procedural SVG plant (7 stages, 3 archetypes)
+    ├── PlantVisual.tsx              # Re-export from plants/PlantRenderer (backward compat)
+    ├── plants/
+    │   ├── PlantRenderer.tsx        # SVG wrapper, shared filters/soil, routes to plant files
+    │   ├── Sunflower.tsx            # Visionary — The Visionary (existing, extracted)
+    │   ├── Fern.tsx                 # Visionary — The Explorer
+    │   ├── Mushroom.tsx             # Visionary — The Alchemist
+    │   ├── Bonsai.tsx               # Visionary — The Artist
+    │   ├── Lotus.tsx                # Visionary — The Enlightened
+    │   ├── Bamboo.tsx               # Visionary — The Dreamer
+    │   ├── Oak.tsx                  # Builder — The Builder (existing, extracted)
+    │   ├── Apple.tsx                # Builder — The Provider
+    │   ├── Maple.tsx                # Builder — The Strategist
+    │   ├── Pine.tsx                 # Builder — The Sentinel
+    │   ├── Redwood.tsx              # Builder — The Networker
+    │   ├── Olive.tsx                # Builder — The Diplomat
+    │   ├── Cactus.tsx               # Survivor — The Survivor (existing, extracted)
+    │   ├── Aloe.tsx                 # Survivor — The Healer
+    │   ├── Succulent.tsx            # Survivor — The Artisan
+    │   ├── Agave.tsx                # Survivor — The Contemplator
+    │   ├── Yucca.tsx                # Survivor — The Warrior
+    │   └── JoshuaTree.tsx           # Survivor — The Hermit
     ├── AIMentorPanel.tsx            # Sliding side panel chat with The Guide (Gemini AI)
     ├── HarvestModal.tsx             # Module 7 completion: wisdom capture + seed scattering
     ├── FlowView.tsx                 # Daily schedule + prioritized task list
@@ -97,7 +117,7 @@ src/
 - **`App`** — Root component. Manages all state via `useState`. Contains four view modes, Seed Discovery flow, delete/abandon projects, notification system, shelved projects, dashboard inline editing, customizable communities, task import, family linking, and layout. ~1250 lines.
 - **`CommunitySettingsModal`** — Full community management modal opened from user dropdown menu. Inline rename, icon picker (16 Lucide icons), delete button (Private Greenhouse undeletable), add community row. Cap at 10 communities. Works on local copy, commits on Save.
 - **`FamilySettingsModal`** — Family management modal opened from user dropdown menu ("My Family"). Three views: (1) No-family: "Create Family" + "Join with Code" inputs. (2) Leader view: copyable join code, invite-by-email form, pending invites list. (3) Member view: family name, "Leave Family" with inline confirmation.
-- **`PlantVisual`** — Procedural SVG plant generation with 7 stages and 3 archetypes (sunflower, oak, cactus). Uses unique SVG filter IDs via `useId()` to prevent collisions. Keyframe animation in `index.css`.
+- **`PlantVisual`** — Re-exports from `plants/PlantRenderer`. Procedural SVG plant generation with 7 stages and 18 archetypes across 3 categories. Each plant is a separate file in `src/components/plants/`. `PlantRenderer.tsx` handles shared SVG wrapper, filters, soil, and routes by type. Uses unique SVG filter IDs via `useId()` to prevent collisions. Keyframe animation in `index.css`.
 - **`AIMentorPanel`** — Sliding side panel chat with "The Guide". Uses **Gemini 2.5 Flash** for Socratic questioning within the 7-Module framework, prioritizing "Earth Care, People Care, Fair Share." Falls back to mock keyword matching when no API key is configured. Supports AbortController cancel, error handling, and persisted chat history.
 - **`MicroCycleModal`** — Standalone 4-step practice loop (Observe → Analyze → Implement → Reflect). Independent of module progression. Users can run anytime.
 - **`ModuleRitualModal`** — Unique ritual for each module (2-6): Roots (knowledge logging), Stem (experiential learning), Leaves (pattern journal + clearing practice), Bloom (community sharing), Fruit (abundance tracking).
@@ -145,12 +165,23 @@ Each goal tracks `completed`/`total` progress. The **Sovereignty Score** is the 
 
 Module advancement comes from completing that module's unique process, NOT from accumulating micro-cycles.
 
-### Plant Archetypes
-- **Sunflower** = "The Visionary" (creative/spiritual/intellectual)
-- **Oak** = "The Builder" (legacy/financial/long-term)
-- **Cactus** = "The Survivor" (resilience/health/efficiency)
+### Plant Archetypes (18 total — 6 per category)
 
-User selects archetype during Seed Discovery (Step 3). Spark Architect AI suggests title, domains, and archetype.
+**Visionary — Sky (Aspiration):**
+- **Sunflower** = "The Visionary" (creativity) | **Fern** = "The Explorer" (wonder) | **Mushroom** = "The Alchemist" (imagination)
+- **Bonsai** = "The Artist" (beauty) | **Lotus** = "The Enlightened" (spirit) | **Bamboo** = "The Dreamer" (vision)
+
+**Builder — Sea (Exchange):**
+- **Oak** = "The Builder" (family) | **Apple** = "The Provider" (village) | **Maple** = "The Strategist" (finances)
+- **Pine** = "The Sentinel" (opportunity) | **Redwood** = "The Networker" (connections) | **Olive** = "The Diplomat" (culture)
+
+**Survivor — Land (Foundation):**
+- **Cactus** = "The Survivor" (physical health) | **Aloe** = "The Healer" (mental clarity) | **Succulent** = "The Artisan" (crafts)
+- **Agave** = "The Contemplator" (reflection) | **Yucca** = "The Warrior" (play) | **Joshua Tree** = "The Hermit" (solitude)
+
+User selects archetype during Seed Discovery (Step 3) — grouped by category with gold labels. Spark Architect AI suggests from all 18.
+
+**Plant architecture:** Split into `src/components/plants/` with per-plant files. Each exports `gradients(pfx)` and `render(stage, pfx)`. `PlantRenderer.tsx` handles SVG wrapper, shared filters, soil (rich/sandy), and routes by type. Old `PlantVisual.tsx` is a re-export for backward compatibility. Desert plants (`cactus`, `aloe`, `succulent`, `agave`, `yucca`, `joshuaTree`) get sandy soil.
 
 ### Seed Discovery Flow
 - **Step 1: The Spark** — Textarea for initial idea. When AI is configured, pressing Enter or clicking outside auto-triggers guided refinement with The Guide (SparkRefinement component). On accept, Spark Architect auto-analyzes the refined goal.
@@ -581,6 +612,8 @@ All types defined in `src/types.ts`. Key interfaces:
 **Phase 11: Public Tutorial (complete)** — ~~Public onboarding page at /tutorial~~, ~~No auth required (path check in main.tsx)~~, ~~12 sections: hero, domains, sovereignty score, 7 modules with PlantVisual, archetypes, micro-cycle, ethics, daily flow, community/family, AI guide, CTA~~, ~~Shareable URL for external websites~~, ~~Fully responsive~~
 
 **Phase 10: Mobile Responsive (complete)** — ~~Bottom tab bar (Home/Flow/Community/Family/Guide) with icons~~, ~~Top nav icon-only view switcher on mobile~~, ~~Dashboard card vertical stack with plant on top~~, ~~Sovereignty Score + domain cards full-width stack~~, ~~Domain group grids 1-col mobile / 3-col desktop~~, ~~AI Panel safe-area padding~~, ~~Modal padding p-5 md:p-8 (9 modals)~~, ~~MarketplaceView stacking filter bar + scrollable chips~~, ~~FlowView md-breakpoint grid + larger touch targets~~, ~~Seed Discovery reduced padding + stacking ethics~~, ~~Toast above bottom bar on mobile~~, ~~Typography scaling across 5 components~~, ~~Touch targets (Sow, Bell, checkboxes)~~, ~~safe-area-pb CSS utility~~
+
+**Phase 12: Expanded Plant Archetypes (complete)** — ~~18 plant archetypes (6 per category)~~, ~~Split PlantVisual into per-plant files in src/components/plants/~~, ~~PlantRenderer.tsx router with shared SVG wrapper, filters, soil~~, ~~Visionary (Sky): Sunflower, Fern, Mushroom, Bonsai, Lotus, Bamboo~~, ~~Builder (Sea): Oak, Apple, Maple, Pine, Redwood, Olive~~, ~~Survivor (Land): Cactus, Aloe, Succulent, Agave, Yucca, Joshua Tree~~, ~~3-category grouped Seed Discovery Step 3 picker~~, ~~Dashboard inline edit with grouped archetype buttons~~, ~~MarketplaceView filter with 18 archetypes~~, ~~TutorialPage with 18-plant showcase by category~~, ~~AI SPARK_SYSTEM_PROMPT updated for 18 archetypes~~
 
 **DB migration required for Phase 4:** 3 new tables (`community_projects`, `community_interactions`, `project_views`) with RLS, triggers, and indexes. See migration SQL in project docs.
 

@@ -23,10 +23,40 @@ const MODULES = [
   { id: 7, title: 'The Harvest', desc: 'Synthesis & Sharing', detail: 'Complete the cycle. Capture wisdom and scatter seeds for the next journey.' },
 ];
 
-const ARCHETYPES: { type: PlantArchetype; name: string; desc: string }[] = [
-  { type: 'sunflower', name: 'The Visionary', desc: 'Creative, spiritual, and intellectual pursuits. Reaches toward the light of new ideas.' },
-  { type: 'oak', name: 'The Builder', desc: 'Legacy, financial, and long-term growth. Steady roots that weather any storm.' },
-  { type: 'cactus', name: 'The Survivor', desc: 'Resilience, health, and efficiency. Thrives where others cannot.' },
+const ARCHETYPE_CATEGORIES: { category: string; label: string; meta: string; plants: { type: PlantArchetype; name: string; desc: string }[] }[] = [
+  {
+    category: 'visionary', label: 'Visionary', meta: 'Sky (Aspiration)',
+    plants: [
+      { type: 'sunflower', name: 'The Visionary', desc: 'Creativity — turns to face the light of new ideas.' },
+      { type: 'fern', name: 'The Explorer', desc: 'Wonder — ancient fractal beauty, primordial mystery.' },
+      { type: 'mushroom', name: 'The Alchemist', desc: 'Imagination — surreal forms, hidden networks.' },
+      { type: 'bonsai', name: 'The Artist', desc: 'Beauty — living art, aesthetic mastery.' },
+      { type: 'lotus', name: 'The Enlightened', desc: 'Spirit — rises from darkness, awakening.' },
+      { type: 'bamboo', name: 'The Dreamer', desc: 'Vision — grows rapidly toward the sky.' },
+    ],
+  },
+  {
+    category: 'builder', label: 'Builder', meta: 'Sea (Exchange)',
+    plants: [
+      { type: 'oak', name: 'The Builder', desc: 'Family — the gathering tree, shelter for all.' },
+      { type: 'apple', name: 'The Provider', desc: 'Village — communal harvest, shared abundance.' },
+      { type: 'maple', name: 'The Strategist', desc: 'Finances — valuable resources like sap and wood.' },
+      { type: 'pine', name: 'The Sentinel', desc: 'Opportunity — evergreen, always ready to grow.' },
+      { type: 'redwood', name: 'The Networker', desc: 'Connections — interconnected root systems.' },
+      { type: 'olive', name: 'The Diplomat', desc: 'Culture — ancient heritage, symbol of peace.' },
+    ],
+  },
+  {
+    category: 'survivor', label: 'Survivor', meta: 'Land (Foundation)',
+    plants: [
+      { type: 'cactus', name: 'The Survivor', desc: 'Health — adapts body to store water, thrives anywhere.' },
+      { type: 'aloe', name: 'The Healer', desc: 'Clarity — soothing, restorative, calming presence.' },
+      { type: 'succulent', name: 'The Artisan', desc: 'Crafts — diverse beautiful forms, collectible art.' },
+      { type: 'agave', name: 'The Contemplator', desc: 'Reflection — decades of patient growth before bloom.' },
+      { type: 'yucca', name: 'The Warrior', desc: 'Play — sharp, active, sword-like energy.' },
+      { type: 'joshuaTree', name: 'The Hermit', desc: 'Solitude — standing alone in vast desert landscapes.' },
+    ],
+  },
 ];
 
 const MICRO_CYCLE = [
@@ -282,26 +312,33 @@ const TutorialPage = () => {
         <div className="max-w-6xl mx-auto px-4 md:px-8 space-y-10">
           <div className="text-center space-y-3">
             <p className="text-[10px] font-bold uppercase tracking-widest text-[#d4af37]">Choose Your Path</p>
-            <h2 className="font-serif text-3xl md:text-4xl italic">Three Plant Archetypes</h2>
+            <h2 className="font-serif text-3xl md:text-4xl italic">18 Plant Archetypes</h2>
             <p className="text-sm text-[#2c2c2a]/60 max-w-lg mx-auto">
-              Every project grows as one of three plant types. Your archetype reflects your approach to growth.
+              Every project grows as a unique plant. Your archetype reflects your approach to growth across three domains.
             </p>
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-4 md:gap-6">
-            {ARCHETYPES.map(arch => (
-              <div key={arch.type} className="bg-white rounded-2xl md:rounded-3xl border border-[#2c2c2a]/10 p-5 md:p-8 text-center space-y-4">
-                <div className="w-32 h-40 md:w-40 md:h-48 mx-auto" aria-hidden="true">
-                  <PlantVisual stage={5} type={arch.type} instanceId={`tutorial-arch-${arch.type}`} />
-                </div>
-                <div className="space-y-1">
-                  <h3 className="font-serif text-xl italic">{arch.name}</h3>
-                  <p className="text-[10px] font-bold uppercase tracking-widest text-[#2c2c2a]/40 capitalize">{arch.type}</p>
-                </div>
-                <p className="text-sm text-[#2c2c2a]/60 leading-relaxed">{arch.desc}</p>
+          {ARCHETYPE_CATEGORIES.map(cat => (
+            <div key={cat.category} className="space-y-4">
+              <div className="text-center">
+                <p className="text-[10px] font-bold uppercase tracking-widest text-[#d4af37]">{cat.label} — {cat.meta}</p>
               </div>
-            ))}
-          </div>
+              <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-6 gap-3 md:gap-4">
+                {cat.plants.map(arch => (
+                  <div key={arch.type} className="bg-white rounded-xl md:rounded-2xl border border-[#2c2c2a]/10 p-3 md:p-4 text-center space-y-2">
+                    <div className="w-20 h-28 md:w-24 md:h-32 mx-auto" aria-hidden="true">
+                      <PlantVisual stage={5} type={arch.type} instanceId={`tutorial-arch-${arch.type}`} />
+                    </div>
+                    <div className="space-y-0.5">
+                      <h3 className="font-serif text-sm italic">{arch.name}</h3>
+                      <p className="text-[9px] font-bold uppercase tracking-widest text-[#2c2c2a]/40 capitalize">{arch.type}</p>
+                    </div>
+                    <p className="text-[10px] text-[#2c2c2a]/60 leading-relaxed">{arch.desc}</p>
+                  </div>
+                ))}
+              </div>
+            </div>
+          ))}
         </div>
       </section>
 
