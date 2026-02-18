@@ -193,7 +193,7 @@ ARCHETYPES (choose exactly one). Each archetype belongs to a category — Vision
 
 Visionary (Sky — Beautiful Flowers):
 - sunflower: "The Visionary" — creativity, turns to face the light
-- rose: "The Explorer" — wonder, beauty found through thorns
+- dahlia: "The Explorer" — wonder, infinite layers of discovery
 - orchid: "The Alchemist" — imagination, exotic transformation
 - cherryBlossom: "The Artist" — beauty, fleeting perfection
 - lotus: "The Enlightened" — spirit, rises from darkness, awakening
@@ -486,7 +486,7 @@ export async function sparkArchitectAnalyze(
     ];
 
     const validArchetypes: PlantArchetype[] = [
-      'sunflower', 'rose', 'orchid', 'cherryBlossom', 'lotus', 'birdOfParadise',
+      'sunflower', 'dahlia', 'orchid', 'cherryBlossom', 'lotus', 'birdOfParadise',
       'oak', 'apple', 'maple', 'pine', 'redwood', 'olive',
       'lavender', 'aloe', 'chamomile', 'sage', 'echinacea', 'ginseng',
     ];

@@ -70,7 +70,7 @@ export interface ScheduleItem {
 
 export type PlantArchetype =
   // Visionary (Sky) — Beautiful Flowers
-  | 'sunflower' | 'rose' | 'orchid' | 'cherryBlossom' | 'lotus' | 'birdOfParadise'
+  | 'sunflower' | 'dahlia' | 'orchid' | 'cherryBlossom' | 'lotus' | 'birdOfParadise'
   // Builder (Sea) — Trees
   | 'oak' | 'apple' | 'maple' | 'pine' | 'redwood' | 'olive'
   // Survivor (Land) — Medicine & Herbs
@@ -89,23 +89,23 @@ export interface ArchetypeInfo {
 export const ARCHETYPE_INFO: ArchetypeInfo[] = [
   // Visionary — Sky (Beautiful Flowers)
   { type: 'sunflower', category: 'visionary', name: 'The Visionary', description: 'Creativity — turns to face the light', icon: '🌻' },
-  { type: 'rose', category: 'visionary', name: 'The Explorer', description: 'Wonder — beauty found through thorns', icon: '🌹' },
+  { type: 'dahlia', category: 'visionary', name: 'The Explorer', description: 'Wonder — infinite layers of discovery', icon: '🏵️' },
   { type: 'orchid', category: 'visionary', name: 'The Alchemist', description: 'Imagination — exotic transformation', icon: '🪻' },
   { type: 'cherryBlossom', category: 'visionary', name: 'The Artist', description: 'Beauty — fleeting perfection', icon: '🌸' },
   { type: 'lotus', category: 'visionary', name: 'The Enlightened', description: 'Spirit — rises from darkness, awakening', icon: '🪷' },
-  { type: 'birdOfParadise', category: 'visionary', name: 'The Dreamer', description: 'Vision — dramatic, reaching skyward', icon: '🧡' },
+  { type: 'birdOfParadise', category: 'visionary', name: 'The Dreamer', description: 'Vision — dramatic, reaching skyward', icon: '🌷' },
   // Builder — Sea (Trees)
   { type: 'oak', category: 'builder', name: 'The Builder', description: 'Family — the gathering tree, shelter', icon: '🌳' },
   { type: 'apple', category: 'builder', name: 'The Provider', description: 'Village — communal harvest, shared abundance', icon: '🍎' },
   { type: 'maple', category: 'builder', name: 'The Strategist', description: 'Finances — valuable resources', icon: '🍁' },
-  { type: 'pine', category: 'builder', name: 'The Sentinel', description: 'Opportunity — evergreen, always ready', icon: '🌲' },
-  { type: 'redwood', category: 'builder', name: 'The Networker', description: 'Connections — interconnected root systems', icon: '🏔️' },
+  { type: 'pine', category: 'builder', name: 'The Sentinel', description: 'Opportunity — evergreen, always ready', icon: '🎄' },
+  { type: 'redwood', category: 'builder', name: 'The Networker', description: 'Connections — interconnected root systems', icon: '🌲' },
   { type: 'olive', category: 'builder', name: 'The Diplomat', description: 'Culture — ancient heritage, symbol of peace', icon: '🫒' },
   // Survivor — Land (Medicine & Herbs)
-  { type: 'lavender', category: 'survivor', name: 'The Survivor', description: 'Calm — aromatic resilience, soothing spirit', icon: '💜' },
-  { type: 'aloe', category: 'survivor', name: 'The Healer', description: 'Restoration — soothing balm, inner clarity', icon: '💚' },
+  { type: 'lavender', category: 'survivor', name: 'The Survivor', description: 'Calm — aromatic resilience, soothing spirit', icon: '🌾' },
+  { type: 'aloe', category: 'survivor', name: 'The Healer', description: 'Restoration — soothing balm, inner clarity', icon: '🪴' },
   { type: 'chamomile', category: 'survivor', name: 'The Artisan', description: 'Gentleness — patient healing, golden remedy', icon: '🌼' },
-  { type: 'sage', category: 'survivor', name: 'The Contemplator', description: 'Wisdom — cleansing herb, deep reflection', icon: '🍃' },
+  { type: 'sage', category: 'survivor', name: 'The Contemplator', description: 'Wisdom — cleansing herb, deep reflection', icon: '🌿' },
   { type: 'echinacea', category: 'survivor', name: 'The Warrior', description: 'Defense — immune strength, bold petals', icon: '🌺' },
   { type: 'ginseng', category: 'survivor', name: 'The Hermit', description: 'Patience — deep roots, hidden power', icon: '🫚' },
 ];

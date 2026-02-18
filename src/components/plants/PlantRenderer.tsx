@@ -4,7 +4,7 @@ import type { PlantVisualProps, PlantArchetype } from '../../types';
 // ── Plant imports ──────────────────────────────────────────
 // Visionary (Sky) — Beautiful Flowers
 import { sunflowerGradients, renderSunflower } from './Sunflower';
-import { roseGradients, renderRose } from './Rose';
+import { dahliaGradients, renderDahlia } from './Dahlia';
 import { orchidGradients, renderOrchid } from './Orchid';
 import { cherryBlossomGradients, renderCherryBlossom } from './CherryBlossom';
 import { lotusGradients, renderLotus } from './Lotus';
@@ -33,7 +33,7 @@ const plantRegistry: Record<PlantArchetype, {
 }> = {
   // Visionary (Sky) — Beautiful Flowers
   sunflower: { gradients: sunflowerGradients, render: renderSunflower },
-  rose: { gradients: roseGradients, render: renderRose },
+  dahlia: { gradients: dahliaGradients, render: renderDahlia },
   orchid: { gradients: orchidGradients, render: renderOrchid },
   cherryBlossom: { gradients: cherryBlossomGradients, render: renderCherryBlossom },
   lotus: { gradients: lotusGradients, render: renderLotus },

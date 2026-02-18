@@ -28,7 +28,7 @@ const ARCHETYPE_CATEGORIES: { category: string; label: string; meta: string; pla
     category: 'visionary', label: 'Visionary', meta: 'Sky (Beautiful Flowers)',
     plants: [
       { type: 'sunflower', name: 'The Visionary', desc: 'Creativity — turns to face the light of new ideas.' },
-      { type: 'rose', name: 'The Explorer', desc: 'Wonder — beauty found through thorns.' },
+      { type: 'dahlia', name: 'The Explorer', desc: 'Wonder — infinite layers of discovery.' },
       { type: 'orchid', name: 'The Alchemist', desc: 'Imagination — exotic transformation.' },
       { type: 'cherryBlossom', name: 'The Artist', desc: 'Beauty — fleeting perfection, living art.' },
       { type: 'lotus', name: 'The Enlightened', desc: 'Spirit — rises from darkness, awakening.' },
