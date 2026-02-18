@@ -1338,7 +1338,7 @@ const App = () => {
               <div className="relative bg-white border-2 border-dashed border-[#2c2c2a]/10 rounded-3xl py-10 px-6 md:py-16 md:px-16 text-center space-y-6 overflow-hidden">
                 {/* Decorative plant silhouettes — pushed down so bases hide below card edge */}
                 <div className="absolute -bottom-3 left-2 w-[18%] h-[160%] opacity-[0.06] pointer-events-none">
-                  <PlantVisual type="cactus" stage={6} />
+                  <PlantVisual type="lavender" stage={6} />
                 </div>
                 <div className="absolute -bottom-3 left-1/2 -translate-x-1/2 w-[18%] h-[130%] opacity-[0.04] pointer-events-none">
                   <PlantVisual type="oak" stage={6} />

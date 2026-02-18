@@ -1,5 +1,3 @@
-export const isDesertPlant = true;
-
 export function aloeGradients(pfx: (name: string) => string) {
   return (
     <>
@@ -37,13 +35,6 @@ export function aloeGradients(pfx: (name: string) => string) {
         <stop offset="70%" stopColor="#8ac8a0" stopOpacity="0.3" />
         <stop offset="100%" stopColor="#8ac8a0" stopOpacity="0" />
       </radialGradient>
-
-      {/* Sandy soil for desert plant */}
-      <linearGradient id={pfx('sandSoil')} x1="0" y1="0" x2="0" y2="1">
-        <stop offset="0%" stopColor="#d4b880" />
-        <stop offset="40%" stopColor="#c4a265" />
-        <stop offset="100%" stopColor="#a08050" />
-      </linearGradient>
 
       {/* Seed gradient */}
       <linearGradient id={pfx('aloeSeedGrad')} x1="0.3" y1="0" x2="0.7" y2="1">

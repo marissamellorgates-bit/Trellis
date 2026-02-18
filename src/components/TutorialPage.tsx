@@ -25,14 +25,14 @@ const MODULES = [
 
 const ARCHETYPE_CATEGORIES: { category: string; label: string; meta: string; plants: { type: PlantArchetype; name: string; desc: string }[] }[] = [
   {
-    category: 'visionary', label: 'Visionary', meta: 'Sky (Aspiration)',
+    category: 'visionary', label: 'Visionary', meta: 'Sky (Beautiful Flowers)',
     plants: [
       { type: 'sunflower', name: 'The Visionary', desc: 'Creativity — turns to face the light of new ideas.' },
-      { type: 'fern', name: 'The Explorer', desc: 'Wonder — ancient fractal beauty, primordial mystery.' },
-      { type: 'mushroom', name: 'The Alchemist', desc: 'Imagination — surreal forms, hidden networks.' },
-      { type: 'bonsai', name: 'The Artist', desc: 'Beauty — living art, aesthetic mastery.' },
+      { type: 'rose', name: 'The Explorer', desc: 'Wonder — beauty found through thorns.' },
+      { type: 'orchid', name: 'The Alchemist', desc: 'Imagination — exotic transformation.' },
+      { type: 'cherryBlossom', name: 'The Artist', desc: 'Beauty — fleeting perfection, living art.' },
       { type: 'lotus', name: 'The Enlightened', desc: 'Spirit — rises from darkness, awakening.' },
-      { type: 'bamboo', name: 'The Dreamer', desc: 'Vision — grows rapidly toward the sky.' },
+      { type: 'birdOfParadise', name: 'The Dreamer', desc: 'Vision — dramatic, reaching skyward.' },
     ],
   },
   {
@@ -47,14 +47,14 @@ const ARCHETYPE_CATEGORIES: { category: string; label: string; meta: string; pla
     ],
   },
   {
-    category: 'survivor', label: 'Survivor', meta: 'Land (Foundation)',
+    category: 'survivor', label: 'Survivor', meta: 'Land (Medicine & Herbs)',
     plants: [
-      { type: 'cactus', name: 'The Survivor', desc: 'Health — adapts body to store water, thrives anywhere.' },
-      { type: 'aloe', name: 'The Healer', desc: 'Clarity — soothing, restorative, calming presence.' },
-      { type: 'succulent', name: 'The Artisan', desc: 'Crafts — diverse beautiful forms, collectible art.' },
-      { type: 'agave', name: 'The Contemplator', desc: 'Reflection — decades of patient growth before bloom.' },
-      { type: 'yucca', name: 'The Warrior', desc: 'Play — sharp, active, sword-like energy.' },
-      { type: 'joshuaTree', name: 'The Hermit', desc: 'Solitude — standing alone in vast desert landscapes.' },
+      { type: 'lavender', name: 'The Survivor', desc: 'Calm — aromatic resilience, soothing spirit.' },
+      { type: 'aloe', name: 'The Healer', desc: 'Restoration — soothing balm, inner clarity.' },
+      { type: 'chamomile', name: 'The Artisan', desc: 'Gentleness — patient healing, golden remedy.' },
+      { type: 'sage', name: 'The Contemplator', desc: 'Wisdom — cleansing herb, deep reflection.' },
+      { type: 'echinacea', name: 'The Warrior', desc: 'Defense — immune strength, bold petals.' },
+      { type: 'ginseng', name: 'The Hermit', desc: 'Patience — deep roots, hidden power.' },
     ],
   },
 ];
@@ -150,7 +150,7 @@ const TutorialPage = () => {
             <PlantVisual stage={5} type="oak" instanceId="tutorial-hero-oak" />
           </div>
           <div className="w-32 h-48 md:w-48 md:h-64">
-            <PlantVisual stage={4} type="cactus" instanceId="tutorial-hero-cactus" />
+            <PlantVisual stage={4} type="lavender" instanceId="tutorial-hero-lavender" />
           </div>
         </div>
       </section>
@@ -555,7 +555,7 @@ const TutorialPage = () => {
             <PlantVisual stage={7} type="sunflower" instanceId="tutorial-cta-sunflower" />
           </div>
           <div className="w-40 h-56">
-            <PlantVisual stage={7} type="cactus" instanceId="tutorial-cta-cactus" />
+            <PlantVisual stage={7} type="lavender" instanceId="tutorial-cta-lavender" />
           </div>
         </div>
       </section>

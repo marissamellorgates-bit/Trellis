@@ -2,24 +2,27 @@ import { useId } from 'react';
 import type { PlantVisualProps, PlantArchetype } from '../../types';
 
 // ── Plant imports ──────────────────────────────────────────
+// Visionary (Sky) — Beautiful Flowers
 import { sunflowerGradients, renderSunflower } from './Sunflower';
-import { fernGradients, renderFern } from './Fern';
-import { mushroomGradients, renderMushroom } from './Mushroom';
-import { bonsaiGradients, renderBonsai } from './Bonsai';
+import { roseGradients, renderRose } from './Rose';
+import { orchidGradients, renderOrchid } from './Orchid';
+import { cherryBlossomGradients, renderCherryBlossom } from './CherryBlossom';
 import { lotusGradients, renderLotus } from './Lotus';
-import { bambooGradients, renderBamboo } from './Bamboo';
+import { birdOfParadiseGradients, renderBirdOfParadise } from './BirdOfParadise';
+// Builder (Sea) — Trees
 import { oakGradients, renderOak } from './Oak';
 import { appleGradients, renderApple } from './Apple';
 import { mapleGradients, renderMaple } from './Maple';
 import { pineGradients, renderPine } from './Pine';
 import { redwoodGradients, renderRedwood } from './Redwood';
 import { oliveGradients, renderOlive } from './Olive';
-import { cactusGradients, renderCactus } from './Cactus';
+// Survivor (Land) — Medicine & Herbs
+import { lavenderGradients, renderLavender } from './Lavender';
 import { aloeGradients, renderAloe } from './Aloe';
-import { succulentGradients, renderSucculent } from './Succulent';
-import { agaveGradients, renderAgave } from './Agave';
-import { yuccaGradients, renderYucca } from './Yucca';
-import { joshuaTreeGradients, renderJoshuaTree } from './JoshuaTree';
+import { chamomileGradients, renderChamomile } from './Chamomile';
+import { sageGradients, renderSage } from './Sage';
+import { echinaceaGradients, renderEchinacea } from './Echinacea';
+import { ginsengGradients, renderGinseng } from './Ginseng';
 
 // ── Plant registry ─────────────────────────────────────────
 
@@ -28,24 +31,27 @@ const plantRegistry: Record<PlantArchetype, {
   render: (stage: number, pfx: (name: string) => string) => JSX.Element;
   isDesert?: boolean;
 }> = {
+  // Visionary (Sky) — Beautiful Flowers
   sunflower: { gradients: sunflowerGradients, render: renderSunflower },
-  fern: { gradients: fernGradients, render: renderFern },
-  mushroom: { gradients: mushroomGradients, render: renderMushroom },
-  bonsai: { gradients: bonsaiGradients, render: renderBonsai },
+  rose: { gradients: roseGradients, render: renderRose },
+  orchid: { gradients: orchidGradients, render: renderOrchid },
+  cherryBlossom: { gradients: cherryBlossomGradients, render: renderCherryBlossom },
   lotus: { gradients: lotusGradients, render: renderLotus },
-  bamboo: { gradients: bambooGradients, render: renderBamboo },
+  birdOfParadise: { gradients: birdOfParadiseGradients, render: renderBirdOfParadise },
+  // Builder (Sea) — Trees
   oak: { gradients: oakGradients, render: renderOak },
   apple: { gradients: appleGradients, render: renderApple },
   maple: { gradients: mapleGradients, render: renderMaple },
   pine: { gradients: pineGradients, render: renderPine },
   redwood: { gradients: redwoodGradients, render: renderRedwood },
   olive: { gradients: oliveGradients, render: renderOlive },
-  cactus: { gradients: cactusGradients, render: renderCactus, isDesert: true },
-  aloe: { gradients: aloeGradients, render: renderAloe, isDesert: true },
-  succulent: { gradients: succulentGradients, render: renderSucculent, isDesert: true },
-  agave: { gradients: agaveGradients, render: renderAgave, isDesert: true },
-  yucca: { gradients: yuccaGradients, render: renderYucca, isDesert: true },
-  joshuaTree: { gradients: joshuaTreeGradients, render: renderJoshuaTree, isDesert: true },
+  // Survivor (Land) — Medicine & Herbs
+  lavender: { gradients: lavenderGradients, render: renderLavender },
+  aloe: { gradients: aloeGradients, render: renderAloe },
+  chamomile: { gradients: chamomileGradients, render: renderChamomile },
+  sage: { gradients: sageGradients, render: renderSage },
+  echinacea: { gradients: echinaceaGradients, render: renderEchinacea },
+  ginseng: { gradients: ginsengGradients, render: renderGinseng },
 };
 
 // ── Component ──────────────────────────────────────────────

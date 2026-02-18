@@ -191,15 +191,15 @@ DOMAIN KEYS (choose 2-5 that best fit). Use the friendly name (in parentheses) w
 
 ARCHETYPES (choose exactly one). Each archetype belongs to a category — Visionary (Sky), Builder (Sea), or Survivor (Land):
 
-Visionary (Sky — Aspiration):
+Visionary (Sky — Beautiful Flowers):
 - sunflower: "The Visionary" — creativity, turns to face the light
-- fern: "The Explorer" — wonder, ancient fractal beauty
-- mushroom: "The Alchemist" — imagination, surreal forms, hidden networks
-- bonsai: "The Artist" — beauty, living art, aesthetic mastery
+- rose: "The Explorer" — wonder, beauty found through thorns
+- orchid: "The Alchemist" — imagination, exotic transformation
+- cherryBlossom: "The Artist" — beauty, fleeting perfection
 - lotus: "The Enlightened" — spirit, rises from darkness, awakening
-- bamboo: "The Dreamer" — vision, grows rapidly toward the sky
+- birdOfParadise: "The Dreamer" — vision, dramatic, reaching skyward
 
-Builder (Sea — Exchange):
+Builder (Sea — Trees):
 - oak: "The Builder" — family, the gathering tree, shelter
 - apple: "The Provider" — village, communal harvest, shared abundance
 - maple: "The Strategist" — finances, valuable resources
@@ -207,13 +207,13 @@ Builder (Sea — Exchange):
 - redwood: "The Networker" — connections, interconnected root systems
 - olive: "The Diplomat" — culture, ancient heritage, peace
 
-Survivor (Land — Foundation):
-- cactus: "The Survivor" — physical health, adapts to store water
-- aloe: "The Healer" — mental clarity, soothing, restorative
-- succulent: "The Artisan" — crafts, diverse beautiful forms
-- agave: "The Contemplator" — reflection, decades of patient growth
-- yucca: "The Warrior" — play, sharp active energy
-- joshuaTree: "The Hermit" — solitude, standing alone in vast desert
+Survivor (Land — Medicine & Herbs):
+- lavender: "The Survivor" — calm, aromatic resilience, soothing spirit
+- aloe: "The Healer" — restoration, soothing balm, inner clarity
+- chamomile: "The Artisan" — gentleness, patient healing, golden remedy
+- sage: "The Contemplator" — wisdom, cleansing herb, deep reflection
+- echinacea: "The Warrior" — defense, immune strength, bold petals
+- ginseng: "The Hermit" — patience, deep roots, hidden power
 
 Respond ONLY with valid JSON in this exact format:
 {
@@ -486,9 +486,9 @@ export async function sparkArchitectAnalyze(
     ];
 
     const validArchetypes: PlantArchetype[] = [
-      'sunflower', 'fern', 'mushroom', 'bonsai', 'lotus', 'bamboo',
+      'sunflower', 'rose', 'orchid', 'cherryBlossom', 'lotus', 'birdOfParadise',
       'oak', 'apple', 'maple', 'pine', 'redwood', 'olive',
-      'cactus', 'aloe', 'succulent', 'agave', 'yucca', 'joshuaTree',
+      'lavender', 'aloe', 'chamomile', 'sage', 'echinacea', 'ginseng',
     ];
 
     const filteredDomains = parsed.suggestedDomains.filter(
