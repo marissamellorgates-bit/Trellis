@@ -82,8 +82,8 @@ export function oakGradients(pfx: (name: string) => string) {
 export function renderOak(stage: number, pfx: (name: string) => string) {
   return (
     <g>
-      {/* Stage 1: Acorn with detailed cap */}
-      {stage >= 1 && (
+      {/* Stage 1-2: Acorn with detailed cap — hidden once stem appears */}
+      {stage >= 1 && stage < 3 && (
         <g transform="translate(100, 256)" filter={`url(#${pfx('softShadow')})`}>
           {/* Ground shadow */}
           <ellipse cx="0.5" cy="10" rx="6" ry="2.5" fill="#3a2518" opacity="0.2" />

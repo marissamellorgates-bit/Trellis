@@ -54,8 +54,8 @@ export function sunflowerGradients(pfx: (name: string) => string) {
 export function renderSunflower(stage: number, pfx: (name: string) => string) {
   return (
     <g>
-      {/* Stage 1: Seed */}
-      {stage >= 1 && (
+      {/* Stage 1-2: Seed — hidden once stem appears */}
+      {stage >= 1 && stage < 3 && (
         <g transform="translate(100, 262)" filter={`url(#${pfx('softShadow')})`}>
           <ellipse cx="1" cy="4" rx="4" ry="2" fill="#3a2518" opacity="0.2" />
           <ellipse cx="0" cy="0" rx="4.5" ry="7" fill={`url(#${pfx('sfSeedGrad')})`} transform="rotate(-12)" />

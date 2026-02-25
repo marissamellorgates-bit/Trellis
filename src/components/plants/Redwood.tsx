@@ -61,8 +61,8 @@ export function renderRedwood(stage: number, pfx: (name: string) => string) {
 
   return (
     <g>
-      {/* Stage 1: Tiny redwood seed — surprisingly small */}
-      {stage >= 1 && (
+      {/* Stage 1-2: Tiny redwood seed — hidden once stem appears */}
+      {stage >= 1 && stage < 3 && (
         <g transform="translate(100, 262)" filter={`url(#${pfx('softShadow')})`}>
           {/* Shadow on soil */}
           <ellipse cx="0.5" cy="3" rx="3" ry="1.2" fill="#3a2518" opacity="0.2" />

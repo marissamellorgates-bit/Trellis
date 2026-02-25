@@ -93,8 +93,8 @@ export function renderMaple(stage: number, pfx: (name: string) => string) {
 
   return (
     <g>
-      {/* ── Stage 1: Samara (winged seed / helicopter) ── */}
-      {stage >= 1 && (
+      {/* ── Stage 1-2: Samara — hidden once stem appears ── */}
+      {stage >= 1 && stage < 3 && (
         <g transform="translate(100, 262)" filter={`url(#${pfx('softShadow')})`}>
           {/* Shadow on soil */}
           <ellipse cx="1" cy="6" rx="10" ry="2" fill="#3a2518" opacity="0.15" />

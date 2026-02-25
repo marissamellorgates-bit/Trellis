@@ -207,8 +207,8 @@ function flowerWhorl(
 export function renderSage(stage: number, pfx: (name: string) => string) {
   return (
     <g>
-      {/* ── Stage 1: Seed ── */}
-      {stage >= 1 && (
+      {/* ── Stage 1-2: Seed — hidden once stem appears ── */}
+      {stage >= 1 && stage < 3 && (
         <g transform="translate(100, 264)" filter={`url(#${pfx('softShadow')})`}>
           {/* Ground shadow */}
           <ellipse cx="0" cy="3" rx="4" ry="1.2" fill="#3a2518" opacity="0.15" />

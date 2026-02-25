@@ -47,8 +47,8 @@ export function oliveGradients(pfx: (name: string) => string) {
 export function renderOlive(stage: number, pfx: (name: string) => string) {
   return (
     <g>
-      {/* ── Stage 1: Olive pit ── */}
-      {stage >= 1 && (
+      {/* ── Stage 1-2: Olive pit — hidden once stem appears ── */}
+      {stage >= 1 && stage < 3 && (
         <g transform="translate(100, 262)" filter={`url(#${pfx('softShadow')})`}>
           {/* Ground shadow */}
           <ellipse cx="0" cy="5" rx="5" ry="1.5" fill="#3a2518" opacity="0.15" />

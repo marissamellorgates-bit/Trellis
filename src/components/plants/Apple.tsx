@@ -56,8 +56,8 @@ export function appleGradients(pfx: (name: string) => string) {
 export function renderApple(stage: number, pfx: (name: string) => string) {
   return (
     <g>
-      {/* Stage 1: Apple seed — small dark teardrop near soil */}
-      {stage >= 1 && (
+      {/* Stage 1-2: Apple seed — hidden once stem appears */}
+      {stage >= 1 && stage < 3 && (
         <g transform="translate(100, 262)" filter={`url(#${pfx('softShadow')})`}>
           {/* Seed shadow */}
           <ellipse cx="1" cy="5" rx="4" ry="1.5" fill="#3a2518" opacity="0.15" />

@@ -153,8 +153,8 @@ function blossomFlower(
 export function renderCherryBlossom(stage: number, pfx: (name: string) => string) {
   return (
     <g>
-      {/* ── Stage 1: Cherry pit on soil ── */}
-      {stage >= 1 && (
+      {/* ── Stage 1-2: Cherry pit — hidden once stem appears ── */}
+      {stage >= 1 && stage < 3 && (
         <g transform="translate(100, 262)" filter={`url(#${pfx('softShadow')})`}>
           {/* Pit shadow */}
           <ellipse cx="1" cy="6" rx="7" ry="2" fill="#3a2518" opacity="0.15" />
