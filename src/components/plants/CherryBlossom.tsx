@@ -344,53 +344,57 @@ export function renderCherryBlossom(stage: number, pfx: (name: string) => string
       {/* ── Stage 5: Explosion of pink blossoms! ── */}
       {stage === 5 && (
         <g>
-          {/* Blossom cloud background — soft pink masses */}
-          <g filter={`url(#${pfx('softShadow')})`}>
-            <ellipse cx="100" cy="148" rx="62" ry="22" fill={`url(#${pfx('cbCloud')})`} opacity="0.5" />
-            <ellipse cx="75" cy="158" rx="38" ry="18" fill={`url(#${pfx('cbCloud')})`} opacity="0.45" />
-            <ellipse cx="128" cy="156" rx="36" ry="17" fill={`url(#${pfx('cbCloud')})`} opacity="0.4" />
-            <ellipse cx="100" cy="142" rx="45" ry="16" fill={`url(#${pfx('cbCloud')})`} opacity="0.35" />
-            <ellipse cx="58" cy="162" rx="22" ry="12" fill={`url(#${pfx('cbCloud')})`} opacity="0.35" />
-            <ellipse cx="145" cy="160" rx="20" ry="11" fill={`url(#${pfx('cbCloud')})`} opacity="0.3" />
-          </g>
-
-          {/* Individual open blossoms — lots of them! */}
+          {/* Individual open blossoms — distinct flowers, no blurry clouds */}
           <g>
             {[
               // Outer ring of flowers
-              { cx: 42, cy: 160, r: 5.5, v: 'light' as const },
-              { cx: 52, cy: 154, r: 6, v: 'deep' as const },
-              { cx: 48, cy: 165, r: 4.5, v: 'light' as const },
-              { cx: 158, cy: 160, r: 5, v: 'deep' as const },
-              { cx: 150, cy: 153, r: 5.5, v: 'light' as const },
-              { cx: 154, cy: 165, r: 4, v: 'light' as const },
+              { cx: 42, cy: 160, r: 7, v: 'light' as const },
+              { cx: 52, cy: 153, r: 7.5, v: 'deep' as const },
+              { cx: 48, cy: 167, r: 6, v: 'light' as const },
+              { cx: 38, cy: 155, r: 6.5, v: 'deep' as const },
+              { cx: 158, cy: 160, r: 6.5, v: 'deep' as const },
+              { cx: 150, cy: 152, r: 7, v: 'light' as const },
+              { cx: 155, cy: 167, r: 6, v: 'light' as const },
+              { cx: 162, cy: 154, r: 6, v: 'light' as const },
               // Mid ring
-              { cx: 64, cy: 156, r: 6.5, v: 'light' as const },
-              { cx: 60, cy: 147, r: 5, v: 'deep' as const },
-              { cx: 72, cy: 150, r: 6, v: 'light' as const },
-              { cx: 138, cy: 155, r: 6, v: 'deep' as const },
-              { cx: 142, cy: 147, r: 5.5, v: 'light' as const },
-              { cx: 130, cy: 150, r: 6.5, v: 'light' as const },
+              { cx: 64, cy: 155, r: 8, v: 'light' as const },
+              { cx: 60, cy: 145, r: 7.5, v: 'deep' as const },
+              { cx: 72, cy: 149, r: 8, v: 'light' as const },
+              { cx: 56, cy: 160, r: 7, v: 'deep' as const },
+              { cx: 138, cy: 154, r: 8, v: 'deep' as const },
+              { cx: 142, cy: 145, r: 7.5, v: 'light' as const },
+              { cx: 130, cy: 149, r: 8, v: 'light' as const },
+              { cx: 146, cy: 160, r: 7, v: 'light' as const },
               // Inner blossoms
-              { cx: 84, cy: 148, r: 7, v: 'light' as const },
-              { cx: 88, cy: 140, r: 5.5, v: 'deep' as const },
-              { cx: 116, cy: 147, r: 7, v: 'deep' as const },
-              { cx: 112, cy: 139, r: 5.5, v: 'light' as const },
-              { cx: 100, cy: 142, r: 7.5, v: 'light' as const },
-              { cx: 100, cy: 134, r: 6, v: 'deep' as const },
+              { cx: 84, cy: 147, r: 9, v: 'light' as const },
+              { cx: 88, cy: 138, r: 7.5, v: 'deep' as const },
+              { cx: 76, cy: 143, r: 7, v: 'deep' as const },
+              { cx: 116, cy: 146, r: 9, v: 'deep' as const },
+              { cx: 112, cy: 137, r: 7.5, v: 'light' as const },
+              { cx: 124, cy: 142, r: 7, v: 'light' as const },
+              { cx: 100, cy: 141, r: 9.5, v: 'light' as const },
+              { cx: 100, cy: 132, r: 8, v: 'deep' as const },
+              { cx: 94, cy: 143, r: 7, v: 'deep' as const },
+              { cx: 106, cy: 143, r: 7, v: 'light' as const },
               // Top crown
-              { cx: 92, cy: 135, r: 5, v: 'light' as const },
-              { cx: 108, cy: 136, r: 5, v: 'deep' as const },
+              { cx: 92, cy: 131, r: 7, v: 'light' as const },
+              { cx: 108, cy: 132, r: 7, v: 'deep' as const },
+              { cx: 100, cy: 126, r: 6.5, v: 'light' as const },
+              { cx: 84, cy: 135, r: 6.5, v: 'deep' as const },
+              { cx: 116, cy: 134, r: 6.5, v: 'light' as const },
               // Lower fringe
-              { cx: 78, cy: 162, r: 5, v: 'deep' as const },
-              { cx: 90, cy: 158, r: 5.5, v: 'light' as const },
-              { cx: 110, cy: 157, r: 5, v: 'light' as const },
-              { cx: 122, cy: 162, r: 5.5, v: 'deep' as const },
+              { cx: 78, cy: 162, r: 7, v: 'deep' as const },
+              { cx: 90, cy: 158, r: 7.5, v: 'light' as const },
+              { cx: 110, cy: 157, r: 7.5, v: 'light' as const },
+              { cx: 122, cy: 162, r: 7, v: 'deep' as const },
+              { cx: 100, cy: 155, r: 7, v: 'deep' as const },
               // Fill gaps
-              { cx: 68, cy: 162, r: 4.5, v: 'light' as const },
-              { cx: 134, cy: 162, r: 4.5, v: 'deep' as const },
-              { cx: 96, cy: 150, r: 5, v: 'deep' as const },
-              { cx: 104, cy: 148, r: 4.5, v: 'light' as const },
+              { cx: 68, cy: 163, r: 6.5, v: 'light' as const },
+              { cx: 134, cy: 163, r: 6.5, v: 'deep' as const },
+              { cx: 96, cy: 150, r: 7, v: 'deep' as const },
+              { cx: 104, cy: 148, r: 7, v: 'light' as const },
+              { cx: 68, cy: 142, r: 6.5, v: 'light' as const },
+              { cx: 134, cy: 141, r: 6.5, v: 'deep' as const },
             ].map((f, i) => (
               <g key={`s5blossom-${i}`} transform={`translate(${f.cx}, ${f.cy}) rotate(${i * 37 % 360})`}>
                 {blossomFlower(pfx, f.r, f.v)}
@@ -412,83 +416,67 @@ export function renderCherryBlossom(stage: number, pfx: (name: string) => string
         </g>
       )}
 
-      {/* ── Stage 6: Peak bloom — BREATHTAKING maximum blossoms + falling petals ── */}
+      {/* ── Stage 6: Peak bloom — maximum blossoms + falling petals ── */}
       {stage === 6 && (
         <g>
-          {/* Dense blossom cloud masses — the whole canopy is pink */}
-          <g filter={`url(#${pfx('softShadow')})`}>
-            {/* Large underlying cloud shapes */}
-            <ellipse cx="100" cy="150" rx="68" ry="28" fill={`url(#${pfx('cbCloud')})`} opacity="0.65" />
-            <ellipse cx="72" cy="155" rx="42" ry="22" fill="#ffc0cb" opacity="0.5" />
-            <ellipse cx="130" cy="153" rx="40" ry="21" fill="#ffc0cb" opacity="0.45" />
-            <ellipse cx="100" cy="138" rx="50" ry="20" fill="#ffb0be" opacity="0.5" />
-            <ellipse cx="55" cy="162" rx="28" ry="16" fill={`url(#${pfx('cbCloud')})`} opacity="0.45" />
-            <ellipse cx="148" cy="160" rx="26" ry="15" fill={`url(#${pfx('cbCloud')})`} opacity="0.4" />
-            {/* Top cloud */}
-            <ellipse cx="100" cy="130" rx="38" ry="14" fill="#ffb7c5" opacity="0.35" />
-            {/* Bottom fringe */}
-            <ellipse cx="85" cy="168" rx="30" ry="10" fill="#ffc0cb" opacity="0.3" />
-            <ellipse cx="118" cy="167" rx="28" ry="10" fill="#ffc0cb" opacity="0.28" />
-          </g>
-
-          {/* Even more blossoms — packed tightly for peak bloom */}
+          {/* Densely packed blossoms — no blurry clouds, just flowers */}
           <g>
             {[
               // Outer crown — maximum spread
-              { cx: 38, cy: 162, r: 5, v: 'light' as const },
-              { cx: 44, cy: 155, r: 5.5, v: 'deep' as const },
-              { cx: 48, cy: 163, r: 4.5, v: 'light' as const },
-              { cx: 50, cy: 148, r: 5, v: 'light' as const },
-              { cx: 162, cy: 162, r: 4.5, v: 'deep' as const },
-              { cx: 156, cy: 155, r: 5.5, v: 'light' as const },
-              { cx: 153, cy: 163, r: 4, v: 'deep' as const },
-              { cx: 152, cy: 148, r: 5, v: 'deep' as const },
+              { cx: 38, cy: 162, r: 7, v: 'light' as const },
+              { cx: 44, cy: 154, r: 7.5, v: 'deep' as const },
+              { cx: 48, cy: 165, r: 6, v: 'light' as const },
+              { cx: 50, cy: 146, r: 7, v: 'light' as const },
+              { cx: 162, cy: 162, r: 6.5, v: 'deep' as const },
+              { cx: 156, cy: 154, r: 7.5, v: 'light' as const },
+              { cx: 153, cy: 165, r: 6, v: 'deep' as const },
+              { cx: 152, cy: 146, r: 7, v: 'deep' as const },
               // Mid layer
-              { cx: 58, cy: 157, r: 6, v: 'deep' as const },
-              { cx: 56, cy: 145, r: 5.5, v: 'light' as const },
-              { cx: 64, cy: 150, r: 6.5, v: 'light' as const },
-              { cx: 62, cy: 162, r: 5, v: 'deep' as const },
-              { cx: 142, cy: 156, r: 6, v: 'light' as const },
-              { cx: 144, cy: 145, r: 5, v: 'deep' as const },
-              { cx: 136, cy: 150, r: 6.5, v: 'deep' as const },
-              { cx: 140, cy: 163, r: 5, v: 'light' as const },
+              { cx: 58, cy: 156, r: 8, v: 'deep' as const },
+              { cx: 56, cy: 144, r: 7.5, v: 'light' as const },
+              { cx: 64, cy: 149, r: 8, v: 'light' as const },
+              { cx: 62, cy: 163, r: 7, v: 'deep' as const },
+              { cx: 142, cy: 155, r: 8, v: 'light' as const },
+              { cx: 144, cy: 144, r: 7, v: 'deep' as const },
+              { cx: 136, cy: 149, r: 8, v: 'deep' as const },
+              { cx: 140, cy: 164, r: 7, v: 'light' as const },
               // Inner dense cluster
-              { cx: 74, cy: 152, r: 6.5, v: 'light' as const },
-              { cx: 78, cy: 142, r: 6, v: 'deep' as const },
-              { cx: 82, cy: 155, r: 5.5, v: 'light' as const },
-              { cx: 86, cy: 146, r: 7, v: 'light' as const },
-              { cx: 126, cy: 152, r: 6.5, v: 'deep' as const },
-              { cx: 122, cy: 143, r: 6, v: 'light' as const },
-              { cx: 118, cy: 155, r: 5.5, v: 'deep' as const },
-              { cx: 114, cy: 146, r: 7, v: 'deep' as const },
-              // Center blooms
-              { cx: 94, cy: 148, r: 7, v: 'deep' as const },
-              { cx: 100, cy: 144, r: 7.5, v: 'light' as const },
-              { cx: 106, cy: 148, r: 7, v: 'light' as const },
-              { cx: 100, cy: 136, r: 6.5, v: 'deep' as const },
-              { cx: 92, cy: 138, r: 5.5, v: 'light' as const },
-              { cx: 108, cy: 138, r: 5.5, v: 'deep' as const },
+              { cx: 74, cy: 151, r: 8.5, v: 'light' as const },
+              { cx: 78, cy: 141, r: 8, v: 'deep' as const },
+              { cx: 82, cy: 156, r: 7.5, v: 'light' as const },
+              { cx: 86, cy: 145, r: 9, v: 'light' as const },
+              { cx: 126, cy: 151, r: 8.5, v: 'deep' as const },
+              { cx: 122, cy: 142, r: 8, v: 'light' as const },
+              { cx: 118, cy: 156, r: 7.5, v: 'deep' as const },
+              { cx: 114, cy: 145, r: 9, v: 'deep' as const },
+              // Center blooms — largest
+              { cx: 94, cy: 147, r: 9, v: 'deep' as const },
+              { cx: 100, cy: 143, r: 9.5, v: 'light' as const },
+              { cx: 106, cy: 147, r: 9, v: 'light' as const },
+              { cx: 100, cy: 134, r: 8, v: 'deep' as const },
+              { cx: 92, cy: 137, r: 7.5, v: 'light' as const },
+              { cx: 108, cy: 137, r: 7.5, v: 'deep' as const },
               // Top crown
-              { cx: 88, cy: 132, r: 5, v: 'deep' as const },
-              { cx: 100, cy: 128, r: 6, v: 'light' as const },
-              { cx: 112, cy: 132, r: 5, v: 'light' as const },
-              { cx: 96, cy: 125, r: 4.5, v: 'deep' as const },
-              { cx: 104, cy: 125, r: 4.5, v: 'light' as const },
+              { cx: 88, cy: 131, r: 7, v: 'deep' as const },
+              { cx: 100, cy: 126, r: 8, v: 'light' as const },
+              { cx: 112, cy: 131, r: 7, v: 'light' as const },
+              { cx: 96, cy: 124, r: 6, v: 'deep' as const },
+              { cx: 104, cy: 124, r: 6, v: 'light' as const },
               // Lower fringe flowers
-              { cx: 70, cy: 164, r: 5, v: 'light' as const },
-              { cx: 82, cy: 162, r: 5.5, v: 'deep' as const },
-              { cx: 92, cy: 160, r: 5, v: 'light' as const },
-              { cx: 108, cy: 159, r: 5, v: 'deep' as const },
-              { cx: 118, cy: 162, r: 5.5, v: 'light' as const },
-              { cx: 130, cy: 164, r: 5, v: 'deep' as const },
+              { cx: 70, cy: 165, r: 7, v: 'light' as const },
+              { cx: 82, cy: 163, r: 7.5, v: 'deep' as const },
+              { cx: 92, cy: 160, r: 7, v: 'light' as const },
+              { cx: 108, cy: 159, r: 7, v: 'deep' as const },
+              { cx: 118, cy: 163, r: 7.5, v: 'light' as const },
+              { cx: 130, cy: 165, r: 7, v: 'deep' as const },
             ].map((f, i) => (
               <g key={`s6blossom-${i}`} transform={`translate(${f.cx}, ${f.cy}) rotate(${(i * 43 + 15) % 360})`}>
-                {blossomFlower(pfx, f.r, f.v, i < 30 ? 0.92 : 0.8)}
+                {blossomFlower(pfx, f.r, f.v, 0.92)}
               </g>
             ))}
           </g>
 
-          {/* Loose petals starting to fall — the beginning of the petal shower */}
+          {/* Loose petals starting to fall */}
           {[
             { x: 145, y: 180, rot: 25 },
             { x: 58, y: 185, rot: -40 },
@@ -510,34 +498,28 @@ export function renderCherryBlossom(stage: number, pfx: (name: string) => string
       {/* ── Stage 7: Harvest — golden glow + famous petal shower ── */}
       {stage >= 7 && (
         <g>
-          {/* Dense blossom cloud (slightly faded from peak — petals are leaving) */}
-          <g filter={`url(#${pfx('softShadow')})`}>
-            <ellipse cx="100" cy="150" rx="65" ry="26" fill={`url(#${pfx('cbCloud')})`} opacity="0.5" />
-            <ellipse cx="72" cy="155" rx="40" ry="20" fill="#ffc0cb" opacity="0.35" />
-            <ellipse cx="130" cy="153" rx="38" ry="19" fill="#ffc0cb" opacity="0.3" />
-            <ellipse cx="100" cy="138" rx="45" ry="18" fill="#ffb0be" opacity="0.35" />
-            <ellipse cx="55" cy="162" rx="24" ry="14" fill={`url(#${pfx('cbCloud')})`} opacity="0.3" />
-            <ellipse cx="148" cy="160" rx="22" ry="13" fill={`url(#${pfx('cbCloud')})`} opacity="0.28" />
-          </g>
-
-          {/* Remaining blossoms on tree — thinning out */}
+          {/* Remaining blossoms on tree — thinning out but still visible */}
           <g>
             {[
-              { cx: 58, cy: 155, r: 5.5, v: 'light' as const },
-              { cx: 74, cy: 150, r: 6, v: 'deep' as const },
-              { cx: 86, cy: 146, r: 6.5, v: 'light' as const },
-              { cx: 100, cy: 142, r: 7, v: 'light' as const },
-              { cx: 114, cy: 146, r: 6.5, v: 'deep' as const },
-              { cx: 126, cy: 150, r: 6, v: 'light' as const },
-              { cx: 142, cy: 155, r: 5.5, v: 'deep' as const },
-              { cx: 100, cy: 132, r: 5.5, v: 'deep' as const },
-              { cx: 88, cy: 136, r: 5, v: 'light' as const },
-              { cx: 112, cy: 136, r: 5, v: 'deep' as const },
-              { cx: 66, cy: 160, r: 5, v: 'deep' as const },
-              { cx: 134, cy: 158, r: 5, v: 'light' as const },
+              { cx: 58, cy: 155, r: 7.5, v: 'light' as const },
+              { cx: 74, cy: 150, r: 8, v: 'deep' as const },
+              { cx: 86, cy: 145, r: 8.5, v: 'light' as const },
+              { cx: 100, cy: 141, r: 9, v: 'light' as const },
+              { cx: 114, cy: 145, r: 8.5, v: 'deep' as const },
+              { cx: 126, cy: 150, r: 8, v: 'light' as const },
+              { cx: 142, cy: 155, r: 7.5, v: 'deep' as const },
+              { cx: 100, cy: 131, r: 7.5, v: 'deep' as const },
+              { cx: 88, cy: 135, r: 7, v: 'light' as const },
+              { cx: 112, cy: 135, r: 7, v: 'deep' as const },
+              { cx: 66, cy: 161, r: 7, v: 'deep' as const },
+              { cx: 134, cy: 159, r: 7, v: 'light' as const },
+              { cx: 48, cy: 163, r: 6.5, v: 'light' as const },
+              { cx: 152, cy: 161, r: 6.5, v: 'deep' as const },
+              { cx: 80, cy: 157, r: 7, v: 'deep' as const },
+              { cx: 120, cy: 156, r: 7, v: 'light' as const },
             ].map((f, i) => (
               <g key={`s7blossom-${i}`} transform={`translate(${f.cx}, ${f.cy}) rotate(${i * 47 % 360})`}>
-                {blossomFlower(pfx, f.r, f.v, 0.75)}
+                {blossomFlower(pfx, f.r, f.v, 0.8)}
               </g>
             ))}
           </g>

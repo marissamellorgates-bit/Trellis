@@ -3,14 +3,17 @@ import { createRoot } from 'react-dom/client';
 import { registerSW } from 'virtual:pwa-register';
 import App from './App.tsx';
 import TutorialPage from './components/TutorialPage.tsx';
+import PlantPreview from './components/PlantPreview.tsx';
 import './index.css';
 
 registerSW({ onOfflineReady() {} });
 
-const isTutorial = window.location.pathname.replace(/\/$/, '') === '/tutorial';
+const path = window.location.pathname.replace(/\/$/, '');
+const isTutorial = path === '/tutorial';
+const isPlantPreview = path === '/plants';
 
 createRoot(document.getElementById('root')!).render(
   <StrictMode>
-    {isTutorial ? <TutorialPage /> : <App />}
+    {isPlantPreview ? <PlantPreview /> : isTutorial ? <TutorialPage /> : <App />}
   </StrictMode>
 );

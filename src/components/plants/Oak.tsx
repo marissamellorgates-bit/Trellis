@@ -274,86 +274,82 @@ export function renderOak(stage: number, pfx: (name: string) => string) {
         );
       })()}
 
-      {/* Stage 4: Leaf clusters with detailed oak leaves */}
+      {/* Stage 4: Leaf clusters with detailed oak leaves — connected to branches via twigs */}
       {stage >= 4 && stage < 5 && (
         <g>
-          {/* ── Left branch leaves ── */}
+          {/* Small twigs extending from branch tips where leaves attach */}
+          <g>
+            {/* Left branch twigs — branch ends at ~(62, 173) */}
+            <path d="M 62 173 C 58 170 55 168 52 167" stroke="#5c3a1e" strokeWidth="1.2" fill="none" strokeLinecap="round" />
+            <path d="M 62 173 C 64 169 66 166 68 164" stroke="#5c3a1e" strokeWidth="1" fill="none" strokeLinecap="round" />
+            <path d="M 58 171 C 55 174 52 176 50 177" stroke="#5c3a1e" strokeWidth="0.8" fill="none" strokeLinecap="round" />
+            {/* Right branch twigs — branch ends at ~(138, 171) */}
+            <path d="M 138 171 C 142 168 145 166 148 165" stroke="#5c3a1e" strokeWidth="1.2" fill="none" strokeLinecap="round" />
+            <path d="M 138 171 C 136 167 134 164 132 162" stroke="#5c3a1e" strokeWidth="1" fill="none" strokeLinecap="round" />
+            <path d="M 142 169 C 145 172 147 174 150 175" stroke="#5c3a1e" strokeWidth="0.8" fill="none" strokeLinecap="round" />
+            {/* Along left branch — midpoint twigs */}
+            <path d="M 82 190 C 78 186 74 183 72 181" stroke="#5c3a1e" strokeWidth="0.9" fill="none" strokeLinecap="round" />
+            <path d="M 76 186 C 74 190 72 192 70 193" stroke="#5c3a1e" strokeWidth="0.7" fill="none" strokeLinecap="round" />
+            {/* Along right branch — midpoint twigs */}
+            <path d="M 118 187 C 122 184 125 181 128 180" stroke="#5c3a1e" strokeWidth="0.9" fill="none" strokeLinecap="round" />
+            <path d="M 124 184 C 126 188 128 190 130 191" stroke="#5c3a1e" strokeWidth="0.7" fill="none" strokeLinecap="round" />
+          </g>
+
+          {/* Leaves on branches — positioned at twig tips */}
           {[
-            { x: 62, y: 170, rot: -25, s: 1 },
-            { x: 55, y: 176, rot: -40, s: 0.85 },
-            { x: 70, y: 164, rot: -10, s: 0.9 },
+            // Left branch tip cluster
+            { x: 52, y: 167, rot: -35, s: 0.9 },
+            { x: 68, y: 164, rot: -10, s: 0.85 },
+            { x: 50, y: 177, rot: -50, s: 0.75 },
+            { x: 62, y: 172, rot: -20, s: 0.8 },
+            // Along left branch
+            { x: 72, y: 181, rot: -15, s: 0.8 },
+            { x: 70, y: 193, rot: -40, s: 0.7 },
+            // Right branch tip cluster
+            { x: 148, y: 165, rot: 30, s: 0.9 },
+            { x: 132, y: 162, rot: 8, s: 0.85 },
+            { x: 150, y: 175, rot: 45, s: 0.75 },
+            { x: 138, y: 170, rot: 18, s: 0.8 },
+            // Along right branch
+            { x: 128, y: 180, rot: 12, s: 0.8 },
+            { x: 130, y: 191, rot: 35, s: 0.7 },
           ].map((lf, i) => (
-            <g key={`oll-${i}`} transform={`translate(${lf.x}, ${lf.y}) rotate(${lf.rot}) scale(${lf.s})`} filter={`url(#${pfx('softShadow')})`}>
+            <g key={`ol4-${i}`} transform={`translate(${lf.x}, ${lf.y}) rotate(${lf.rot}) scale(${lf.s})`} filter={`url(#${pfx('softShadow')})`}>
               {/* Lobed oak leaf — 3 layers */}
               <path
                 d="M 0 0 C -1 -2 -4 -4 -6 -6 C -8 -5 -9 -3 -10 -5 C -11 -7 -9 -10 -7 -11 C -6 -13 -7 -15 -5 -17 C -3 -18 -1 -16 0 -14 C 1 -16 3 -18 5 -17 C 7 -15 6 -13 7 -11 C 9 -10 11 -7 10 -5 C 9 -3 8 -5 6 -6 C 4 -4 1 -2 0 0"
-                fill={`url(#${pfx('oakLeafBase')})`}
+                fill={`url(#${pfx(i % 3 === 0 ? 'oakLeafBase' : 'oakLeafMid')})`}
               />
               <path
                 d="M 0 -0.5 C -1 -2.5 -3.5 -4.5 -5.5 -6.5 C -7.5 -5.5 -8.5 -3.5 -9.5 -5.5 C -10 -7 -8.5 -9.5 -6.5 -10.5 C -5.5 -12.5 -6.5 -14.5 -4.5 -16.5 C -2.5 -17 -1 -15.5 0 -13.5 C 1 -15.5 2.5 -17 4.5 -16.5 C 6.5 -14.5 5.5 -12.5 6.5 -10.5 C 8.5 -9.5 10 -7 9.5 -5.5 C 8.5 -3.5 7.5 -5.5 5.5 -6.5 C 3.5 -4.5 1 -2.5 0 -0.5"
                 fill={`url(#${pfx('oakLeafMid')})`}
-                opacity="0.8"
+                opacity="0.75"
               />
               <path
                 d="M 0 -1.5 C -0.5 -3 -2.5 -5 -4 -6.5 C -5.5 -6 -6.5 -5 -7 -6 C -7.5 -7.5 -6 -9 -5 -10 C -4 -11.5 -5 -13 -3.5 -15 C -2 -15.5 -0.5 -14 0 -13 C 0.5 -14 2 -15.5 3.5 -15 C 5 -13 4 -11.5 5 -10 C 6 -9 7.5 -7.5 7 -6 C 6.5 -5 5.5 -6 4 -6.5 C 2.5 -5 0.5 -3 0 -1.5"
                 fill={`url(#${pfx('oakLeafHi')})`}
-                opacity="0.35"
+                opacity="0.3"
               />
-              {/* Midrib */}
+              {/* Midrib + veins */}
               <path d="M 0 0 L 0 -16" stroke="#1e4a14" strokeWidth="0.6" fill="none" />
-              <path d="M 0 0 L 0 -16" stroke="#4a8c3f" strokeWidth="0.25" fill="none" opacity="0.3" />
-              {/* Side veins */}
-              <path d="M 0 -4 C -3 -5 -6 -5 -8 -5" stroke="#2d5518" strokeWidth="0.3" fill="none" opacity="0.4" />
-              <path d="M 0 -4 C 3 -5 6 -5 8 -5" stroke="#2d5518" strokeWidth="0.3" fill="none" opacity="0.4" />
-              <path d="M 0 -8 C -3 -9 -5 -10 -7 -10" stroke="#2d5518" strokeWidth="0.25" fill="none" opacity="0.35" />
-              <path d="M 0 -8 C 3 -9 5 -10 7 -10" stroke="#2d5518" strokeWidth="0.25" fill="none" opacity="0.35" />
-              <path d="M 0 -12 C -2 -14 -4 -15 -5 -16" stroke="#2d5518" strokeWidth="0.2" fill="none" opacity="0.3" />
-              <path d="M 0 -12 C 2 -14 4 -15 5 -16" stroke="#2d5518" strokeWidth="0.2" fill="none" opacity="0.3" />
+              <path d="M 0 -4 C -3 -5 -6 -5 -8 -5" stroke="#2d5518" strokeWidth="0.25" fill="none" opacity="0.4" />
+              <path d="M 0 -4 C 3 -5 6 -5 8 -5" stroke="#2d5518" strokeWidth="0.25" fill="none" opacity="0.4" />
+              <path d="M 0 -8 C -3 -9 -5 -10 -7 -10" stroke="#2d5518" strokeWidth="0.2" fill="none" opacity="0.35" />
+              <path d="M 0 -8 C 3 -9 5 -10 7 -10" stroke="#2d5518" strokeWidth="0.2" fill="none" opacity="0.35" />
+              <path d="M 0 -12 C -2 -14 -4 -15 -5 -16" stroke="#2d5518" strokeWidth="0.18" fill="none" opacity="0.3" />
+              <path d="M 0 -12 C 2 -14 4 -15 5 -16" stroke="#2d5518" strokeWidth="0.18" fill="none" opacity="0.3" />
             </g>
           ))}
-
-          {/* ── Right branch leaves ── */}
-          {[
-            { x: 138, y: 168, rot: 20, s: 1 },
-            { x: 145, y: 174, rot: 35, s: 0.85 },
-            { x: 130, y: 162, rot: 5, s: 0.9 },
-          ].map((lf, i) => (
-            <g key={`olr-${i}`} transform={`translate(${lf.x}, ${lf.y}) rotate(${lf.rot}) scale(${lf.s})`} filter={`url(#${pfx('softShadow')})`}>
-              <path
-                d="M 0 0 C -1 -2 -4 -4 -6 -6 C -8 -5 -9 -3 -10 -5 C -11 -7 -9 -10 -7 -11 C -6 -13 -7 -15 -5 -17 C -3 -18 -1 -16 0 -14 C 1 -16 3 -18 5 -17 C 7 -15 6 -13 7 -11 C 9 -10 11 -7 10 -5 C 9 -3 8 -5 6 -6 C 4 -4 1 -2 0 0"
-                fill={`url(#${pfx('oakLeafBase')})`}
-              />
-              <path
-                d="M 0 -0.5 C -1 -2.5 -3.5 -4.5 -5.5 -6.5 C -7.5 -5.5 -8.5 -3.5 -9.5 -5.5 C -10 -7 -8.5 -9.5 -6.5 -10.5 C -5.5 -12.5 -6.5 -14.5 -4.5 -16.5 C -2.5 -17 -1 -15.5 0 -13.5 C 1 -15.5 2.5 -17 4.5 -16.5 C 6.5 -14.5 5.5 -12.5 6.5 -10.5 C 8.5 -9.5 10 -7 9.5 -5.5 C 8.5 -3.5 7.5 -5.5 5.5 -6.5 C 3.5 -4.5 1 -2.5 0 -0.5"
-                fill={`url(#${pfx('oakLeafMid')})`}
-                opacity="0.8"
-              />
-              <path d="M 0 0 L 0 -16" stroke="#1e4a14" strokeWidth="0.6" fill="none" />
-              <path d="M 0 -4 C -3 -5 -6 -5 -8 -5" stroke="#2d5518" strokeWidth="0.3" fill="none" opacity="0.4" />
-              <path d="M 0 -4 C 3 -5 6 -5 8 -5" stroke="#2d5518" strokeWidth="0.3" fill="none" opacity="0.4" />
-              <path d="M 0 -8 C -3 -9 -5 -10 -7 -10" stroke="#2d5518" strokeWidth="0.25" fill="none" opacity="0.35" />
-              <path d="M 0 -8 C 3 -9 5 -10 7 -10" stroke="#2d5518" strokeWidth="0.25" fill="none" opacity="0.35" />
-            </g>
-          ))}
-
-          {/* Center leaves */}
-          <g transform="translate(100, 178) scale(0.8)" filter={`url(#${pfx('softShadow')})`}>
-            <path
-              d="M 0 0 C -1 -2 -4 -4 -6 -6 C -8 -5 -9 -3 -10 -5 C -11 -7 -9 -10 -7 -11 C -6 -13 -7 -15 -5 -17 C -3 -18 -1 -16 0 -14 C 1 -16 3 -18 5 -17 C 7 -15 6 -13 7 -11 C 9 -10 11 -7 10 -5 C 9 -3 8 -5 6 -6 C 4 -4 1 -2 0 0"
-              fill={`url(#${pfx('oakLeafMid')})`}
-            />
-            <path d="M 0 0 L 0 -16" stroke="#1e4a14" strokeWidth="0.5" fill="none" />
-          </g>
         </g>
       )}
 
-      {/* Stage 5: Full canopy */}
+      {/* Stage 5: Full canopy with rich leaf detail */}
       {stage >= 5 && (
         <g>
           {/* Shadow under canopy on trunk */}
           <ellipse cx="100" cy="158" rx="50" ry="10" fill="#1a0e05" opacity="0.08" />
 
-          {/* Deep canopy layers (back to front for depth) */}
+          {/* Deep canopy base layers (back to front for depth) */}
           <ellipse cx="100" cy="115" rx="52" ry="36" fill={`url(#${pfx('oakCanopy2')})`} opacity="0.9" />
           <ellipse cx="64" cy="130" rx="36" ry="28" fill={`url(#${pfx('oakCanopy1')})`} opacity="0.85" />
           <ellipse cx="136" cy="128" rx="38" ry="29" fill={`url(#${pfx('oakCanopy3')})`} opacity="0.85" />
@@ -363,36 +359,112 @@ export function renderOak(stage: number, pfx: (name: string) => string) {
           {/* Top crown */}
           <ellipse cx="100" cy="84" rx="18" ry="12" fill={`url(#${pfx('oakCanopy3')})`} opacity="0.65" />
 
-          {/* Detailed lobed oak leaves around edges */}
+          {/* Scalloped leaf-cluster bumps around canopy edges — break smooth ellipse outline */}
           {[
+            // Bottom edge
+            { cx: 52, cy: 148, rx: 8, ry: 6, g: 'oakCanopy1' },
+            { cx: 68, cy: 152, rx: 7, ry: 5, g: 'oakCanopy2' },
+            { cx: 84, cy: 154, rx: 7, ry: 5, g: 'oakCanopy1' },
+            { cx: 100, cy: 152, rx: 8, ry: 5, g: 'oakCanopy3' },
+            { cx: 116, cy: 154, rx: 7, ry: 5, g: 'oakCanopy2' },
+            { cx: 132, cy: 152, rx: 7, ry: 5, g: 'oakCanopy1' },
+            { cx: 148, cy: 148, rx: 8, ry: 6, g: 'oakCanopy3' },
+            // Left edge
+            { cx: 42, cy: 138, rx: 7, ry: 6, g: 'oakCanopy1' },
+            { cx: 38, cy: 126, rx: 6, ry: 5, g: 'oakCanopy2' },
+            { cx: 42, cy: 114, rx: 7, ry: 5, g: 'oakCanopy1' },
+            { cx: 48, cy: 102, rx: 6, ry: 5, g: 'oakCanopy3' },
+            // Right edge
+            { cx: 158, cy: 136, rx: 7, ry: 6, g: 'oakCanopy3' },
+            { cx: 162, cy: 124, rx: 6, ry: 5, g: 'oakCanopy2' },
+            { cx: 158, cy: 112, rx: 7, ry: 5, g: 'oakCanopy3' },
+            { cx: 152, cy: 100, rx: 6, ry: 5, g: 'oakCanopy1' },
+            // Top edge
+            { cx: 86, cy: 78, rx: 6, ry: 5, g: 'oakCanopy1' },
+            { cx: 100, cy: 74, rx: 7, ry: 5, g: 'oakCanopy2' },
+            { cx: 114, cy: 78, rx: 6, ry: 5, g: 'oakCanopy3' },
+            { cx: 72, cy: 86, rx: 5, ry: 4, g: 'oakCanopy1' },
+            { cx: 128, cy: 84, rx: 5, ry: 4, g: 'oakCanopy3' },
+          ].map((b, i) => (
+            <ellipse key={`bump-${i}`} cx={b.cx} cy={b.cy} rx={b.rx} ry={b.ry} fill={`url(#${pfx(b.g)})`} opacity="0.8" />
+          ))}
+
+          {/* Interior dark depth patches — create shadowed recesses */}
+          {[
+            { cx: 78, cy: 128, r: 6 }, { cx: 120, cy: 126, r: 5.5 },
+            { cx: 98, cy: 135, r: 5 }, { cx: 88, cy: 118, r: 4 },
+            { cx: 112, cy: 115, r: 4 }, { cx: 70, cy: 118, r: 4 },
+            { cx: 130, cy: 116, r: 4 }, { cx: 100, cy: 104, r: 3.5 },
+            { cx: 85, cy: 96, r: 3 }, { cx: 115, cy: 94, r: 3 },
+          ].map((d, i) => (
+            <circle key={`ds-${i}`} cx={d.cx} cy={d.cy} r={d.r} fill="#1a4a14" opacity="0.14" />
+          ))}
+
+          {/* Interior lobed oak leaves — break up smooth gradients with leaf texture */}
+          {[
+            // Interior scattered leaves — many sizes and angles
+            { x: 74, y: 110, r: -20, s: 0.55 },
+            { x: 88, y: 100, r: 15, s: 0.5 },
+            { x: 110, y: 98, r: -12, s: 0.5 },
+            { x: 126, y: 110, r: 25, s: 0.55 },
+            { x: 96, y: 118, r: -5, s: 0.48 },
+            { x: 106, y: 120, r: 8, s: 0.5 },
+            { x: 82, y: 130, r: -30, s: 0.45 },
+            { x: 118, y: 128, r: 28, s: 0.48 },
+            { x: 100, y: 110, r: 0, s: 0.52 },
+            { x: 66, y: 120, r: -35, s: 0.5 },
+            { x: 134, y: 118, r: 32, s: 0.5 },
+            { x: 90, y: 92, r: -8, s: 0.45 },
+            { x: 112, y: 90, r: 10, s: 0.45 },
+            { x: 100, y: 86, r: 3, s: 0.4 },
+            { x: 76, y: 138, r: -22, s: 0.48 },
+            { x: 124, y: 136, r: 20, s: 0.48 },
+            { x: 60, y: 132, r: -40, s: 0.42 },
+            { x: 140, y: 130, r: 38, s: 0.42 },
+            { x: 92, y: 142, r: -10, s: 0.45 },
+            { x: 108, y: 140, r: 12, s: 0.45 },
+            // Edge leaves — larger, pointing outward
             { x: 48, y: 122, r: -35, s: 0.65 },
-            { x: 38, y: 132, r: -15, s: 0.55 },
+            { x: 38, y: 132, r: -15, s: 0.58 },
             { x: 52, y: 142, r: -45, s: 0.6 },
-            { x: 42, y: 118, r: -50, s: 0.5 },
+            { x: 42, y: 114, r: -50, s: 0.52 },
             { x: 152, y: 120, r: 25, s: 0.65 },
-            { x: 162, y: 130, r: 40, s: 0.55 },
+            { x: 162, y: 130, r: 40, s: 0.58 },
             { x: 154, y: 140, r: 15, s: 0.6 },
-            { x: 160, y: 116, r: 50, s: 0.5 },
-            { x: 78, y: 82, r: -22, s: 0.5 },
-            { x: 122, y: 80, r: 18, s: 0.5 },
-            { x: 100, y: 74, r: 0, s: 0.45 },
-            { x: 90, y: 78, r: -10, s: 0.4 },
-            { x: 112, y: 76, r: 12, s: 0.42 },
-            { x: 62, y: 105, r: -28, s: 0.5 },
-            { x: 142, y: 103, r: 32, s: 0.5 },
+            { x: 160, y: 112, r: 50, s: 0.52 },
+            { x: 78, y: 82, r: -22, s: 0.52 },
+            { x: 122, y: 80, r: 18, s: 0.52 },
+            { x: 100, y: 74, r: 0, s: 0.48 },
+            { x: 88, y: 78, r: -10, s: 0.42 },
+            { x: 114, y: 76, r: 12, s: 0.44 },
+            { x: 62, y: 105, r: -28, s: 0.52 },
+            { x: 142, y: 103, r: 32, s: 0.52 },
+            { x: 56, y: 116, r: -18, s: 0.48 },
+            { x: 146, y: 114, r: 22, s: 0.48 },
+            { x: 68, y: 148, r: -25, s: 0.52 },
+            { x: 132, y: 146, r: 28, s: 0.52 },
+            { x: 100, y: 148, r: 5, s: 0.5 },
           ].map((lf, i) => (
             <g key={`clf-${i}`} transform={`translate(${lf.x}, ${lf.y}) rotate(${lf.r}) scale(${lf.s})`}>
               {/* 3-layer lobed oak leaf */}
               <path
                 d="M 0 0 C -1 -2 -4 -4 -6 -6 C -8 -5 -9 -3 -10 -5 C -11 -7 -9 -10 -7 -11 C -6 -13 -7 -15 -5 -17 C -3 -18 -1 -16 0 -14 C 1 -16 3 -18 5 -17 C 7 -15 6 -13 7 -11 C 9 -10 11 -7 10 -5 C 9 -3 8 -5 6 -6 C 4 -4 1 -2 0 0"
-                fill={`url(#${pfx('oakLeafBase')})`}
-                opacity="0.85"
+                fill={`url(#${pfx(i % 3 === 0 ? 'oakLeafBase' : i % 3 === 1 ? 'oakLeafMid' : 'oakLeafG')})`}
+                opacity={i < 20 ? 0.7 : 0.85}
               />
               <path
                 d="M 0 -0.5 C -1 -2.5 -3.5 -4.5 -5.5 -6.5 C -7.5 -5.5 -8.5 -3.5 -9.5 -5.5 C -10 -7 -8.5 -9.5 -6.5 -10.5 C -5.5 -12.5 -6.5 -14.5 -4.5 -16.5 C -2.5 -17 -1 -15.5 0 -13.5 C 1 -15.5 2.5 -17 4.5 -16.5 C 6.5 -14.5 5.5 -12.5 6.5 -10.5 C 8.5 -9.5 10 -7 9.5 -5.5 C 8.5 -3.5 7.5 -5.5 5.5 -6.5 C 3.5 -4.5 1 -2.5 0 -0.5"
                 fill={`url(#${pfx('oakLeafMid')})`}
-                opacity="0.7"
+                opacity={i < 20 ? 0.5 : 0.65}
               />
+              {/* Highlight layer on outer leaves */}
+              {i >= 20 && (
+                <path
+                  d="M 0 -1.5 C -0.5 -3 -2.5 -5 -4 -6.5 C -5.5 -6 -6.5 -5 -7 -6 C -7.5 -7.5 -6 -9 -5 -10 C -4 -11.5 -5 -13 -3.5 -15 C -2 -15.5 -0.5 -14 0 -13 C 0.5 -14 2 -15.5 3.5 -15 C 5 -13 4 -11.5 5 -10 C 6 -9 7.5 -7.5 7 -6 C 6.5 -5 5.5 -6 4 -6.5 C 2.5 -5 0.5 -3 0 -1.5"
+                  fill={`url(#${pfx('oakLeafHi')})`}
+                  opacity="0.3"
+                />
+              )}
               {/* Midrib + veins */}
               <path d="M 0 0 L 0 -16" stroke="#1e4a14" strokeWidth="0.5" fill="none" opacity="0.5" />
               <path d="M 0 -5 C -3 -6 -6 -5.5 -8 -5" stroke="#2d5518" strokeWidth="0.2" fill="none" opacity="0.35" />
@@ -402,30 +474,18 @@ export function renderOak(stage: number, pfx: (name: string) => string) {
             </g>
           ))}
 
-          {/* Light dapple highlights */}
+          {/* Light dapple highlights — sunlight filtering through */}
           {[
-            { cx: 76, cy: 110, r: 4 },
-            { cx: 108, cy: 98, r: 3.5 },
-            { cx: 90, cy: 122, r: 3 },
-            { cx: 124, cy: 120, r: 3.5 },
-            { cx: 68, cy: 126, r: 2.5 },
-            { cx: 100, cy: 106, r: 3 },
-            { cx: 115, cy: 112, r: 2.5 },
-            { cx: 86, cy: 92, r: 2.5 },
-            { cx: 134, cy: 112, r: 2 },
-            { cx: 72, cy: 118, r: 2 },
+            { cx: 76, cy: 110, r: 4.5 }, { cx: 108, cy: 98, r: 4 },
+            { cx: 90, cy: 122, r: 3.5 }, { cx: 124, cy: 120, r: 4 },
+            { cx: 68, cy: 126, r: 3 }, { cx: 100, cy: 106, r: 3.5 },
+            { cx: 115, cy: 112, r: 3 }, { cx: 86, cy: 92, r: 3 },
+            { cx: 134, cy: 112, r: 2.5 }, { cx: 72, cy: 118, r: 2.5 },
+            { cx: 96, cy: 96, r: 2.5 }, { cx: 106, cy: 130, r: 3 },
+            { cx: 80, cy: 100, r: 2 }, { cx: 118, cy: 102, r: 2 },
+            { cx: 92, cy: 138, r: 2.5 }, { cx: 110, cy: 136, r: 2.5 },
           ].map((d, i) => (
-            <circle key={`lh-${i}`} cx={d.cx} cy={d.cy} r={d.r} fill="#80c060" opacity="0.15" />
-          ))}
-          {/* Dark depth spots */}
-          {[
-            { cx: 82, cy: 128, r: 5 },
-            { cx: 118, cy: 126, r: 4.5 },
-            { cx: 100, cy: 133, r: 4 },
-            { cx: 95, cy: 115, r: 3 },
-            { cx: 110, cy: 108, r: 2.5 },
-          ].map((d, i) => (
-            <circle key={`ds-${i}`} cx={d.cx} cy={d.cy} r={d.r} fill="#1a4a14" opacity="0.12" />
+            <circle key={`lh-${i}`} cx={d.cx} cy={d.cy} r={d.r} fill="#80c060" opacity={0.12 + (i % 3) * 0.04} />
           ))}
         </g>
       )}
