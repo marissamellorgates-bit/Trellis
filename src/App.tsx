@@ -266,6 +266,12 @@ const App = () => {
     return () => subscription.unsubscribe();
   }, []);
 
+  // ── Invite-only gate ─────────────────────────────────────
+  const VALID_INVITE_CODES = (import.meta.env.VITE_INVITE_CODES || '')
+    .split(',')
+    .map((c: string) => c.trim().toUpperCase())
+    .filter(Boolean);
+
   // ── Load Profile from DB ──────────────────────────────────
 
   useEffect(() => {
@@ -275,6 +281,15 @@ const App = () => {
       if (member) {
         setFamilyMembers([member]);
       } else {
+        // New user — enforce invite-only if codes are configured
+        const userInviteCode = (session.user.user_metadata?.invite_code || '').toUpperCase();
+        const isManagedChild = session.user.email?.endsWith('.kid@trellis.app');
+        if (VALID_INVITE_CODES.length > 0 && !VALID_INVITE_CODES.includes(userInviteCode) && !isManagedChild) {
+          // Unauthorized signup — sign out
+          supabase.auth.signOut();
+          return;
+        }
+
         // New user — use defaults but set name from auth metadata
         const defaultMember = { ...INITIAL_FAMILY[0] };
         defaultMember.name = session.user.user_metadata?.name || 'You';

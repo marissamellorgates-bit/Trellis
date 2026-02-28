@@ -1,4 +1,4 @@
-import { useEffect } from 'react';
+import { useState, useEffect } from 'react';
 import {
   Mountain, Anchor, Wind, Sparkles, Sprout,
   Heart, Leaf, Scale, Eye, Calendar, Users, Crown,
@@ -6,7 +6,7 @@ import {
   Droplets, FolderOpen, Wrench, FlaskConical, BookOpen,
   Moon, Gamepad2, User, Briefcase, Wallet, GraduationCap,
   Link, Globe, Award, Flame, Star, Palette, Music,
-  Compass, Telescope, Dice1, ChevronRight,
+  Compass, Telescope, Dice1, ChevronRight, Lock,
 } from 'lucide-react';
 import PlantVisual from './PlantVisual';
 import type { PlantArchetype } from '../types';
@@ -92,7 +92,13 @@ const SKY_DOMAINS = [
 
 // ── Component ─────────────────────────────────────────────────
 
+const TUTORIAL_PASSWORD = 'trellis2026';
+
 const TutorialPage = () => {
+  const [unlocked, setUnlocked] = useState(() => sessionStorage.getItem('trellis_tutorial_unlocked') === 'true');
+  const [passwordInput, setPasswordInput] = useState('');
+  const [passwordError, setPasswordError] = useState(false);
+
   useEffect(() => {
     document.title = 'Trellis - How It Works';
     return () => { document.title = 'Trellis'; };
@@ -103,6 +109,52 @@ const TutorialPage = () => {
   const scrollToContent = () => {
     document.getElementById('domains')?.scrollIntoView({ behavior: 'smooth' });
   };
+
+  const handlePasswordSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (passwordInput === TUTORIAL_PASSWORD) {
+      sessionStorage.setItem('trellis_tutorial_unlocked', 'true');
+      setUnlocked(true);
+    } else {
+      setPasswordError(true);
+      setPasswordInput('');
+    }
+  };
+
+  if (!unlocked) {
+    return (
+      <div className="min-h-screen bg-[#2c2c2a] flex items-center justify-center px-4">
+        <div className="w-full max-w-sm space-y-8 text-center">
+          <div className="space-y-3">
+            <div className="w-14 h-14 rounded-full bg-[#fdfbf7]/5 flex items-center justify-center mx-auto">
+              <Lock className="text-[#d4af37]" size={24} />
+            </div>
+            <h1 className="font-serif text-2xl italic text-[#fdfbf7]">Trellis.</h1>
+            <p className="text-[#fdfbf7]/50 text-sm">Enter the password to view this page</p>
+          </div>
+          <form onSubmit={handlePasswordSubmit} className="space-y-4">
+            <input
+              type="password"
+              value={passwordInput}
+              onChange={e => { setPasswordInput(e.target.value); setPasswordError(false); }}
+              className="w-full bg-[#fdfbf7]/5 border border-[#fdfbf7]/10 rounded-xl px-4 py-3 text-[#fdfbf7] focus:border-[#d4af37] outline-none transition-colors text-center"
+              placeholder="Password"
+              autoFocus
+            />
+            {passwordError && (
+              <p className="text-red-400 text-sm">Incorrect password</p>
+            )}
+            <button
+              type="submit"
+              className="w-full bg-[#d4af37] text-[#2c2c2a] py-3 rounded-xl font-bold uppercase tracking-widest text-sm hover:bg-[#fdfbf7] transition-all"
+            >
+              Enter
+            </button>
+          </form>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen bg-[#fdfbf7] text-[#2c2c2a] font-sans selection:bg-[#2c2c2a] selection:text-[#fdfbf7]">
@@ -118,7 +170,7 @@ const TutorialPage = () => {
             onClick={goToApp}
             className="bg-[#d4af37] text-[#2c2c2a] px-5 py-2 rounded-full text-[10px] font-bold uppercase tracking-widest hover:bg-[#c4a030] transition-colors"
           >
-            Get Started
+            Sign In
           </button>
         </div>
       </nav>
@@ -535,15 +587,8 @@ const TutorialPage = () => {
           <div className="max-w-2xl mx-auto text-center space-y-6">
             <h2 className="font-serif text-3xl md:text-5xl italic">Ready to grow?</h2>
             <p className="text-[#fdfbf7]/60 text-sm max-w-md mx-auto">
-              Start your 14-day free trial. Map your life across Land, Sea, and Sky. Watch your sovereignty bloom.
+              Trellis is currently invite-only. Reach out to request access and begin mapping your life across Land, Sea, and Sky.
             </p>
-            <button
-              onClick={goToApp}
-              className="inline-flex items-center gap-2 bg-[#d4af37] text-[#2c2c2a] px-10 py-4 rounded-full text-xs font-bold uppercase tracking-widest hover:bg-[#fdfbf7] transition-colors"
-            >
-              Get Started — It's Free
-              <ChevronRight size={14} />
-            </button>
           </div>
         </div>
         {/* Decorative plants */}

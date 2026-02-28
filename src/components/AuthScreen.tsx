@@ -4,12 +4,19 @@ import { supabase } from '../lib/supabase';
 import type { ManagedChildSummary } from '../types';
 import { listFamilyChildren } from '../lib/family';
 
+// Invite-only gate: comma-separated codes in env var
+const VALID_INVITE_CODES = (import.meta.env.VITE_INVITE_CODES || '')
+  .split(',')
+  .map((c: string) => c.trim().toUpperCase())
+  .filter(Boolean);
+
 const AuthScreen: React.FC = () => {
   const [mode, setMode] = useState<'signin' | 'signup' | 'kidlogin'>('signin');
   const [name, setName] = useState('');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [joinCodeInput, setJoinCodeInput] = useState('');
+  const [inviteCode, setInviteCode] = useState('');
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
   const [checkEmail, setCheckEmail] = useState(false);
@@ -88,10 +95,16 @@ const AuthScreen: React.FC = () => {
 
     try {
       if (mode === 'signup') {
+        // Validate invite code
+        const code = inviteCode.trim().toUpperCase();
+        if (VALID_INVITE_CODES.length === 0 || !VALID_INVITE_CODES.includes(code)) {
+          throw new Error('Invalid invite code. Trellis is currently invite-only.');
+        }
+
         const { data, error: signUpError } = await supabase.auth.signUp({
           email,
           password,
-          options: { data: { name, ...(joinCodeInput.trim() ? { join_code: joinCodeInput.trim().toUpperCase() } : {}) } },
+          options: { data: { name, invite_code: code, ...(joinCodeInput.trim() ? { join_code: joinCodeInput.trim().toUpperCase() } : {}) } },
         });
         if (signUpError) throw signUpError;
         // If email confirmation is required, session will be null
@@ -129,8 +142,9 @@ const AuthScreen: React.FC = () => {
         {/* Form */}
         <div className="bg-[#fdfbf7]/5 border border-[#fdfbf7]/10 rounded-2xl p-5 md:p-8 space-y-6">
           {/* Mode Toggle */}
+          {/* Signup tab hidden — invite-only mode */}
           <div className="flex bg-[#fdfbf7]/5 p-1 rounded-full">
-            {(['signin', 'signup', 'kidlogin'] as const).map(m => (
+            {(['signin', 'kidlogin'] as const).map(m => (
               <button
                 key={m}
                 type="button"
@@ -141,7 +155,7 @@ const AuthScreen: React.FC = () => {
                     : 'text-[#fdfbf7]/60 hover:text-[#fdfbf7]'
                 }`}
               >
-                {m === 'signin' ? 'Sign In' : m === 'signup' ? 'Sign Up' : 'Kid Login'}
+                {m === 'signin' ? 'Sign In' : 'Kid Login'}
               </button>
             ))}
           </div>
@@ -273,6 +287,22 @@ const AuthScreen: React.FC = () => {
                     placeholder="Your name"
                     required
                   />
+                </div>
+              )}
+
+              {/* Invite Code (signup only — required for invite-only mode) */}
+              {mode === 'signup' && (
+                <div className="space-y-2">
+                  <label className="text-[10px] font-bold uppercase tracking-widest text-[#fdfbf7]/60">Invite Code <span className="normal-case font-normal opacity-60">(required)</span></label>
+                  <input
+                    type="text"
+                    value={inviteCode}
+                    onChange={e => setInviteCode(e.target.value.toUpperCase())}
+                    className="w-full bg-[#fdfbf7]/5 border border-[#fdfbf7]/10 rounded-xl px-4 py-3 text-[#fdfbf7] focus:border-[#d4af37] outline-none transition-colors font-mono uppercase"
+                    placeholder="Enter your invite code"
+                    required
+                  />
+                  <p className="text-[9px] text-[#fdfbf7]/50">Trellis is currently invite-only</p>
                 </div>
               )}
 
